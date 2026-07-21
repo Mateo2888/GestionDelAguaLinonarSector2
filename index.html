@@ -877,7 +877,6 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
       <span style="font-size:.8rem;color:var(--ink-soft);">(crea los códigos que falten, sin duplicar los existentes)</span>
     </div>
     <div class="admin-row" style="background:transparent;border:none;box-shadow:none;flex-wrap:wrap;">
-      <input id="npr-codigo" placeholder="Código (ej: LM301)" style="max-width:150px;">
       <input class="grow" id="npr-nombre" placeholder="Nombre del propietario">
       <select id="npr-sector">
         <option>Sector 1</option><option>Sector 2</option><option>Sector 3</option><option>Sector 4</option><option>Sector 5</option>
@@ -1113,6 +1112,17 @@ function formatDate(d){
 const TURNO_DURACION_HORAS = 2;
 const CICLO_INICIO = new Date("2026-01-01T00:00:00");
 const DIAS_SEMANA = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+function formatHora12(h){
+  const period = h < 12 ? "a.m." : "p.m.";
+  let h12 = h % 12; if(h12 === 0) h12 = 12;
+  return `${h12}:00 ${period}`;
+}
+const FRANJAS_2H = Array.from({length:12},(_,i)=>{
+  const startH = i*2, endH = startH+2;
+  const value = `${String(startH).padStart(2,"0")}:00-${String(endH%24).padStart(2,"0")}:00`;
+  const label = `${formatHora12(startH)} – ${endH===24?"12:00 a.m.":formatHora12(endH)}`;
+  return {value, label};
+});
 
 function calcularTurno(prop, totalActivos){
   if(prop.turno_fecha_manual && prop.turno_inicio_manual && prop.turno_fin_manual){
@@ -1194,15 +1204,23 @@ document.getElementById("turnoForm").addEventListener("submit", async function(e
 /* =========================================================
    ADMIN: PROPIETARIOS / TURNOS
    ========================================================= */
+function siguienteCodigo(){
+  let max = 0;
+  STATE.propietarios.forEach(p=>{
+    const m = /^LM(\d+)$/.exec(p.codigo);
+    if(m) max = Math.max(max, parseInt(m[1],10));
+  });
+  return "LM"+String(max+1).padStart(3,"0");
+}
 async function addPropietario(){
-  const codigo = val("npr-codigo").trim().toUpperCase();
   const nombre = val("npr-nombre").trim();
   const sector = val("npr-sector");
-  if(!codigo || !nombre) return showToast("Completa código y nombre.");
+  if(!nombre) return showToast("Escribe el nombre del propietario.");
+  const codigo = siguienteCodigo();
   const posicion = STATE.propietarios.length ? Math.max(...STATE.propietarios.map(p=>p.posicion)) + 1 : 0;
   const row = {codigo, nombre, sector, posicion, activo:true};
   const saved = await crudInsert("propietarios", row);
-  if(saved){ STATE.propietarios.unshift(saved); clearInputs(["npr-codigo","npr-nombre"]); renderAdminPropietarios(); showToast("Propietario agregado."); }
+  if(saved){ STATE.propietarios.unshift(saved); clearInputs(["npr-nombre"]); renderAdminPropietarios(); showToast(`Propietario agregado con código ${saved.codigo}.`); }
 }
 async function generarCodigosMasivos(){
   if(!usingSupabase){ showToast("Conecta Supabase para generar los códigos."); return; }
@@ -1230,10 +1248,16 @@ async function guardarPropietario(id){
   if(!row) return;
   const nombre = val(`pr-nombre-${id}`);
   const sector = val(`pr-sector-${id}`);
-  const fecha = val(`pr-fecha-${id}`) || null;
-  const inicio = val(`pr-inicio-${id}`) || null;
-  const fin = val(`pr-fin-${id}`) || null;
-  const updates = {nombre, sector, turno_fecha_manual:fecha, turno_inicio_manual:inicio, turno_fin_manual:fin};
+  const fechaVal = val(`pr-fecha-${id}`);
+  const franjaVal = val(`pr-franja-${id}`);
+  let turno_fecha_manual = null, turno_inicio_manual = null, turno_fin_manual = null;
+  if(fechaVal && franjaVal){
+    const [inicio, fin] = franjaVal.split("-");
+    turno_fecha_manual = fechaVal;
+    turno_inicio_manual = inicio;
+    turno_fin_manual = fin;
+  }
+  const updates = {nombre, sector, turno_fecha_manual, turno_inicio_manual, turno_fin_manual};
   const ok = await crudUpdate("propietarios", id, updates);
   if(ok){ renderAdminPropietarios(); showToast("Propietario actualizado."); }
 }
@@ -1249,6 +1273,9 @@ function renderAdminPropietarios(){
     .sort((a,b)=> a.posicion - b.posicion);
   const sectorOptions = sel => Array.from({length:10},(_,i)=>`Sector ${i+1}`)
     .map(s=>`<option ${sel===s?'selected':''}>${s}</option>`).join("");
+  const franjaSel = p => p.turno_inicio_manual && p.turno_fin_manual ? `${p.turno_inicio_manual}-${p.turno_fin_manual}` : "";
+  const franjaOptions = sel => `<option value="">Automático (sin anular)</option>` +
+    FRANJAS_2H.map(f=>`<option value="${f.value}" ${sel===f.value?'selected':''}>${f.label}</option>`).join("");
   document.getElementById("admin-propietarios-list").innerHTML = list.map(p=>`
     <div class="admin-row" style="flex-direction:column;align-items:stretch;">
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
@@ -1260,8 +1287,7 @@ function renderAdminPropietarios(){
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px;">
         <span style="font-size:.78rem;color:var(--ink-soft);">Anular turno automático (opcional):</span>
         <input type="date" id="pr-fecha-${p.id}" value="${p.turno_fecha_manual||''}">
-        <input type="time" id="pr-inicio-${p.id}" value="${p.turno_inicio_manual||''}">
-        <input type="time" id="pr-fin-${p.id}" value="${p.turno_fin_manual||''}">
+        <select id="pr-franja-${p.id}">${franjaOptions(franjaSel(p))}</select>
         <button class="mini-btn save" onclick="guardarPropietario(${JSON.stringify(p.id)})"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
       </div>
     </div>`).join("") || `<p style="color:var(--ink-soft);text-align:center;padding:20px;">Sin propietarios. Usa "Generar códigos" o agrega uno manualmente.</p>`;
