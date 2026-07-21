@@ -877,6 +877,25 @@ try{
 }catch(e){ console.warn("Supabase no configurado, usando modo demo local.", e); }
 
 /* =========================================================
+   SEGURIDAD: escapar texto antes de insertarlo como HTML
+   Todo dato que viene de la base de datos (y en el caso de
+   reportes_dano/afiliaciones, escrito por cualquier visitante sin
+   iniciar sesión) pasa por aquí antes de mostrarse, para que un
+   nombre/descripción con código malicioso incrustado no se ejecute
+   en el navegador de quien lo lea (incluido el administrador).
+   ========================================================= */
+function esc(str){
+  return String(str==null?"":str).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+// Limpia el nombre de un archivo subido (puede venir de un visitante sin
+// iniciar sesión, en el formulario de "Reportar daño") antes de usarlo para
+// construir la ruta de Storage, para que no pueda romper el atributo
+// src="..." donde luego se muestra esa foto en el panel admin.
+function sanitizeFilename(name){
+  return String(name||"archivo").replace(/[^a-zA-Z0-9.\-_]/g, "_");
+}
+
+/* =========================================================
    DATOS DEMO (se usan si Supabase no está configurado)
    ========================================================= */
 const DEMO = {
@@ -955,11 +974,11 @@ function renderNoticias(){
   const grid = document.getElementById("newsGrid");
   grid.innerHTML = STATE.noticias.map(n=>`
     <div class="news-card reveal">
-      <img src="${n.imagen}" alt="${n.titulo}" loading="lazy">
+      <img src="${esc(n.imagen)}" alt="${esc(n.titulo)}" loading="lazy">
       <div class="news-body">
         <div class="news-date"><i class="fa-regular fa-calendar"></i> ${formatDate(n.fecha)}</div>
-        <h3>${n.titulo}</h3>
-        <p>${n.descripcion}</p>
+        <h3>${esc(n.titulo)}</h3>
+        <p>${esc(n.descripcion)}</p>
         <a class="read-more" href="#">Leer más <i class="fa-solid fa-arrow-right"></i></a>
       </div>
     </div>`).join("");
@@ -972,7 +991,7 @@ function renderNoticias(){
 function renderGaleria(){
   const grid = document.getElementById("galleryGrid");
   const imgs = STATE.galeria.map(g=> typeof g === "string" ? g : g.url);
-  grid.innerHTML = imgs.map((url,i)=>`<button type="button" class="gallery-item" onclick="openLightbox('${url}')" aria-label="Ver foto ${i+1} de la galería en tamaño completo"><img src="${url}" alt="" loading="lazy"></button>`).join("");
+  grid.innerHTML = imgs.map((url,i)=>`<button type="button" class="gallery-item" onclick="openLightbox(${JSON.stringify(url)})" aria-label="Ver foto ${i+1} de la galería en tamaño completo"><img src="${esc(url)}" alt="" loading="lazy"></button>`).join("");
 }
 function openLightbox(url){
   const img = document.getElementById("lightboxImg");
@@ -992,9 +1011,9 @@ function renderMantenimientos(){
     <div class="tl-item reveal">
       <div class="tl-date">${formatDate(m.fecha)}</div>
       <div class="tl-card">
-        <strong>${m.actividad}</strong>
-        <p style="color:var(--ink-soft);font-size:.9rem;margin-top:6px;">Responsable: ${m.responsable} · ${statusPillText(m.estado)}</p>
-        ${m.imagen ? `<img src="${m.imagen}" alt="${m.actividad}">` : ""}
+        <strong>${esc(m.actividad)}</strong>
+        <p style="color:var(--ink-soft);font-size:.9rem;margin-top:6px;">Responsable: ${esc(m.responsable)} · ${statusPillText(m.estado)}</p>
+        ${m.imagen ? `<img src="${esc(m.imagen)}" alt="${esc(m.actividad)}">` : ""}
       </div>
     </div>`).join("");
   observeReveal();
@@ -1029,9 +1048,9 @@ function renderFinanzas(){
     return matchQ && matchCat && matchMes;
   });
   body.innerHTML = rows.map(f=>`
-    <tr><td>${formatDate(f.fecha)}</td><td>${f.concepto}</td><td>${f.categoria || "—"}</td><td>${f.tipo==="ingreso"?"Ingreso":"Gasto"}</td>
+    <tr><td>${formatDate(f.fecha)}</td><td>${esc(f.concepto)}</td><td>${esc(f.categoria) || "—"}</td><td>${f.tipo==="ingreso"?"Ingreso":"Gasto"}</td>
     <td style="color:${f.tipo==='ingreso'?'var(--green)':'#D32F2F'};font-weight:600;">${f.tipo==='ingreso'?'+':'-'} $${Number(f.valor).toLocaleString('es-CO')}</td>
-    <td>${f.comprobante ? `<a href="${f.comprobante}" target="_blank" title="Ver comprobante"><i class="fa-solid fa-receipt"></i></a>` : "—"}</td>
+    <td>${f.comprobante ? `<a href="${esc(f.comprobante)}" target="_blank" title="Ver comprobante"><i class="fa-solid fa-receipt"></i></a>` : "—"}</td>
     <td style="white-space:nowrap;">
       <button class="mini-btn" style="background:rgba(12,122,158,.1);color:var(--blue);" onclick="editFin(${JSON.stringify(f.id)})"><i class="fa-solid fa-pen"></i></button>
       <button class="mini-btn del" onclick="crudDelete('finanzas',${JSON.stringify(f.id)}).then(refreshAll)"><i class="fa-solid fa-trash"></i></button>
@@ -1132,9 +1151,9 @@ document.getElementById("turnoForm").addEventListener("submit", async function(e
     resultBox.style.display = "block";
     resultBox.innerHTML = `
       <div class="card">
-        <h3>${r.nombre} <span style="font-size:.8rem;color:var(--ink-soft);">(${r.codigo})</span></h3>
+        <h3>${esc(r.nombre)} <span style="font-size:.8rem;color:var(--ink-soft);">(${esc(r.codigo)})</span></h3>
         <div class="grid-2" style="margin-top:16px;gap:14px;">
-          <div><strong>Sector:</strong> ${r.sector}</div>
+          <div><strong>Sector:</strong> ${esc(r.sector)}</div>
           <div><strong>Turno N°:</strong> ${r.numeroTurno}</div>
           <div><strong>Día:</strong> ${r.dia}</div>
           <div><strong>Fecha:</strong> ${r.fecha}</div>
@@ -1227,8 +1246,8 @@ function renderAdminPropietarios(){
   document.getElementById("admin-propietarios-list").innerHTML = list.map(p=>`
     <div class="admin-row" style="flex-direction:column;align-items:stretch;">
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-        <strong style="min-width:70px;">${p.codigo}</strong>
-        <input class="grow" id="pr-nombre-${p.id}" value="${p.nombre}">
+        <strong style="min-width:70px;">${esc(p.codigo)}</strong>
+        <input class="grow" id="pr-nombre-${p.id}" value="${esc(p.nombre)}">
         <select id="pr-sector-${p.id}">${sectorOptions(p.sector)}</select>
         <button class="mini-btn del" onclick="eliminarPropietario(${JSON.stringify(p.id)})"><i class="fa-solid fa-trash"></i></button>
       </div>
@@ -1270,7 +1289,7 @@ document.getElementById("damageForm").addEventListener("submit", async function(
   let fotoUrl = "";
   const file = document.getElementById("damageFile").files[0];
   if(usingSupabase && file){
-    const path = `reportes/${Date.now()}_${file.name}`;
+    const path = `reportes/${Date.now()}_${sanitizeFilename(file.name)}`;
     try{
       const {error: upErr} = await sbClient.storage.from("fotos").upload(path, file);
       if(upErr){ showToast("No se pudo subir la foto, se enviará el reporte sin ella."); }
@@ -1478,7 +1497,7 @@ async function saveFin(){
   if(!row.fecha||!row.concepto||!row.valor) return showToast("Completa todos los campos.");
   const file = document.getElementById("nf-comprobante").files[0];
   if(usingSupabase && file){
-    const path = `comprobantes/${Date.now()}_${file.name}`;
+    const path = `comprobantes/${Date.now()}_${sanitizeFilename(file.name)}`;
     try{
       const {error: upErr} = await sbClient.storage.from("fotos").upload(path, file);
       if(upErr){ showToast("No se pudo subir el comprobante, se guardará el movimiento sin él."); }
@@ -1537,26 +1556,26 @@ function refreshAll(){ renderNoticias(); renderGaleria(); renderMantenimientos()
 
 function renderAdminLists(){
   document.getElementById("admin-news-list").innerHTML = STATE.noticias.map(r=>`
-    <div class="admin-row"><span class="grow">${r.titulo}</span><span style="font-size:.8rem;color:var(--ink-soft);">${formatDate(r.fecha)}</span>
+    <div class="admin-row"><span class="grow">${esc(r.titulo)}</span><span style="font-size:.8rem;color:var(--ink-soft);">${formatDate(r.fecha)}</span>
       <button class="mini-btn del" onclick="crudDelete('noticias',${JSON.stringify(r.id)}).then(refreshAll)"><i class="fa-solid fa-trash"></i></button></div>`).join("");
   document.getElementById("admin-gallery-list").innerHTML = STATE.galeria.map(r=>{
     const url = typeof r === "string" ? r : r.url; const id = typeof r === "string" ? null : r.id;
-    return `<div style="position:relative;"><img src="${url}" alt="Foto de la galería" style="width:100%;height:100px;object-fit:cover;border-radius:8px;">
+    return `<div style="position:relative;"><img src="${esc(url)}" alt="Foto de la galería" style="width:100%;height:100px;object-fit:cover;border-radius:8px;">
       ${id!==null?`<button class="mini-btn del" style="position:absolute;top:4px;right:4px;" onclick="crudDelete('galeria',${JSON.stringify(id)}).then(refreshAll)"><i class="fa-solid fa-trash"></i></button>`:""}</div>`;
   }).join("");
   document.getElementById("admin-maint-list").innerHTML = STATE.mantenimientos.map(r=>`
-    <div class="admin-row"><span class="grow">${formatDate(r.fecha)} · ${r.actividad}</span><span class="status-pill ${r.estado==='Completado'?'on':'off'}">${r.estado}</span>
+    <div class="admin-row"><span class="grow">${formatDate(r.fecha)} · ${esc(r.actividad)}</span><span class="status-pill ${r.estado==='Completado'?'on':'off'}">${esc(r.estado)}</span>
       <button class="mini-btn del" onclick="crudDelete('mantenimientos',${JSON.stringify(r.id)}).then(refreshAll)"><i class="fa-solid fa-trash"></i></button></div>`).join("");
   renderFinanzas();
   document.getElementById("admin-docs-list").innerHTML = STATE.documentos.map(r=>`
-    <div class="admin-row"><span class="grow">${r.nombre}</span>
+    <div class="admin-row"><span class="grow">${esc(r.nombre)}</span>
       <button class="mini-btn del" onclick="crudDelete('documentos',${JSON.stringify(r.id)}).then(refreshAll)"><i class="fa-solid fa-trash"></i></button></div>`).join("");
   document.getElementById("admin-reportes-list").innerHTML = STATE.reportes_dano.map(r=>`
     <div class="admin-row" style="align-items:flex-start;">
-      ${r.foto ? `<img src="${r.foto}" alt="Foto del daño reportado por ${r.nombre}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;flex-shrink:0;">` : ""}
+      ${r.foto ? `<img src="${esc(r.foto)}" alt="Foto del daño reportado por ${esc(r.nombre)}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;flex-shrink:0;">` : ""}
       <span class="grow">
-        <strong>${r.nombre}</strong> · ${r.sector} · ${r.direccion}<br>
-        <span style="font-size:.85rem;color:var(--ink-soft);">${r.descripcion}</span>
+        <strong>${esc(r.nombre)}</strong> · ${esc(r.sector)} · ${esc(r.direccion)}<br>
+        <span style="font-size:.85rem;color:var(--ink-soft);">${esc(r.descripcion)}</span>
       </span>
       <select onchange="crudUpdateEstado('reportes_dano',${JSON.stringify(r.id)},this.value)">
         <option value="Nuevo" ${r.estado==="Nuevo"?"selected":""}>Nuevo</option>
@@ -1568,8 +1587,8 @@ function renderAdminLists(){
   document.getElementById("admin-afiliaciones-list").innerHTML = STATE.afiliaciones.map(r=>`
     <div class="admin-row">
       <span class="grow">
-        <strong>${r.nombre}</strong> · ${r.sector} · ${r.direccion}<br>
-        <span style="font-size:.85rem;color:var(--ink-soft);">${r.telefono}</span>
+        <strong>${esc(r.nombre)}</strong> · ${esc(r.sector)} · ${esc(r.direccion)}<br>
+        <span style="font-size:.85rem;color:var(--ink-soft);">${esc(r.telefono)}</span>
       </span>
       <select onchange="crudUpdateEstado('afiliaciones',${JSON.stringify(r.id)},this.value)">
         <option value="Pendiente" ${r.estado==="Pendiente"?"selected":""}>Pendiente</option>
@@ -1580,7 +1599,7 @@ function renderAdminLists(){
     </div>`).join("") || `<p style="text-align:center;color:var(--ink-soft);padding:20px;">No hay solicitudes de afiliación.</p>`;
   document.getElementById("admin-mens-list").innerHTML = STATE.mensualidades.map(r=>`
     <div class="admin-row">
-      <span class="grow"><strong>${r.vivienda}</strong> · ${r.sector} · ${formatMonthLabel(r.mes)} · $${Number(r.valor||0).toLocaleString('es-CO')}</span>
+      <span class="grow"><strong>${esc(r.vivienda)}</strong> · ${esc(r.sector)} · ${formatMonthLabel(r.mes)} · $${Number(r.valor||0).toLocaleString('es-CO')}</span>
       <select onchange="crudUpdateEstado('mensualidades',${JSON.stringify(r.id)},this.value)">
         <option value="Pagado" ${r.estado==="Pagado"?"selected":""}>Pagado</option>
         <option value="Pendiente" ${r.estado==="Pendiente"?"selected":""}>Pendiente</option>

@@ -3,17 +3,7 @@
 -- Copia y pega TODO este archivo en: Supabase > SQL Editor > New query > Run
 -- =========================================================
 
--- 1) PROGRAMACIÓN DE TURNOS
-create table programacion (
-  id bigint generated always as identity primary key,
-  persona text not null,
-  sector text not null,
-  horario text not null,
-  estado text not null default 'Al día',
-  created_at timestamp with time zone default now()
-);
-
--- 2) NOTICIAS
+-- 1) NOTICIAS
 create table noticias (
   id bigint generated always as identity primary key,
   titulo text not null,
@@ -23,14 +13,14 @@ create table noticias (
   created_at timestamp with time zone default now()
 );
 
--- 3) GALERÍA
+-- 2) GALERÍA
 create table galeria (
   id bigint generated always as identity primary key,
   url text not null,
   created_at timestamp with time zone default now()
 );
 
--- 4) MANTENIMIENTOS
+-- 3) MANTENIMIENTOS
 create table mantenimientos (
   id bigint generated always as identity primary key,
   fecha date not null,
@@ -41,7 +31,7 @@ create table mantenimientos (
   created_at timestamp with time zone default now()
 );
 
--- 5) TRANSPARENCIA / FINANZAS
+-- 4) TRANSPARENCIA / FINANZAS
 create table finanzas (
   id bigint generated always as identity primary key,
   fecha date not null,
@@ -53,7 +43,7 @@ create table finanzas (
   created_at timestamp with time zone default now()
 );
 
--- 6) DOCUMENTOS
+-- 5) DOCUMENTOS
 create table documentos (
   id bigint generated always as identity primary key,
   nombre text not null,
@@ -61,7 +51,7 @@ create table documentos (
   created_at timestamp with time zone default now()
 );
 
--- 7) REPORTES DE DAÑO (enviados desde el formulario público)
+-- 6) REPORTES DE DAÑO (enviados desde el formulario público)
 create table reportes_dano (
   id bigint generated always as identity primary key,
   nombre text not null,
@@ -73,7 +63,7 @@ create table reportes_dano (
   created_at timestamp with time zone default now()
 );
 
--- 8) SOLICITUDES DE AFILIACIÓN
+-- 7) SOLICITUDES DE AFILIACIÓN
 create table afiliaciones (
   id bigint generated always as identity primary key,
   nombre text not null,
@@ -84,7 +74,7 @@ create table afiliaciones (
   created_at timestamp with time zone default now()
 );
 
--- 9) MENSUALIDADES (control de pagos por vivienda, solo para el administrador)
+-- 8) MENSUALIDADES (control de pagos por vivienda, solo para el administrador)
 create table mensualidades (
   id bigint generated always as identity primary key,
   vivienda text not null,
@@ -95,7 +85,7 @@ create table mensualidades (
   created_at timestamp with time zone default now()
 );
 
--- 10) PROPIETARIOS (códigos para la consulta automática de turnos)
+-- 9) PROPIETARIOS (códigos para la consulta automática de turnos)
 create table propietarios (
   id bigint generated always as identity primary key,
   codigo text not null unique,
@@ -114,7 +104,6 @@ create table propietarios (
 -- Permite que cualquier visitante LEA los datos públicos,
 -- pero solo un administrador autenticado pueda escribir/editar/borrar.
 -- =========================================================
-alter table programacion enable row level security;
 alter table noticias enable row level security;
 alter table galeria enable row level security;
 alter table mantenimientos enable row level security;
@@ -127,14 +116,12 @@ alter table propietarios enable row level security;
 
 -- Lectura pública para el contenido informativo del sitio
 -- (finanzas y documentos NO están aquí a propósito: son privados, solo para el administrador)
-create policy "lectura publica programacion" on programacion for select using (true);
 create policy "lectura publica noticias" on noticias for select using (true);
 create policy "lectura publica galeria" on galeria for select using (true);
 create policy "lectura publica mantenimientos" on mantenimientos for select using (true);
 create policy "lectura publica propietarios" on propietarios for select using (true);
 
 -- Escritura (insert/update/delete) SOLO para usuarios autenticados (el administrador)
-create policy "admin escribe programacion" on programacion for all using (auth.role() = 'authenticated');
 create policy "admin escribe noticias" on noticias for all using (auth.role() = 'authenticated');
 create policy "admin escribe galeria" on galeria for all using (auth.role() = 'authenticated');
 create policy "admin escribe mantenimientos" on mantenimientos for all using (auth.role() = 'authenticated');
