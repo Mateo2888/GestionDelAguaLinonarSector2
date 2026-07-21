@@ -13,6 +13,6 @@ jobs:
       - name: Consultar Supabase para mantenerlo activo
         run: |
           curl -s -X GET \
-            "https://owhtiqoshemfchrsvsib.supabase.co/rest/v1/programacion?select=id&limit=1" \
+            "https://owhtiqoshemfchrsvsib.supabase.co/rest/v1/noticias?select=id&limit=1" \
             -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
