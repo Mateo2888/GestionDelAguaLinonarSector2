@@ -901,6 +901,57 @@ function sanitizeFilename(name){
 }
 
 /* =========================================================
+   AHORRO DE ALMACENAMIENTO (plan gratuito de Supabase)
+   ========================================================= */
+// Convierte la URL pública de un archivo de Storage de vuelta a su
+// "path" interno (ej: "reportes/123_foto.jpg"), para poder borrarlo
+// del bucket cuando se borra el registro que lo referencia.
+function storagePathFromUrl(url, bucket){
+  if(!url) return null;
+  const marker = `/storage/v1/object/public/${bucket}/`;
+  const idx = url.indexOf(marker);
+  if(idx === -1) return null;
+  try{ return decodeURIComponent(url.slice(idx + marker.length)); }catch(e){ return url.slice(idx + marker.length); }
+}
+async function deleteStorageFile(url){
+  if(!usingSupabase || !url) return;
+  const path = storagePathFromUrl(url, "fotos");
+  if(!path) return;
+  try{ await sbClient.storage.from("fotos").remove([path]); }
+  catch(e){ console.warn("No se pudo borrar el archivo de Storage:", e); }
+}
+// Reduce el tamaño de una foto en el navegador antes de subirla (las
+// fotos de celular suelen pesar varios MB; comprimidas a un ancho
+// máximo razonable pesan una fracción de eso, sin perderse nada
+// visible en pantalla). Si algo falla, se sube el archivo original.
+function compressImage(file, maxWidth=1600, quality=0.82){
+  return new Promise(resolve=>{
+    if(!file || !file.type || !file.type.startsWith("image/") || file.type === "image/svg+xml"){
+      resolve(file); return;
+    }
+    const reader = new FileReader();
+    reader.onload = e=>{
+      const img = new Image();
+      img.onload = ()=>{
+        let {width, height} = img;
+        if(width > maxWidth){ height = Math.round(height * (maxWidth/width)); width = maxWidth; }
+        const canvas = document.createElement("canvas");
+        canvas.width = width; canvas.height = height;
+        canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+        canvas.toBlob(blob=>{
+          if(!blob || blob.size >= file.size){ resolve(file); return; }
+          resolve(new File([blob], file.name.replace(/\.\w+$/, ".jpg"), {type:"image/jpeg"}));
+        }, "image/jpeg", quality);
+      };
+      img.onerror = ()=> resolve(file);
+      img.src = e.target.result;
+    };
+    reader.onerror = ()=> resolve(file);
+    reader.readAsDataURL(file);
+  });
+}
+
+/* =========================================================
    DATOS DEMO (se usan si Supabase no está configurado)
    ========================================================= */
 const DEMO = {
@@ -1294,9 +1345,10 @@ document.getElementById("damageForm").addEventListener("submit", async function(
   let fotoUrl = "";
   const file = document.getElementById("damageFile").files[0];
   if(usingSupabase && file){
-    const path = `reportes/${Date.now()}_${sanitizeFilename(file.name)}`;
+    const toUpload = await compressImage(file);
+    const path = `reportes/${Date.now()}_${sanitizeFilename(toUpload.name)}`;
     try{
-      const {error: upErr} = await sbClient.storage.from("fotos").upload(path, file);
+      const {error: upErr} = await sbClient.storage.from("fotos").upload(path, toUpload);
       if(upErr){ showToast("No se pudo subir la foto, se enviará el reporte sin ella."); }
       else{ fotoUrl = sbClient.storage.from("fotos").getPublicUrl(path).data.publicUrl; }
     }catch(e){
@@ -1445,7 +1497,13 @@ async function crudInsert(table, row){
     return row;
   }
 }
+const STORAGE_FIELDS = {reportes_dano:"foto", finanzas:"comprobante"};
 async function crudDelete(table, id){
+  const fileField = STORAGE_FIELDS[table];
+  if(fileField){
+    const row = (STATE[localName(table)]||[]).find(r=>r.id===id);
+    if(row) await deleteStorageFile(row[fileField]);
+  }
   if(usingSupabase){
     try{
       const {error} = await sbClient.from(table).delete().eq("id", id);
@@ -1501,12 +1559,17 @@ async function saveFin(){
   const row = {fecha:val("nf-fecha"), concepto:val("nf-concepto"), categoria:val("nf-categoria"), tipo:val("nf-tipo"), valor:Number(val("nf-valor")||0)};
   if(!row.fecha||!row.concepto||!row.valor) return showToast("Completa todos los campos.");
   const file = document.getElementById("nf-comprobante").files[0];
+  const oldComprobante = editingFinId ? (STATE.finanzas.find(f=>f.id===editingFinId)||{}).comprobante : null;
   if(usingSupabase && file){
-    const path = `comprobantes/${Date.now()}_${sanitizeFilename(file.name)}`;
+    const toUpload = await compressImage(file);
+    const path = `comprobantes/${Date.now()}_${sanitizeFilename(toUpload.name)}`;
     try{
-      const {error: upErr} = await sbClient.storage.from("fotos").upload(path, file);
+      const {error: upErr} = await sbClient.storage.from("fotos").upload(path, toUpload);
       if(upErr){ showToast("No se pudo subir el comprobante, se guardará el movimiento sin él."); }
-      else{ row.comprobante = sbClient.storage.from("fotos").getPublicUrl(path).data.publicUrl; }
+      else{
+        row.comprobante = sbClient.storage.from("fotos").getPublicUrl(path).data.publicUrl;
+        if(oldComprobante) deleteStorageFile(oldComprobante);
+      }
     }catch(e){
       showToast("No se pudo subir el comprobante, se guardará el movimiento sin él.");
     }
