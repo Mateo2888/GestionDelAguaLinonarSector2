@@ -288,30 +288,11 @@ Se validó: sintaxis JS, balance de etiquetas, balance de llaves `{}` del CSS (2
 Se validó: sintaxis JS, balance de etiquetas (`<div>` bajó de 193 a 186, como se esperaba al quitar 1 tarjeta de estadística + 2 tarjetas de Nosotros), balance de llaves `{}` del CSS (243/243).
 **Qué quedó pendiente:** sin verificación visual — pedirle al usuario que confirme que el hero se ve bien con 3 estadísticas y que "Nosotros" ya no se ve desparejo. Sigue sin resolverse (no se tocó, no fue parte de lo pedido esta vez): las fotos reales siguen pendientes, que sería la mejora de mayor impacto para que el sitio se sienta menos genérico.
 
-## Pendientes por implementar
-
-### Estado de pago ligado al propietario
-- Agregar columnas `estado_pago` (Pendiente/Al día) y `ultimo_pago` (fecha) 
-  a la tabla `propietarios` en Supabase (script: `agregar-pago-propietarios.sql`).
-- El propietario debe ver su estado de pago al consultar su código públicamente.
-- Buscador en la pestaña admin busca por nombre o código en tiempo real.
-- Instrucciones completas en `prompt-pago-propietarios.md`.
-
-### Comprobante de pago (PDF) automático y manual
-- Librería jsPDF (CDN) para generar el PDF en el navegador.
-- Columna nueva `correo` en la tabla `propietarios`.
-- Envío automático: Supabase Edge Function `enviar-comprobante` + Resend 
-  (plan gratis 3.000 correos/mes). API key como secreto de Supabase.
-- Si el automático falla: descarga el PDF localmente y abre el correo 
-  con destinatario y mensaje prellenados (respaldo manual sin perder nada).
-- Instrucciones completas en `prompt-comprobante-pago.md`.
-
-### Mejoras de usabilidad y accesibilidad móvil (WCAG)
-- Orden de secciones corregido para coincidir con el menú.
-- Desbordamiento horizontal en celular (viewport 360px).
-- Placeholders con ejemplos reales en todos los formularios.
-- Secciones vacías ocultas automáticamente.
-- Footer legible (fuentes 16px, contraste WCAG AA, área táctil 44px).
-- Botones del hero unificados en tamaño.
-- Tipografía española: "95 %" con espacio duro.
-- Instrucciones completas en `prompt-usabilidad-movil.md`.
+### 2026-07-21 — Estado de pago por propietario + comprobante de pago en PDF
+**Qué se hizo:** se implementaron las 2 funciones nuevas descritas en la sección "Pendientes por implementar" (que se elimina de este documento ahora que ambas están hechas, junto con la tercera que ya estaba resuelta desde antes).
+- **Estado de pago ligado al propietario:** 3 columnas nuevas en `propietarios` (`estado_pago` Pendiente/Al día, `ultimo_pago`, `correo`) vía **`agregar-pago-propietarios.sql`** (acción manual pendiente del usuario — no se ha ejecutado todavía). En el panel admin ("Propietarios / Turnos"), cada propietario ahora tiene selector de estado, fecha de último pago, campo de correo, y una insignia visual (verde "Al día" / roja "Pendiente") junto al nombre para verlo de un vistazo — reutiliza las clases `.badge-drop` que ya se corrigieron para pasar WCAG AA. El buscador que ya existía en esa pestaña (`prSearch`) ya filtraba por nombre/código en tiempo real, así que no hizo falta tocarlo. En la consulta pública "Mi turno", el resultado ahora también muestra el estado de pago (y la fecha del último pago si está al día).
+- **Comprobante de pago en PDF:** se agregó jsPDF por CDN y una función `generarComprobantePDF()` que arma un PDF simple (nombre, código, sector, fecha de pago) en el navegador. Al guardar un propietario con estado "Al día" se dispara `enviarComprobante()`, que intenta mandarlo por correo llamando a una Edge Function de Supabase (`enviar-comprobante`, código completo en `supabase/functions/enviar-comprobante/index.ts`) que usa Resend para el envío real. **Si el envío automático falla por cualquier motivo** (la función todavía no está desplegada, sin internet, error de Resend, etc.), el sitio automáticamente descarga el PDF en el computador del administrador y abre su programa de correo con el destinatario y el mensaje ya escritos — nunca se pierde el comprobante, siempre hay respaldo manual. Si el propietario no tiene correo cargado, simplemente se omite el envío con un aviso (no falla ni molesta).
+- **Importante sobre despliegue:** la Edge Function y la cuenta de Resend requieren pasos manuales que Claude Code no puede hacer solo (no hay CLI de Supabase disponible en este entorno, y crear una cuenta en Resend es una acción externa). El código ya está listo y funcionando en modo "respaldo manual" desde ya; el envío 100% automático se activa cuando el usuario complete los 4 pasos de **`prompt-comprobante-pago.md`** (crear cuenta Resend, crear la función desde el editor web de Supabase — sin CLI —, pegar el código, configurar el secreto `RESEND_API_KEY`).
+- **Nota de privacidad, no pedida explícitamente, documentada para que quede clara:** `propietarios` tiene lectura pública (necesaria para "Mi turno"), así que la nueva columna `correo` también queda técnicamente legible por cualquiera con la llave pública del proyecto, igual que ya pasa con nombre/sector/código. Se avisó al usuario en `prompt-pago-propietarios.md` con la opción de restringirlo más adelante con una vista si lo prefiere.
+Se validó: sintaxis JS (`node --check`), balance de etiquetas (`<div>`/`<select>`/`<option>`/`<script>` — ahora 4 `<script>` por el CDN nuevo de jsPDF), balance de llaves `{}` del CSS (243/243, sin cambios), y balance de llaves/paréntesis del archivo TypeScript de la Edge Function (no se pudo compilar de verdad porque no hay Deno instalado en este entorno — el usuario debe revisar que funcione al desplegarla).
+**Qué quedó pendiente (acciones manuales del usuario):** 1) ejecutar `agregar-pago-propietarios.sql`; 2) seguir los 4 pasos de `prompt-comprobante-pago.md` para activar el envío automático (opcional — sin esto, el respaldo manual ya funciona solo); 3) verificación visual de toda la función, no disponible en este entorno.

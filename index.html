@@ -22,6 +22,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 
 <style>
 /* ============ TOKENS ============ */
@@ -1221,7 +1222,11 @@ document.getElementById("turnoForm").addEventListener("submit", async function(e
           <div><strong>Hora inicio:</strong> ${r.horaInicio}</div>
           <div><strong>Hora fin:</strong> ${r.horaFin}</div>
         </div>
-        <div style="margin-top:14px;">${turnoBadge(r.estado)}</div>
+        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          ${turnoBadge(r.estado)}
+          ${pagoBadge(data.estado_pago)}
+        </div>
+        ${data.estado_pago==="Al día" && data.ultimo_pago ? `<p style="font-size:.85rem;color:var(--ink-soft);margin-top:10px;">Último pago registrado: ${formatDate(data.ultimo_pago)}</p>` : ""}
       </div>`;
   }catch(e){
     resultBox.style.display = "block";
@@ -1285,9 +1290,17 @@ async function guardarPropietario(id){
     turno_inicio_manual = inicio;
     turno_fin_manual = fin;
   }
-  const updates = {nombre, sector, turno_fecha_manual, turno_inicio_manual, turno_fin_manual};
+  const correo = val(`pr-correo-${id}`).trim();
+  const estado_pago = val(`pr-estadopago-${id}`);
+  const ultimo_pago = val(`pr-ultimopago-${id}`) || null;
+  const updates = {nombre, sector, turno_fecha_manual, turno_inicio_manual, turno_fin_manual, correo, estado_pago, ultimo_pago};
   const ok = await crudUpdate("propietarios", id, updates);
-  if(ok){ renderAdminPropietarios(); showToast("Propietario actualizado."); }
+  if(!ok) return;
+  renderAdminPropietarios();
+  showToast("Propietario actualizado.");
+  if(estado_pago === "Al día"){
+    enviarComprobante(row);
+  }
 }
 async function eliminarPropietario(id){
   await crudDelete("propietarios", id);
@@ -1310,15 +1323,96 @@ function renderAdminPropietarios(){
         <strong style="min-width:70px;">${esc(p.codigo)}</strong>
         <input class="grow" id="pr-nombre-${p.id}" value="${esc(p.nombre)}">
         <select id="pr-sector-${p.id}">${sectorOptions(p.sector)}</select>
+        ${pagoBadge(p.estado_pago)}
         <button class="mini-btn del" onclick="eliminarPropietario(${JSON.stringify(p.id)})"><i class="fa-solid fa-trash"></i></button>
       </div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px;">
         <span style="font-size:.8rem;color:var(--ink-soft);">Anular turno automático (opcional):</span>
         <input type="date" id="pr-fecha-${p.id}" value="${p.turno_fecha_manual||''}">
         <select id="pr-franja-${p.id}">${franjaOptions(franjaSel(p))}</select>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px;">
+        <span style="font-size:.8rem;color:var(--ink-soft);">Pago:</span>
+        <select id="pr-estadopago-${p.id}">
+          <option value="Pendiente" ${p.estado_pago!=="Al día"?"selected":""}>Pendiente</option>
+          <option value="Al día" ${p.estado_pago==="Al día"?"selected":""}>Al día</option>
+        </select>
+        <input type="date" id="pr-ultimopago-${p.id}" value="${p.ultimo_pago||''}" title="Fecha del último pago">
+        <input type="email" id="pr-correo-${p.id}" value="${esc(p.correo||'')}" placeholder="Ej: maria@gmail.com" style="max-width:220px;">
         <button class="mini-btn save" onclick="guardarPropietario(${JSON.stringify(p.id)})"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
       </div>
     </div>`).join("") || `<p style="color:var(--ink-soft);text-align:center;padding:20px;">Sin propietarios. Usa "Generar códigos" o agrega uno manualmente.</p>`;
+}
+function pagoBadge(estado){
+  return estado === "Al día"
+    ? `<span class="badge-drop ok"><i class="fa-solid fa-check"></i> Al día</span>`
+    : `<span class="badge-drop alert"><i class="fa-solid fa-clock"></i> Pendiente</span>`;
+}
+
+/* =========================================================
+   COMPROBANTE DE PAGO (PDF) — generación local + envío
+   automático por correo, con respaldo manual si falla.
+   ========================================================= */
+function generarComprobantePDF(propietario){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const fecha = propietario.ultimo_pago ? formatDate(propietario.ultimo_pago) : formatDate(new Date().toISOString().slice(0,10));
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.text("Gestión del Agua Limonar Sector II", 20, 25);
+  doc.setFontSize(13);
+  doc.text("Comprobante de pago", 20, 35);
+  doc.setDrawColor(12, 122, 158);
+  doc.line(20, 40, 190, 40);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  const lineas = [
+    `Propietario: ${propietario.nombre}`,
+    `Código: ${propietario.codigo}`,
+    `Sector: ${propietario.sector}`,
+    `Estado: Al día`,
+    `Fecha de pago: ${fecha}`,
+  ];
+  lineas.forEach((linea, i)=> doc.text(linea, 20, 55 + i*9));
+  doc.setFontSize(9);
+  doc.setTextColor(120,120,120);
+  doc.text("Este comprobante certifica que el aporte mensual de agua de este propietario se encuentra al día.", 20, 105);
+  doc.text(`Generado automáticamente el ${formatDate(new Date().toISOString().slice(0,10))}.`, 20, 112);
+  return doc;
+}
+async function enviarComprobante(propietario){
+  if(!propietario.correo){
+    showToast("Estado actualizado. No se envió comprobante: falta el correo del propietario.");
+    return;
+  }
+  const doc = generarComprobantePDF(propietario);
+  if(!usingSupabase){
+    showToast("Modo demo: no se puede enviar el comprobante por correo.");
+    return;
+  }
+  try{
+    const pdfBase64 = doc.output("datauristring").split(",")[1];
+    const { error } = await sbClient.functions.invoke("enviar-comprobante", {
+      body: {
+        to: propietario.correo,
+        nombre: propietario.nombre,
+        codigo: propietario.codigo,
+        sector: propietario.sector,
+        fecha: propietario.ultimo_pago || new Date().toISOString().slice(0,10),
+        pdfBase64
+      }
+    });
+    if(error) throw error;
+    showToast(`Comprobante enviado a ${propietario.correo}.`);
+  }catch(e){
+    // Respaldo manual: descarga el PDF y abre el correo con el destinatario
+    // y el mensaje ya listos, para que el administrador lo adjunte y envíe a mano.
+    doc.save(`comprobante-${propietario.codigo}.pdf`);
+    const asunto = encodeURIComponent(`Comprobante de pago — ${propietario.nombre}`);
+    const cuerpo = encodeURIComponent(`Hola ${propietario.nombre},\n\nAdjunto tu comprobante de pago del aporte de agua (código ${propietario.codigo}).\n\nGestión del Agua Limonar Sector II`);
+    window.open(`mailto:${propietario.correo}?subject=${asunto}&body=${cuerpo}`, "_blank");
+    showToast("No se pudo enviar el comprobante automáticamente. Se descargó el PDF y se abrió tu correo para enviarlo a mano.");
+  }
 }
 
 /* =========================================================

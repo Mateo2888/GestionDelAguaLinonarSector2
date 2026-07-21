@@ -85,7 +85,7 @@ create table mensualidades (
   created_at timestamp with time zone default now()
 );
 
--- 9) PROPIETARIOS (códigos para la consulta automática de turnos)
+-- 9) PROPIETARIOS (códigos para la consulta automática de turnos, estado de pago y comprobante)
 create table propietarios (
   id bigint generated always as identity primary key,
   codigo text not null unique,
@@ -96,6 +96,9 @@ create table propietarios (
   turno_fecha_manual date,
   turno_inicio_manual time,
   turno_fin_manual time,
+  estado_pago text not null default 'Pendiente' check (estado_pago in ('Pendiente','Al día')),
+  ultimo_pago date,
+  correo text,
   created_at timestamp with time zone default now()
 );
 
