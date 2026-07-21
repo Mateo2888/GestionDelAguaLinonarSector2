@@ -108,3 +108,13 @@ Estas dos tablas solo se cargan (`loadAdminExtras()`) después de iniciar sesió
 Durante la implementación se encontró y corrigió un bug antes de publicarlo: `localName()` no reconocía las tablas `reportes_dano` ni `afiliaciones`, lo que habría roto el botón de borrar (el registro se habría borrado en Supabase pero el código habría fallado justo después, sin refrescar la lista ni avisar del error). Se agregó el mapeo faltante.
 Se validó sintaxis JS (`node --check`) y balance de `<div>` (197/197) antes de confirmar.
 **Qué quedó pendiente:** no se agregó paginación ni filtro/búsqueda en estas dos listas nuevas (no debería ser un problema mientras el volumen de reportes/afiliaciones sea bajo). Seguir pendientes de rondas anteriores: fotos reales del sector, indicador de "cargando", SEO/redes sociales, accesibilidad/mobile.
+
+### 2026-07-21 — SEO y redes sociales
+**Qué se hizo:** en `index.html` se completaron las etiquetas de cabecera para compartir el link y para buscadores (ya existían título, descripción y algunas etiquetas Open Graph básicas):
+- `<link rel="canonical">` y `og:url` apuntando a la URL real de GitHub Pages.
+- `og:site_name` y `og:locale` (`es_CO`).
+- Etiquetas Twitter Card (`twitter:card`, `twitter:title`, `twitter:description`).
+- Datos estructurados JSON-LD tipo `Organization` con nombre, URL, descripción, correo (`gestionagualimonall@gmail.com`), teléfono (`+573170427446`) y dirección (Soacha, Cundinamarca, CO) — ayuda a que Google entienda de qué trata el sitio y quién es el contacto.
+Se crearon dos archivos nuevos en la raíz del repo: `robots.txt` (permite indexar todo, apunta al sitemap) y `sitemap.xml` (una sola URL, la página principal).
+Se validó: JSON-LD es JSON válido, sitemap es XML válido, sintaxis JS sigue OK y `<div>`/`<head>` balanceados.
+**Qué quedó pendiente:** no se agregó `og:image` ni `twitter:image` (la vista previa al compartir el link en WhatsApp/Facebook seguirá sin miniatura) — este entorno no tiene herramientas para generar/rasterizar una imagen de buena calidad, y además no hay fotos reales del sector todavía (mismo pendiente de siempre). Cuando el usuario tenga un logo o foto representativa, agregar esas dos etiquetas con la URL de esa imagen.

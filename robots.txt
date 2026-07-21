@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mateo2888.github.io/GestionDelAguaLinonarSector2/sitemap.xml
