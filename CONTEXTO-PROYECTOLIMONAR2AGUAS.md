@@ -265,3 +265,31 @@ Se validó exhaustivamente: sintaxis JS, balance de etiquetas, cero ids duplicad
 7. **Tipografía de "95 %":** se corrigió el contador animado de "Disponibilidad" para que el símbolo `%` se separe del número con un espacio duro (` `) al construirse en JavaScript (`animateCounters()`), en vez de pegarse directamente — nunca se partirá en dos líneas. No había ninguna otra aparición de un porcentaje pegado en texto visible del sitio (el único caso era este mismo contador).
 Se validó exhaustivamente antes de publicar: sintaxis JS (`node --check`), balance de todas las etiquetas HTML relevantes, balance de llaves `{}` del CSS (241/241), cero ids duplicados, cada `onclick`/`.then()`/`getElementById` contra su definición real, y se confirmó mentalmente (sin navegador disponible en este entorno) que no queda ningún elemento con ancho mínimo fijo mayor a lo disponible en un viewport de 360px sin su correspondiente ajuste responsive.
 **Qué quedó pendiente:** como siempre, no se pudo verificar visualmente en un celular real — pedirle al usuario que confirme en su Android que: el orden de las secciones al hacer scroll coincide con el menú, ya no hay scroll lateral en ningún formulario, los placeholders se ven bien, el footer se lee cómodo y no queda tapado por los botones flotantes, y los 3 botones del hero se ven del mismo ancho apilados. Los micro-botones del panel admin (editar/borrar en las listas, `mini-btn`) no se agrandaron a 44px por quedar fuera del alcance explícito de este pedido (son de uso exclusivo del administrador autenticado) — si el administrador también usa el panel desde el celular con frecuencia, valdría la pena revisarlos en una próxima ronda.
+
+## Pendientes por implementar
+
+### Estado de pago ligado al propietario
+- Agregar columnas `estado_pago` (Pendiente/Al día) y `ultimo_pago` (fecha) 
+  a la tabla `propietarios` en Supabase (script: `agregar-pago-propietarios.sql`).
+- El propietario debe ver su estado de pago al consultar su código públicamente.
+- Buscador en la pestaña admin busca por nombre o código en tiempo real.
+- Instrucciones completas en `prompt-pago-propietarios.md`.
+
+### Comprobante de pago (PDF) automático y manual
+- Librería jsPDF (CDN) para generar el PDF en el navegador.
+- Columna nueva `correo` en la tabla `propietarios`.
+- Envío automático: Supabase Edge Function `enviar-comprobante` + Resend 
+  (plan gratis 3.000 correos/mes). API key como secreto de Supabase.
+- Si el automático falla: descarga el PDF localmente y abre el correo 
+  con destinatario y mensaje prellenados (respaldo manual sin perder nada).
+- Instrucciones completas en `prompt-comprobante-pago.md`.
+
+### Mejoras de usabilidad y accesibilidad móvil (WCAG)
+- Orden de secciones corregido para coincidir con el menú.
+- Desbordamiento horizontal en celular (viewport 360px).
+- Placeholders con ejemplos reales en todos los formularios.
+- Secciones vacías ocultas automáticamente.
+- Footer legible (fuentes 16px, contraste WCAG AA, área táctil 44px).
+- Botones del hero unificados en tamaño.
+- Tipografía española: "95 %" con espacio duro.
+- Instrucciones completas en `prompt-usabilidad-movil.md`.
