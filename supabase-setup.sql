@@ -46,8 +46,10 @@ create table finanzas (
   id bigint generated always as identity primary key,
   fecha date not null,
   concepto text not null,
+  categoria text,
   tipo text not null check (tipo in ('ingreso','gasto')),
   valor numeric not null,
+  comprobante text,
   created_at timestamp with time zone default now()
 );
 
@@ -82,6 +84,17 @@ create table afiliaciones (
   created_at timestamp with time zone default now()
 );
 
+-- 9) MENSUALIDADES (control de pagos por vivienda, solo para el administrador)
+create table mensualidades (
+  id bigint generated always as identity primary key,
+  vivienda text not null,
+  sector text not null,
+  mes text not null,
+  estado text not null default 'Pendiente' check (estado in ('Pagado','Pendiente','Atrasado')),
+  valor numeric,
+  created_at timestamp with time zone default now()
+);
+
 -- =========================================================
 -- SEGURIDAD (Row Level Security)
 -- Permite que cualquier visitante LEA los datos públicos,
@@ -95,6 +108,7 @@ alter table finanzas enable row level security;
 alter table documentos enable row level security;
 alter table reportes_dano enable row level security;
 alter table afiliaciones enable row level security;
+alter table mensualidades enable row level security;
 
 -- Lectura pública para el contenido informativo del sitio
 create policy "lectura publica programacion" on programacion for select using (true);
@@ -123,3 +137,6 @@ create policy "cualquiera se afilia" on afiliaciones for insert with check (true
 create policy "admin gestiona afiliaciones" on afiliaciones for select using (auth.role() = 'authenticated');
 create policy "admin borra afiliaciones" on afiliaciones for delete using (auth.role() = 'authenticated');
 create policy "admin actualiza afiliaciones" on afiliaciones for update using (auth.role() = 'authenticated');
+
+-- Mensualidades: información financiera individual por vivienda, nadie más que el administrador puede leerla ni escribirla.
+create policy "admin gestiona mensualidades" on mensualidades for all using (auth.role() = 'authenticated');

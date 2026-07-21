@@ -643,13 +643,22 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
       <p>Publicamos periódicamente los ingresos, gastos y estado financiero del acueducto comunitario.</p>
     </div>
     <div class="fin-summary">
-      <div class="fin-card in"><div class="lbl">Ingresos del mes</div><div class="val">$7.500.000</div></div>
-      <div class="fin-card out"><div class="lbl">Gastos del mes</div><div class="val">$5.200.000</div></div>
+      <div class="fin-card in"><div class="lbl">Ingresos</div><div class="val">$7.500.000</div></div>
+      <div class="fin-card out"><div class="lbl">Gastos</div><div class="val">$5.200.000</div></div>
       <div class="fin-card bal"><div class="lbl">Saldo disponible</div><div class="val">$2.300.000</div></div>
+    </div>
+    <div class="table-toolbar">
+      <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input id="finSearch" placeholder="Buscar por concepto..."></div>
+      <select class="filter" id="finFilterCategoria">
+        <option value="">Todas las categorías</option>
+        <option>Aportes</option><option>Donaciones</option><option>Mantenimiento</option>
+        <option>Compras</option><option>Pago a encargados</option><option>Otro</option>
+      </select>
+      <select class="filter" id="finFilterMes"><option value="">Todos los meses</option></select>
     </div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Fecha</th><th>Concepto</th><th>Tipo</th><th>Valor</th></tr></thead>
+        <thead><tr><th>Fecha</th><th>Concepto</th><th>Categoría</th><th>Tipo</th><th>Valor</th><th>Comprobante</th></tr></thead>
         <tbody id="finTableBody"></tbody>
       </table>
     </div>
@@ -759,6 +768,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
     <button class="admin-tab" data-tab="docs">Documentos</button>
     <button class="admin-tab" data-tab="reportes">Reportes de daño</button>
     <button class="admin-tab" data-tab="afiliaciones">Afiliaciones</button>
+    <button class="admin-tab" data-tab="mens">Mensualidades</button>
   </div>
 
   <div class="admin-section active" id="admin-prog">
@@ -798,11 +808,21 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
   </div>
 
   <div class="admin-section" id="admin-fin">
-    <div class="admin-row" style="background:transparent;border:none;box-shadow:none;">
-      <input id="nf-fecha" type="date"><input class="grow" id="nf-concepto" placeholder="Concepto">
-      <select id="nf-tipo"><option value="ingreso">Ingreso</option><option value="gasto">Gasto</option></select>
-      <input id="nf-valor" type="number" placeholder="Valor">
-      <button class="mini-btn save" onclick="addFin()"><i class="fa-solid fa-plus"></i> Agregar</button>
+    <div class="admin-row" style="background:transparent;border:none;box-shadow:none;flex-direction:column;align-items:stretch;">
+      <div class="row-2"><input id="nf-fecha" type="date"><input id="nf-concepto" placeholder="Concepto"></div>
+      <div class="row-2">
+        <select id="nf-categoria">
+          <option value="">Sin categoría</option>
+          <option>Aportes</option><option>Donaciones</option><option>Mantenimiento</option>
+          <option>Compras</option><option>Pago a encargados</option><option>Otro</option>
+        </select>
+        <select id="nf-tipo"><option value="ingreso">Ingreso</option><option value="gasto">Gasto</option></select>
+      </div>
+      <div class="row-2"><input id="nf-valor" type="number" placeholder="Valor"><input id="nf-comprobante" type="file" accept="image/*"></div>
+      <div style="display:flex;gap:10px;">
+        <button class="mini-btn save" id="nf-save-btn" onclick="saveFin()"><i class="fa-solid fa-plus"></i> Agregar</button>
+        <button class="mini-btn" id="nf-cancel-btn" style="display:none;background:var(--gray-2);color:var(--ink-soft);" onclick="cancelEditFin()">Cancelar edición</button>
+      </div>
     </div>
     <div id="admin-fin-list"></div>
   </div>
@@ -823,6 +843,20 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
   <div class="admin-section" id="admin-afiliaciones">
     <p style="font-size:.85rem;color:var(--ink-soft);margin-bottom:14px;">Solicitudes de afiliación enviadas por la comunidad desde el formulario público.</p>
     <div id="admin-afiliaciones-list"></div>
+  </div>
+
+  <div class="admin-section" id="admin-mens">
+    <p style="font-size:.85rem;color:var(--ink-soft);margin-bottom:14px;">Control de pagos de mensualidad por vivienda. Solo visible para administradores.</p>
+    <div class="admin-row" style="background:transparent;border:none;box-shadow:none;flex-direction:column;align-items:stretch;">
+      <div class="row-2"><input id="nm2-vivienda" placeholder="Vivienda / familia"><input id="nm2-sector" placeholder="Sector"></div>
+      <div class="row-2">
+        <input id="nm2-mes" type="month">
+        <select id="nm2-estado"><option value="Pagado">Pagado</option><option value="Pendiente" selected>Pendiente</option><option value="Atrasado">Atrasado</option></select>
+      </div>
+      <input id="nm2-valor" type="number" placeholder="Valor" value="25000">
+      <button class="mini-btn save" onclick="addMens()"><i class="fa-solid fa-plus"></i> Agregar</button>
+    </div>
+    <div id="admin-mens-list"></div>
   </div>
 </div>
 
@@ -860,9 +894,10 @@ const DEMO = {
 
 // estado local que se renderiza (viene de supabase o de DEMO)
 let STATE = JSON.parse(JSON.stringify(DEMO));
-// reportes_dano y afiliaciones no son datos públicos: solo se cargan tras iniciar sesión como admin
+// reportes_dano, afiliaciones y mensualidades no son datos públicos: solo se cargan tras iniciar sesión como admin
 STATE.reportes_dano = [];
 STATE.afiliaciones = [];
+STATE.mensualidades = [];
 
 /* =========================================================
    CARGA DE DATOS
@@ -989,12 +1024,34 @@ function statusPillText(estado){
 /* =========================================================
    RENDER: TRANSPARENCIA
    ========================================================= */
+function formatMonthLabel(yyyyMm){
+  try{ return new Date(yyyyMm+"-01T00:00:00").toLocaleDateString('es-CO',{month:'long',year:'numeric'}); }catch(e){ return yyyyMm; }
+}
+function populateFinMesFilter(){
+  const sel = document.getElementById("finFilterMes");
+  const current = sel.value;
+  const meses = [...new Set(STATE.finanzas.map(f=>(f.fecha||"").slice(0,7)).filter(Boolean))].sort().reverse();
+  sel.innerHTML = `<option value="">Todos los meses</option>` + meses.map(m=>`<option value="${m}">${formatMonthLabel(m)}</option>`).join("");
+  if(meses.includes(current)) sel.value = current;
+}
 function renderFinanzas(){
+  populateFinMesFilter();
   const body = document.getElementById("finTableBody");
-  body.innerHTML = STATE.finanzas.map(f=>`
-    <tr><td>${formatDate(f.fecha)}</td><td>${f.concepto}</td><td>${f.tipo==="ingreso"?"Ingreso":"Gasto"}</td>
-    <td style="color:${f.tipo==='ingreso'?'var(--green)':'#D32F2F'};font-weight:600;">${f.tipo==='ingreso'?'+':'-'} $${Number(f.valor).toLocaleString('es-CO')}</td></tr>`).join("");
-  // actualizar tarjetas resumen
+  const q = (document.getElementById("finSearch").value || "").toLowerCase();
+  const fCat = document.getElementById("finFilterCategoria").value;
+  const fMes = document.getElementById("finFilterMes").value;
+  let rows = STATE.finanzas.filter(f=>{
+    const matchQ = !q || (f.concepto||"").toLowerCase().includes(q);
+    const matchCat = !fCat || f.categoria === fCat;
+    const matchMes = !fMes || (f.fecha||"").slice(0,7) === fMes;
+    return matchQ && matchCat && matchMes;
+  });
+  body.innerHTML = rows.map(f=>`
+    <tr><td>${formatDate(f.fecha)}</td><td>${f.concepto}</td><td>${f.categoria || "—"}</td><td>${f.tipo==="ingreso"?"Ingreso":"Gasto"}</td>
+    <td style="color:${f.tipo==='ingreso'?'var(--green)':'#D32F2F'};font-weight:600;">${f.tipo==='ingreso'?'+':'-'} $${Number(f.valor).toLocaleString('es-CO')}</td>
+    <td>${f.comprobante ? `<a href="${f.comprobante}" target="_blank" title="Ver comprobante"><i class="fa-solid fa-receipt"></i></a>` : "—"}</td></tr>`).join("")
+    || `<tr><td colspan="6" style="text-align:center;color:var(--ink-soft);padding:30px;">Sin resultados</td></tr>`;
+  // actualizar tarjetas resumen (siempre sobre el total real, sin filtrar)
   const ingresos = STATE.finanzas.filter(f=>f.tipo==="ingreso").reduce((a,b)=>a+Number(b.valor),0);
   const gastos = STATE.finanzas.filter(f=>f.tipo==="gasto").reduce((a,b)=>a+Number(b.valor),0);
   const cards = document.querySelectorAll(".fin-card .val");
@@ -1004,6 +1061,9 @@ function renderFinanzas(){
     cards[2].textContent = "$"+(ingresos-gastos).toLocaleString('es-CO');
   }
 }
+document.getElementById("finSearch").addEventListener("input", renderFinanzas);
+document.getElementById("finFilterCategoria").addEventListener("change", renderFinanzas);
+document.getElementById("finFilterMes").addEventListener("change", renderFinanzas);
 function renderDocumentos(){
   const grid = document.getElementById("docsGrid");
   grid.innerHTML = STATE.documentos.map(d=>`
@@ -1113,6 +1173,7 @@ function logoutAdmin(){
   document.getElementById("adminPanel").classList.remove("open");
   STATE.reportes_dano = [];
   STATE.afiliaciones = [];
+  STATE.mensualidades = [];
   renderAdminLists();
 }
 
@@ -1123,16 +1184,19 @@ function logoutAdmin(){
 async function loadAdminExtras(){
   if(!usingSupabase) return;
   try{
-    const [reportes, afiliaciones] = await Promise.all([
+    const [reportes, afiliaciones, mensualidades] = await Promise.all([
       sbClient.from("reportes_dano").select("*").order("id",{ascending:false}),
-      sbClient.from("afiliaciones").select("*").order("id",{ascending:false})
+      sbClient.from("afiliaciones").select("*").order("id",{ascending:false}),
+      sbClient.from("mensualidades").select("*").order("id",{ascending:false})
     ]);
     if(reportes.error){ showToast("No se pudieron cargar los reportes de daño."); }
     else{ STATE.reportes_dano = reportes.data || []; }
     if(afiliaciones.error){ showToast("No se pudieron cargar las afiliaciones."); }
     else{ STATE.afiliaciones = afiliaciones.data || []; }
+    if(mensualidades.error){ showToast("No se pudieron cargar las mensualidades."); }
+    else{ STATE.mensualidades = mensualidades.data || []; }
   }catch(e){
-    showToast("No se pudo conectar para cargar reportes y afiliaciones. Revisa tu conexión a internet.");
+    showToast("No se pudo conectar para cargar reportes, afiliaciones y mensualidades. Revisa tu conexión a internet.");
   }
   renderAdminLists();
 }
@@ -1194,8 +1258,23 @@ async function crudDelete(table, id){
   const key = localName(table);
   STATE[key] = STATE[key].filter(r=>r.id !== id);
 }
+async function crudUpdate(table, id, row){
+  if(usingSupabase){
+    try{
+      const {error} = await sbClient.from(table).update(row).eq("id", id);
+      if(error){ showToast("Error: "+error.message); return false; }
+    }catch(e){
+      showToast("No se pudo actualizar: revisa tu conexión a internet e intenta de nuevo.");
+      return false;
+    }
+  }
+  const key = localName(table);
+  const item = STATE[key].find(r=>r.id === id);
+  if(item) Object.assign(item, row);
+  return true;
+}
 function localName(table){
-  const map = {programacion:"programacion", noticias:"noticias", galeria:"galeria", mantenimientos:"mantenimientos", finanzas:"finanzas", documentos:"documentos", reportes_dano:"reportes_dano", afiliaciones:"afiliaciones"};
+  const map = {programacion:"programacion", noticias:"noticias", galeria:"galeria", mantenimientos:"mantenimientos", finanzas:"finanzas", documentos:"documentos", reportes_dano:"reportes_dano", afiliaciones:"afiliaciones", mensualidades:"mensualidades"};
   return map[table];
 }
 
@@ -1223,17 +1302,64 @@ async function addMaint(){
   const saved = await crudInsert("mantenimientos", row);
   if(saved){ STATE.mantenimientos.unshift(saved); clearInputs(["nm-fecha","nm-responsable","nm-actividad","nm-imagen"]); refreshAll(); showToast("Registro agregado."); }
 }
-async function addFin(){
-  const row = {fecha:val("nf-fecha"), concepto:val("nf-concepto"), tipo:val("nf-tipo"), valor:Number(val("nf-valor")||0)};
+let editingFinId = null;
+async function saveFin(){
+  const row = {fecha:val("nf-fecha"), concepto:val("nf-concepto"), categoria:val("nf-categoria"), tipo:val("nf-tipo"), valor:Number(val("nf-valor")||0)};
   if(!row.fecha||!row.concepto||!row.valor) return showToast("Completa todos los campos.");
-  const saved = await crudInsert("finanzas", row);
-  if(saved){ STATE.finanzas.unshift(saved); clearInputs(["nf-fecha","nf-concepto","nf-valor"]); refreshAll(); showToast("Movimiento agregado."); }
+  const file = document.getElementById("nf-comprobante").files[0];
+  if(usingSupabase && file){
+    const path = `comprobantes/${Date.now()}_${file.name}`;
+    try{
+      const {error: upErr} = await sbClient.storage.from("fotos").upload(path, file);
+      if(upErr){ showToast("No se pudo subir el comprobante, se guardará el movimiento sin él."); }
+      else{ row.comprobante = sbClient.storage.from("fotos").getPublicUrl(path).data.publicUrl; }
+    }catch(e){
+      showToast("No se pudo subir el comprobante, se guardará el movimiento sin él.");
+    }
+  }
+  if(editingFinId){
+    const ok = await crudUpdate("finanzas", editingFinId, row);
+    if(ok){ cancelEditFin(); refreshAll(); showToast("Movimiento actualizado."); }
+  }else{
+    const saved = await crudInsert("finanzas", row);
+    if(saved){ STATE.finanzas.unshift(saved); clearFinForm(); refreshAll(); showToast("Movimiento agregado."); }
+  }
+}
+function editFin(id){
+  const item = STATE.finanzas.find(f=>f.id===id);
+  if(!item) return;
+  editingFinId = id;
+  document.getElementById("nf-fecha").value = item.fecha || "";
+  document.getElementById("nf-concepto").value = item.concepto || "";
+  document.getElementById("nf-categoria").value = item.categoria || "";
+  document.getElementById("nf-tipo").value = item.tipo || "ingreso";
+  document.getElementById("nf-valor").value = item.valor || "";
+  document.getElementById("nf-save-btn").innerHTML = '<i class="fa-solid fa-check"></i> Guardar cambios';
+  document.getElementById("nf-cancel-btn").style.display = "inline-flex";
+  document.getElementById("admin-fin").scrollIntoView({behavior:"smooth", block:"start"});
+}
+function cancelEditFin(){
+  editingFinId = null;
+  clearFinForm();
+  document.getElementById("nf-save-btn").innerHTML = '<i class="fa-solid fa-plus"></i> Agregar';
+  document.getElementById("nf-cancel-btn").style.display = "none";
+}
+function clearFinForm(){
+  clearInputs(["nf-fecha","nf-concepto","nf-valor"]);
+  document.getElementById("nf-categoria").value = "";
+  document.getElementById("nf-comprobante").value = "";
 }
 async function addDoc(){
   const row = {nombre:val("nd-nombre"), url:val("nd-url")};
   if(!row.nombre||!row.url) return showToast("Completa nombre y URL.");
   const saved = await crudInsert("documentos", row);
   if(saved){ STATE.documentos.unshift(saved); clearInputs(["nd-nombre","nd-url"]); refreshAll(); showToast("Documento agregado."); }
+}
+async function addMens(){
+  const row = {vivienda:val("nm2-vivienda"), sector:val("nm2-sector"), mes:val("nm2-mes"), estado:val("nm2-estado"), valor:Number(val("nm2-valor")||0)};
+  if(!row.vivienda||!row.sector||!row.mes) return showToast("Completa vivienda, sector y mes.");
+  const saved = await crudInsert("mensualidades", row);
+  if(saved){ STATE.mensualidades.unshift(saved); clearInputs(["nm2-vivienda","nm2-sector","nm2-mes"]); refreshAll(); showToast("Registro agregado."); }
 }
 function val(id){ return document.getElementById(id).value; }
 function clearInputs(ids){ ids.forEach(id=>document.getElementById(id).value=""); }
@@ -1255,8 +1381,13 @@ function renderAdminLists(){
     <div class="admin-row"><span class="grow">${formatDate(r.fecha)} · ${r.actividad}</span><span class="status-pill ${r.estado==='Completado'?'on':'off'}">${r.estado}</span>
       <button class="mini-btn del" onclick="crudDelete('mantenimientos',${JSON.stringify(r.id)}).then(refreshAll)"><i class="fa-solid fa-trash"></i></button></div>`).join("");
   document.getElementById("admin-fin-list").innerHTML = STATE.finanzas.map(r=>`
-    <div class="admin-row"><span class="grow">${formatDate(r.fecha)} · ${r.concepto}</span><span style="color:${r.tipo==='ingreso'?'var(--green)':'#D32F2F'};font-weight:600;">$${Number(r.valor).toLocaleString('es-CO')}</span>
-      <button class="mini-btn del" onclick="crudDelete('finanzas',${JSON.stringify(r.id)}).then(refreshAll)"><i class="fa-solid fa-trash"></i></button></div>`).join("");
+    <div class="admin-row">
+      <span class="grow">${formatDate(r.fecha)} · ${r.concepto}${r.categoria?` · ${r.categoria}`:""}</span>
+      ${r.comprobante ? `<a href="${r.comprobante}" target="_blank" title="Ver comprobante"><i class="fa-solid fa-receipt"></i></a>` : ""}
+      <span style="color:${r.tipo==='ingreso'?'var(--green)':'#D32F2F'};font-weight:600;">$${Number(r.valor).toLocaleString('es-CO')}</span>
+      <button class="mini-btn" style="background:rgba(21,101,192,.1);color:var(--blue);" onclick="editFin(${JSON.stringify(r.id)})"><i class="fa-solid fa-pen"></i></button>
+      <button class="mini-btn del" onclick="crudDelete('finanzas',${JSON.stringify(r.id)}).then(refreshAll)"><i class="fa-solid fa-trash"></i></button>
+    </div>`).join("");
   document.getElementById("admin-docs-list").innerHTML = STATE.documentos.map(r=>`
     <div class="admin-row"><span class="grow">${r.nombre}</span>
       <button class="mini-btn del" onclick="crudDelete('documentos',${JSON.stringify(r.id)}).then(refreshAll)"><i class="fa-solid fa-trash"></i></button></div>`).join("");
@@ -1287,6 +1418,16 @@ function renderAdminLists(){
       </select>
       <button class="mini-btn del" onclick="crudDelete('afiliaciones',${JSON.stringify(r.id)}).then(refreshAll)"><i class="fa-solid fa-trash"></i></button>
     </div>`).join("") || `<p style="text-align:center;color:var(--ink-soft);padding:20px;">No hay solicitudes de afiliación.</p>`;
+  document.getElementById("admin-mens-list").innerHTML = STATE.mensualidades.map(r=>`
+    <div class="admin-row">
+      <span class="grow"><strong>${r.vivienda}</strong> · ${r.sector} · ${formatMonthLabel(r.mes)} · $${Number(r.valor||0).toLocaleString('es-CO')}</span>
+      <select onchange="crudUpdateEstado('mensualidades',${JSON.stringify(r.id)},this.value)">
+        <option value="Pagado" ${r.estado==="Pagado"?"selected":""}>Pagado</option>
+        <option value="Pendiente" ${r.estado==="Pendiente"?"selected":""}>Pendiente</option>
+        <option value="Atrasado" ${r.estado==="Atrasado"?"selected":""}>Atrasado</option>
+      </select>
+      <button class="mini-btn del" onclick="crudDelete('mensualidades',${JSON.stringify(r.id)}).then(refreshAll)"><i class="fa-solid fa-trash"></i></button>
+    </div>`).join("") || `<p style="text-align:center;color:var(--ink-soft);padding:20px;">No hay registros de mensualidades.</p>`;
 }
 
 /* =========================================================
