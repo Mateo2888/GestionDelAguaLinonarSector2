@@ -13,7 +13,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" defer></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -796,11 +795,11 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 const SUPABASE_URL = "https://owhtiqoshemfchrsvsib.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_rjcqOTf9_lAYpeoqpqfSDA_vaZVqsFj";
 
-let supabase = null;
+let sbClient = null;
 let usingSupabase = false;
 try{
   if(SUPABASE_URL.startsWith("https://") && SUPABASE_ANON_KEY.length > 10){
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     usingSupabase = true;
   }
 }catch(e){ console.warn("Supabase no configurado, usando modo demo local.", e); }
@@ -853,7 +852,7 @@ async function loadAll(){
     try{
       const tables = ["programacion","noticias","galeria","mantenimientos","finanzas","documentos"];
       for(const t of tables){
-        const {data, error} = await supabase.from(t).select("*").order("id",{ascending:false});
+        const {data, error} = await sbClient.from(t).select("*").order("id",{ascending:false});
         if(!error && data) STATE[t] = data;
       }
     }catch(e){ console.warn("Fallo cargando de Supabase, usando datos demo", e); }
@@ -978,7 +977,7 @@ function formatDate(d){
    ========================================================= */
 async function insertRow(table, row){
   if(usingSupabase){
-    const {error} = await supabase.from(table).insert(row);
+    const {error} = await sbClient.from(table).insert(row);
     if(error){ showToast("Error guardando: "+error.message); return false; }
     return true;
   }else{
@@ -998,8 +997,8 @@ document.getElementById("damageForm").addEventListener("submit", async function(
   const file = document.getElementById("damageFile").files[0];
   if(usingSupabase && file){
     const path = `reportes/${Date.now()}_${file.name}`;
-    const {error: upErr} = await supabase.storage.from("fotos").upload(path, file);
-    if(!upErr){ fotoUrl = supabase.storage.from("fotos").getPublicUrl(path).data.publicUrl; }
+    const {error: upErr} = await sbClient.storage.from("fotos").upload(path, file);
+    if(!upErr){ fotoUrl = sbClient.storage.from("fotos").getPublicUrl(path).data.publicUrl; }
   }
   const row = {nombre:fd.get("nombre"), sector:fd.get("sector"), direccion:fd.get("direccion"), descripcion:fd.get("descripcion"), foto:fotoUrl, estado:"Nuevo"};
   const ok = await insertRow("reportes_dano", row);
@@ -1043,14 +1042,14 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
     showToast("Configura Supabase para habilitar el acceso administrativo real.");
     return;
   }
-  const {data, error} = await supabase.auth.signInWithPassword({email, password:pass});
+  const {data, error} = await sbClient.auth.signInWithPassword({email, password:pass});
   if(error){ showToast("Credenciales incorrectas."); return; }
   document.getElementById("adminEmail").textContent = data.user.email;
   closeModal("login");
   document.getElementById("adminPanel").classList.add("open");
 });
 function logoutAdmin(){
-  if(usingSupabase) supabase.auth.signOut();
+  if(usingSupabase) sbClient.auth.signOut();
   document.getElementById("adminPanel").classList.remove("open");
 }
 
@@ -1071,7 +1070,7 @@ document.querySelectorAll(".admin-tab").forEach(tab=>{
    ========================================================= */
 async function crudInsert(table, row){
   if(usingSupabase){
-    const {data, error} = await supabase.from(table).insert(row).select();
+    const {data, error} = await sbClient.from(table).insert(row).select();
     if(error){ showToast("Error: "+error.message); return null; }
     return data[0];
   }else{
@@ -1083,7 +1082,7 @@ async function crudInsert(table, row){
 }
 async function crudDelete(table, id){
   if(usingSupabase){
-    const {error} = await supabase.from(table).delete().eq("id", id);
+    const {error} = await sbClient.from(table).delete().eq("id", id);
     if(error){ showToast("Error: "+error.message); return; }
   }
   const key = localName(table);
