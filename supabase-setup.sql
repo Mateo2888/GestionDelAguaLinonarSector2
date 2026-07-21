@@ -111,12 +111,11 @@ alter table afiliaciones enable row level security;
 alter table mensualidades enable row level security;
 
 -- Lectura pública para el contenido informativo del sitio
+-- (finanzas y documentos NO están aquí a propósito: son privados, solo para el administrador)
 create policy "lectura publica programacion" on programacion for select using (true);
 create policy "lectura publica noticias" on noticias for select using (true);
 create policy "lectura publica galeria" on galeria for select using (true);
 create policy "lectura publica mantenimientos" on mantenimientos for select using (true);
-create policy "lectura publica finanzas" on finanzas for select using (true);
-create policy "lectura publica documentos" on documentos for select using (true);
 
 -- Escritura (insert/update/delete) SOLO para usuarios autenticados (el administrador)
 create policy "admin escribe programacion" on programacion for all using (auth.role() = 'authenticated');
