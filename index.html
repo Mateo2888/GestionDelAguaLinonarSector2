@@ -235,9 +235,12 @@ tbody td{padding:16px 20px; border-top:1px solid var(--line); font-size:.95rem;}
 tbody tr{transition:background .2s ease;}
 tbody tr:hover{background:var(--gray-2);}
 .badge-drop{display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; font-size:.8rem; font-weight:600;}
-.badge-drop.ok{background:rgba(46,125,50,.12); color:var(--green);}
-.badge-drop.pend{background:rgba(30,196,214,.14); color:var(--blue);}
-.badge-drop.alert{background:rgba(211,47,47,.1); color:#D32F2F;}
+.badge-drop.ok{background:#C8E6C9; color:#1B5E20;}
+.badge-drop.pend{background:#BBDEFB; color:#0D47A1;}
+.badge-drop.alert{background:#FFCDD2; color:#B71C1C;}
+[data-theme="dark"] .badge-drop.ok{background:rgba(27,94,32,.35); color:#A5D6A7;}
+[data-theme="dark"] .badge-drop.pend{background:rgba(13,71,161,.35); color:#90CAF9;}
+[data-theme="dark"] .badge-drop.alert{background:rgba(183,28,28,.35); color:#EF9A9A;}
 
 /* ============ FORM ============ */
 .form-card{background:var(--white); border:1px solid var(--line); border-radius:var(--radius); padding:36px; box-shadow:var(--shadow-sm);}
@@ -334,7 +337,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 /* ============ FLOATING BUTTONS ============ */
 .fab{position:fixed; right:26px; z-index:900; width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 24px -6px rgba(0,0,0,.35); font-size:1.4rem; color:#fff; transition:transform .25s ease;}
 .fab:hover{transform:scale(1.08);}
-.fab-whats{bottom:26px; background:#25D366;}
+.fab-whats{bottom:26px; background:#128C7E;}
 .fab-top{bottom:96px; background:var(--blue); opacity:0; pointer-events:none; transition:opacity .3s ease, transform .25s ease;}
 .fab-top.show{opacity:1; pointer-events:auto;}
 
@@ -615,21 +618,6 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
       <h2>Galería</h2>
     </div>
     <div class="gallery-grid" id="galleryGrid"></div>
-  </div>
-</section>
-
-<!-- ============ TESTIMONIOS ============ -->
-<section class="section alt">
-  <div class="container">
-    <div class="section-head center">
-      <span class="eyebrow">Voces del barrio</span>
-      <h2>Lo que dice la comunidad</h2>
-    </div>
-    <div class="grid-3">
-      <div class="card test-card reveal"><div class="test-stars">★★★★★</div><p>"Desde que se organizó la programación, el agua llega puntual cada semana. Se nota la mejora."</p><div class="test-head"><div class="test-avatar">MG</div><div><div class="test-name">María Gómez</div><div class="test-role">Sector 1</div></div></div></div>
-      <div class="card test-card reveal"><div class="test-stars">★★★★★</div><p>"Reporté un daño en la manguera y lo arreglaron el mismo día. Excelente respuesta."</p><div class="test-head"><div class="test-avatar">JR</div><div><div class="test-name">Jorge Ramírez</div><div class="test-role">Sector 2</div></div></div></div>
-      <div class="card test-card reveal"><div class="test-stars">★★★★★</div><p>"Me gusta que puedo ver en qué se invierte el aporte mensual. Da mucha confianza."</p><div class="test-head"><div class="test-avatar">LP</div><div><div class="test-name">Luz Peña</div><div class="test-role">Sector 1</div></div></div></div>
-    </div>
   </div>
 </section>
 
