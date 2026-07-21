@@ -95,6 +95,20 @@ create table mensualidades (
   created_at timestamp with time zone default now()
 );
 
+-- 10) PROPIETARIOS (códigos para la consulta automática de turnos)
+create table propietarios (
+  id bigint generated always as identity primary key,
+  codigo text not null unique,
+  nombre text not null,
+  sector text not null,
+  posicion integer not null default 0,
+  activo boolean not null default true,
+  turno_fecha_manual date,
+  turno_inicio_manual time,
+  turno_fin_manual time,
+  created_at timestamp with time zone default now()
+);
+
 -- =========================================================
 -- SEGURIDAD (Row Level Security)
 -- Permite que cualquier visitante LEA los datos públicos,
@@ -109,6 +123,7 @@ alter table documentos enable row level security;
 alter table reportes_dano enable row level security;
 alter table afiliaciones enable row level security;
 alter table mensualidades enable row level security;
+alter table propietarios enable row level security;
 
 -- Lectura pública para el contenido informativo del sitio
 -- (finanzas y documentos NO están aquí a propósito: son privados, solo para el administrador)
@@ -116,6 +131,7 @@ create policy "lectura publica programacion" on programacion for select using (t
 create policy "lectura publica noticias" on noticias for select using (true);
 create policy "lectura publica galeria" on galeria for select using (true);
 create policy "lectura publica mantenimientos" on mantenimientos for select using (true);
+create policy "lectura publica propietarios" on propietarios for select using (true);
 
 -- Escritura (insert/update/delete) SOLO para usuarios autenticados (el administrador)
 create policy "admin escribe programacion" on programacion for all using (auth.role() = 'authenticated');
@@ -139,3 +155,6 @@ create policy "admin actualiza afiliaciones" on afiliaciones for update using (a
 
 -- Mensualidades: información financiera individual por vivienda, nadie más que el administrador puede leerla ni escribirla.
 create policy "admin gestiona mensualidades" on mensualidades for all using (auth.role() = 'authenticated');
+
+-- Propietarios: lectura pública (para la consulta de turno por código), escritura solo del administrador.
+create policy "admin escribe propietarios" on propietarios for all using (auth.role() = 'authenticated');
