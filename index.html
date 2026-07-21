@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gestión del Agua Limonar Sector II | Soacha, Cundinamarca</title>
-<meta name="description" content="Plataforma comunitaria de gestión del agua del barrio Limonar Sector II, Soacha. Programación de turnos, mensualidades, reporte de daños y mantenimientos.">
+<meta name="description" content="Plataforma comunitaria de gestión del agua del barrio Limonar Sector II, Soacha. Consulta automática de turnos por código, mensualidades, reporte de daños y mantenimientos.">
 <meta name="keywords" content="agua limonar sector 2, soacha, gestión comunitaria agua, acueducto comunitario">
 <link rel="canonical" href="https://mateo2888.github.io/GestionDelAguaLinonarSector2/">
 <meta property="og:title" content="Gestión del Agua Limonar Sector II">
@@ -426,7 +426,6 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
       <a href="#inicio">Inicio</a>
       <a href="#nosotros">Nosotros</a>
       <a href="#consulta">Mi turno</a>
-      <a href="#programacion">Programación</a>
       <a href="#mensualidad">Mensualidad</a>
       <a href="#mantenimiento">Mantenimiento</a>
       <a href="#reportar">Reportar</a>
@@ -447,7 +446,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
     <strong>Menú</strong>
     <button class="icon-btn" id="closeMenu" aria-label="Cerrar menú"><i class="fa-solid fa-xmark"></i></button>
   </div>
-  <a href="#inicio">Inicio</a><a href="#nosotros">Nosotros</a><a href="#consulta">Mi turno</a><a href="#programacion">Programación</a>
+  <a href="#inicio">Inicio</a><a href="#nosotros">Nosotros</a><a href="#consulta">Mi turno</a>
   <a href="#mensualidad">Mensualidades</a><a href="#mantenimiento">Mantenimiento</a>
   <a href="#reportar">Reportar daño</a><a href="#noticias">Noticias</a><a href="#galeria">Galería</a>
   <a href="#contacto">Contacto</a>
@@ -461,7 +460,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
     <h1>Gestión del Agua<br>Limonar Sector II</h1>
     <p class="sub">Comprometidos con una distribución organizada, transparente y eficiente del servicio de agua para nuestra comunidad.</p>
     <div class="hero-actions">
-      <a href="#programacion" class="btn btn-primary"><i class="fa-solid fa-calendar-days"></i> Ver programación</a>
+      <a href="#consulta" class="btn btn-primary"><i class="fa-solid fa-calendar-days"></i> Consultar mi turno</a>
       <a href="#mensualidad" class="btn btn-ghost"><i class="fa-solid fa-coins"></i> Pagar mensualidad</a>
       <a href="#reportar" class="btn btn-ghost"><i class="fa-solid fa-triangle-exclamation"></i> Reportar daño</a>
     </div>
@@ -541,28 +540,6 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
       <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Consultar</button>
     </form>
     <div id="turnoResultado" style="display:none;margin-top:20px;"></div>
-  </div>
-</section>
-
-<!-- ============ PROGRAMACION ============ -->
-<section class="section" id="programacion">
-  <div class="container">
-    <div class="section-head">
-      <span class="eyebrow">Turnos de agua</span>
-      <h2>Programación por sector</h2>
-      <p>Consulta el horario asignado a tu vivienda. La información se actualiza directamente desde el panel administrativo.</p>
-    </div>
-    <div class="table-toolbar">
-      <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input id="progSearch" placeholder="Buscar por nombre o dirección..."></div>
-      <select class="filter" id="progFilterSector"><option value="">Todos los sectores</option><option value="Sector 1">Sector 1</option><option value="Sector 2">Sector 2</option><option value="Sector 3">Sector 3</option><option value="Sector 4">Sector 4</option><option value="Sector 5">Sector 5</option><option value="Sector 6">Sector 6</option><option value="Sector 7">Sector 7</option><option value="Sector 8">Sector 8</option><option value="Sector 9">Sector 9</option><option value="Sector 10">Sector 10</option></select>
-      <select class="filter" id="progFilterEstado"><option value="">Todos los estados</option><option value="Al día">Al día</option><option value="Pendiente">Pendiente</option><option value="Atrasado">Atrasado</option></select>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Persona</th><th>Sector</th><th>Horario</th><th>Estado</th></tr></thead>
-        <tbody id="progTableBody"></tbody>
-      </table>
-    </div>
   </div>
 </section>
 
@@ -693,7 +670,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
         <div class="brand" style="color:#fff;margin-bottom:12px;"><span class="drop"><i class="fa-solid fa-droplet"></i></span> Limonar Sector II</div>
         <p style="font-size:.9rem;max-width:320px;">Gestión comunitaria del agua para el barrio Limonar Sector II, Soacha, Cundinamarca.</p>
       </div>
-      <div><h4>Navegación</h4><a href="#programacion">Programación</a><a href="#mensualidad">Mensualidades</a><a href="#reportar">Reportar daño</a></div>
+      <div><h4>Navegación</h4><a href="#consulta">Mi turno</a><a href="#mensualidad">Mensualidades</a><a href="#reportar">Reportar daño</a></div>
       <div><h4>Contacto</h4><a href="#contacto">Escríbenos</a><a href="tel:+573170427446">+57 317 042 7446</a><a href="#">Soacha, Cundinamarca</a></div>
     </div>
     <div class="footer-bottom">© <span id="year"></span> Gestión del Agua Limonar Sector II. Todos los derechos reservados.</div>
@@ -751,8 +728,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
     </div>
   </div>
   <div class="admin-tabs" id="adminTabs">
-    <button class="admin-tab active" data-tab="prog">Programación</button>
-    <button class="admin-tab" data-tab="news">Noticias</button>
+    <button class="admin-tab active" data-tab="news">Noticias</button>
     <button class="admin-tab" data-tab="gallery">Galería</button>
     <button class="admin-tab" data-tab="maint">Mantenimientos</button>
     <button class="admin-tab" data-tab="fin">Transparencia</button>
@@ -763,16 +739,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
     <button class="admin-tab" data-tab="propietarios">Propietarios / Turnos</button>
   </div>
 
-  <div class="admin-section active" id="admin-prog">
-    <div class="admin-row" style="background:transparent;border:none;box-shadow:none;">
-      <input class="grow" id="np-persona" placeholder="Persona"><input class="grow" id="np-sector" placeholder="Sector">
-      <input class="grow" id="np-horario" placeholder="Horario"><select id="np-estado"><option>Al día</option><option>Pendiente</option><option>Atrasado</option></select>
-      <button class="mini-btn save" onclick="addProg()"><i class="fa-solid fa-plus"></i> Agregar</button>
-    </div>
-    <div id="admin-prog-list"></div>
-  </div>
-
-  <div class="admin-section" id="admin-news">
+  <div class="admin-section active" id="admin-news">
     <div class="admin-row" style="background:transparent;border:none;box-shadow:none;flex-direction:column;align-items:stretch;">
       <input id="nn-titulo" placeholder="Título"><input id="nn-imagen" placeholder="URL de imagen">
       <textarea id="nn-desc" placeholder="Descripción" style="padding:12px;border-radius:8px;border:1px solid var(--line);"></textarea>
@@ -913,7 +880,6 @@ try{
    DATOS DEMO (se usan si Supabase no está configurado)
    ========================================================= */
 const DEMO = {
-  programacion: [],
   noticias: [],
   galeria: [],
   mantenimientos: []
@@ -934,7 +900,6 @@ STATE.propietarios = [];
    ========================================================= */
 function showLoadingState(){
   const spinner = `<div class="spinner"></div> Cargando...`;
-  document.getElementById("progTableBody").innerHTML = `<tr><td colspan="4"><div class="loading-state">${spinner}</div></td></tr>`;
   document.getElementById("newsGrid").innerHTML = `<div class="loading-state">${spinner}</div>`;
   document.getElementById("galleryGrid").innerHTML = `<div class="loading-state">${spinner}</div>`;
   document.getElementById("maintTimeline").innerHTML = `<div class="loading-state">${spinner}</div>`;
@@ -942,7 +907,7 @@ function showLoadingState(){
 async function loadAll(){
   if(usingSupabase){
     showLoadingState();
-    const tables = ["programacion","noticias","galeria","mantenimientos"];
+    const tables = ["noticias","galeria","mantenimientos"];
     const failed = [];
     for(const t of tables){
       try{
@@ -960,45 +925,28 @@ async function loadAll(){
       showToast("Algunas secciones no cargaron datos actualizados. Recarga la página.");
     }
   }
-  renderProgramacion();
   renderNoticias();
   renderGaleria();
   renderMantenimientos();
   renderAdminLists();
   updateStatCounters();
 }
-function updateStatCounters(){
+async function updateStatCounters(){
   const viviendas = document.getElementById("statViviendas");
   const mantenimientos = document.getElementById("statMantenimientos");
-  if(viviendas) viviendas.dataset.count = STATE.programacion.length;
   if(mantenimientos) mantenimientos.dataset.count = STATE.mantenimientos.length;
+  if(viviendas){
+    if(usingSupabase){
+      try{
+        const {count} = await sbClient.from("propietarios").select("*", {count:"exact", head:true}).eq("activo", true);
+        viviendas.dataset.count = count || 0;
+      }catch(e){ viviendas.dataset.count = 0; }
+    }else{
+      viviendas.dataset.count = 0;
+    }
+  }
   animateCounters();
 }
-
-/* =========================================================
-   RENDER: PROGRAMACIÓN
-   ========================================================= */
-function estadoBadge(estado){
-  const map = {"Al día":"ok","Pendiente":"pend","Atrasado":"alert"};
-  const cls = map[estado] || "pend";
-  return `<span class="badge-drop ${cls}"><i class="fa-solid fa-droplet"></i> ${estado}</span>`;
-}
-function renderProgramacion(){
-  const body = document.getElementById("progTableBody");
-  const q = (document.getElementById("progSearch").value || "").toLowerCase();
-  const fSector = document.getElementById("progFilterSector").value;
-  const fEstado = document.getElementById("progFilterEstado").value;
-  let rows = STATE.programacion.filter(r=>{
-    const matchQ = !q || r.persona.toLowerCase().includes(q) || (r.horario||"").toLowerCase().includes(q);
-    const matchS = !fSector || r.sector === fSector;
-    const matchE = !fEstado || r.estado === fEstado;
-    return matchQ && matchS && matchE;
-  });
-  body.innerHTML = rows.map(r=>`<tr><td>${r.persona}</td><td>${r.sector}</td><td>${r.horario}</td><td>${estadoBadge(r.estado)}</td></tr>`).join("") || `<tr><td colspan="4" style="text-align:center;color:var(--ink-soft);padding:30px;">Sin resultados</td></tr>`;
-}
-document.getElementById("progSearch").addEventListener("input", renderProgramacion);
-document.getElementById("progFilterSector").addEventListener("change", renderProgramacion);
-document.getElementById("progFilterEstado").addEventListener("change", renderProgramacion);
 
 /* =========================================================
    RENDER: NOTICIAS
@@ -1502,16 +1450,10 @@ async function crudUpdate(table, id, row){
   return true;
 }
 function localName(table){
-  const map = {programacion:"programacion", noticias:"noticias", galeria:"galeria", mantenimientos:"mantenimientos", finanzas:"finanzas", documentos:"documentos", reportes_dano:"reportes_dano", afiliaciones:"afiliaciones", mensualidades:"mensualidades", propietarios:"propietarios"};
+  const map = {noticias:"noticias", galeria:"galeria", mantenimientos:"mantenimientos", finanzas:"finanzas", documentos:"documentos", reportes_dano:"reportes_dano", afiliaciones:"afiliaciones", mensualidades:"mensualidades", propietarios:"propietarios"};
   return map[table];
 }
 
-async function addProg(){
-  const row = {persona:val("np-persona"), sector:val("np-sector"), horario:val("np-horario"), estado:val("np-estado")};
-  if(!row.persona||!row.sector||!row.horario) return showToast("Completa todos los campos.");
-  const saved = await crudInsert("programacion", row);
-  if(saved){ STATE.programacion.unshift(saved); clearInputs(["np-persona","np-sector","np-horario"]); refreshAll(); showToast("Registro agregado."); }
-}
 async function addNews(){
   const row = {titulo:val("nn-titulo"), imagen:val("nn-imagen"), descripcion:val("nn-desc"), fecha:new Date().toISOString().slice(0,10)};
   if(!row.titulo) return showToast("Escribe un título.");
@@ -1591,12 +1533,9 @@ async function addMens(){
 }
 function val(id){ return document.getElementById(id).value; }
 function clearInputs(ids){ ids.forEach(id=>document.getElementById(id).value=""); }
-function refreshAll(){ renderProgramacion(); renderNoticias(); renderGaleria(); renderMantenimientos(); renderAdminLists(); }
+function refreshAll(){ renderNoticias(); renderGaleria(); renderMantenimientos(); renderAdminLists(); }
 
 function renderAdminLists(){
-  document.getElementById("admin-prog-list").innerHTML = STATE.programacion.map(r=>`
-    <div class="admin-row"><span class="grow">${r.persona} · ${r.sector} · ${r.horario}</span>${estadoBadge(r.estado)}
-      <button class="mini-btn del" onclick="crudDelete('programacion',${JSON.stringify(r.id)}).then(refreshAll)"><i class="fa-solid fa-trash"></i></button></div>`).join("");
   document.getElementById("admin-news-list").innerHTML = STATE.noticias.map(r=>`
     <div class="admin-row"><span class="grow">${r.titulo}</span><span style="font-size:.8rem;color:var(--ink-soft);">${formatDate(r.fecha)}</span>
       <button class="mini-btn del" onclick="crudDelete('noticias',${JSON.stringify(r.id)}).then(refreshAll)"><i class="fa-solid fa-trash"></i></button></div>`).join("");
