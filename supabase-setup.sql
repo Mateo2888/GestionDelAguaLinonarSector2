@@ -1,0 +1,137 @@
+-- =========================================================
+-- CONFIGURACIÓN DE BASE DE DATOS · Gestión del Agua Limonar Sector II
+-- Copia y pega TODO este archivo en: Supabase > SQL Editor > New query > Run
+-- =========================================================
+
+-- 1) PROGRAMACIÓN DE TURNOS
+create table programacion (
+  id bigint generated always as identity primary key,
+  persona text not null,
+  sector text not null,
+  horario text not null,
+  estado text not null default 'Al día',
+  created_at timestamp with time zone default now()
+);
+
+-- 2) NOTICIAS
+create table noticias (
+  id bigint generated always as identity primary key,
+  titulo text not null,
+  imagen text,
+  descripcion text,
+  fecha date default current_date,
+  created_at timestamp with time zone default now()
+);
+
+-- 3) GALERÍA
+create table galeria (
+  id bigint generated always as identity primary key,
+  url text not null,
+  created_at timestamp with time zone default now()
+);
+
+-- 4) MANTENIMIENTOS
+create table mantenimientos (
+  id bigint generated always as identity primary key,
+  fecha date not null,
+  actividad text not null,
+  responsable text,
+  imagen text,
+  estado text default 'Completado',
+  created_at timestamp with time zone default now()
+);
+
+-- 5) TRANSPARENCIA / FINANZAS
+create table finanzas (
+  id bigint generated always as identity primary key,
+  fecha date not null,
+  concepto text not null,
+  tipo text not null check (tipo in ('ingreso','gasto')),
+  valor numeric not null,
+  created_at timestamp with time zone default now()
+);
+
+-- 6) DOCUMENTOS
+create table documentos (
+  id bigint generated always as identity primary key,
+  nombre text not null,
+  url text not null,
+  created_at timestamp with time zone default now()
+);
+
+-- 7) REPORTES DE DAÑO (enviados desde el formulario público)
+create table reportes_dano (
+  id bigint generated always as identity primary key,
+  nombre text not null,
+  sector text not null,
+  direccion text not null,
+  descripcion text not null,
+  foto text,
+  estado text default 'Nuevo',
+  created_at timestamp with time zone default now()
+);
+
+-- 8) SOLICITUDES DE AFILIACIÓN
+create table afiliaciones (
+  id bigint generated always as identity primary key,
+  nombre text not null,
+  sector text not null,
+  direccion text not null,
+  telefono text not null,
+  estado text default 'Pendiente',
+  created_at timestamp with time zone default now()
+);
+
+-- =========================================================
+-- SEGURIDAD (Row Level Security)
+-- Permite que cualquier visitante LEA los datos públicos,
+-- pero solo un administrador autenticado pueda escribir/editar/borrar.
+-- =========================================================
+alter table programacion enable row level security;
+alter table noticias enable row level security;
+alter table galeria enable row level security;
+alter table mantenimientos enable row level security;
+alter table finanzas enable row level security;
+alter table documentos enable row level security;
+alter table reportes_dano enable row level security;
+alter table afiliaciones enable row level security;
+
+-- Lectura pública para el contenido informativo del sitio
+create policy "lectura publica programacion" on programacion for select using (true);
+create policy "lectura publica noticias" on noticias for select using (true);
+create policy "lectura publica galeria" on galeria for select using (true);
+create policy "lectura publica mantenimientos" on mantenimientos for select using (true);
+create policy "lectura publica finanzas" on finanzas for select using (true);
+create policy "lectura publica documentos" on documentos for select using (true);
+
+-- Escritura (insert/update/delete) SOLO para usuarios autenticados (el administrador)
+create policy "admin escribe programacion" on programacion for all using (auth.role() = 'authenticated');
+create policy "admin escribe noticias" on noticias for all using (auth.role() = 'authenticated');
+create policy "admin escribe galeria" on galeria for all using (auth.role() = 'authenticated');
+create policy "admin escribe mantenimientos" on mantenimientos for all using (auth.role() = 'authenticated');
+create policy "admin escribe finanzas" on finanzas for all using (auth.role() = 'authenticated');
+create policy "admin escribe documentos" on documentos for all using (auth.role() = 'authenticated');
+
+-- Cualquier visitante puede ENVIAR un reporte de daño o afiliación,
+-- pero solo el administrador puede verlos/gestionarlos/borrarlos.
+create policy "cualquiera reporta dano" on reportes_dano for insert with check (true);
+create policy "admin gestiona reportes" on reportes_dano for select using (auth.role() = 'authenticated');
+create policy "admin borra reportes" on reportes_dano for delete using (auth.role() = 'authenticated');
+create policy "admin actualiza reportes" on reportes_dano for update using (auth.role() = 'authenticated');
+
+create policy "cualquiera se afilia" on afiliaciones for insert with check (true);
+create policy "admin gestiona afiliaciones" on afiliaciones for select using (auth.role() = 'authenticated');
+create policy "admin borra afiliaciones" on afiliaciones for delete using (auth.role() = 'authenticated');
+create policy "admin actualiza afiliaciones" on afiliaciones for update using (auth.role() = 'authenticated');
+
+-- =========================================================
+-- DATOS DE EJEMPLO (puedes borrarlos luego desde el panel admin)
+-- =========================================================
+insert into programacion (persona, sector, horario, estado) values
+('Familia Torres','Sector 1','Lunes 6:00 - 8:00 am','Al día'),
+('Familia Ríos','Sector 1','Lunes 8:00 - 10:00 am','Pendiente'),
+('Familia Suárez','Sector 2','Martes 6:00 - 8:00 am','Atrasado');
+
+insert into finanzas (fecha, concepto, tipo, valor) values
+(current_date, 'Aportes mensuales', 'ingreso', 7500000),
+(current_date, 'Compra de manguera', 'gasto', 3200000);
