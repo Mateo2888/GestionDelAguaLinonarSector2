@@ -123,15 +123,3 @@ create policy "cualquiera se afilia" on afiliaciones for insert with check (true
 create policy "admin gestiona afiliaciones" on afiliaciones for select using (auth.role() = 'authenticated');
 create policy "admin borra afiliaciones" on afiliaciones for delete using (auth.role() = 'authenticated');
 create policy "admin actualiza afiliaciones" on afiliaciones for update using (auth.role() = 'authenticated');
-
--- =========================================================
--- DATOS DE EJEMPLO (puedes borrarlos luego desde el panel admin)
--- =========================================================
-insert into programacion (persona, sector, horario, estado) values
-('Familia Torres','Sector 1','Lunes 6:00 - 8:00 am','Al día'),
-('Familia Ríos','Sector 1','Lunes 8:00 - 10:00 am','Pendiente'),
-('Familia Suárez','Sector 2','Martes 6:00 - 8:00 am','Atrasado');
-
-insert into finanzas (fecha, concepto, tipo, valor) values
-(current_date, 'Aportes mensuales', 'ingreso', 7500000),
-(current_date, 'Compra de manguera', 'gasto', 3200000);

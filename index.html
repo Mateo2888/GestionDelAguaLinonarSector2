@@ -807,37 +807,12 @@ try{
    DATOS DEMO (se usan si Supabase no está configurado)
    ========================================================= */
 const DEMO = {
-  programacion: [
-    {id:1, persona:"Familia Torres", sector:"Sector 1", horario:"Lunes 6:00 - 8:00 am", estado:"Al día"},
-    {id:2, persona:"Familia Ríos", sector:"Sector 1", horario:"Lunes 8:00 - 10:00 am", estado:"Pendiente"},
-    {id:3, persona:"Familia Suárez", sector:"Sector 2", horario:"Martes 6:00 - 8:00 am", estado:"Atrasado"},
-    {id:4, persona:"Familia Ortiz", sector:"Sector 2", horario:"Martes 8:00 - 10:00 am", estado:"Al día"},
-  ],
-  noticias: [
-    {id:1, titulo:"Mantenimiento preventivo este sábado", imagen:"https://images.unsplash.com/photo-1584622781867-1c5e3f47c6a8?q=80&w=800&auto=format&fit=crop", fecha:"2026-07-14", descripcion:"Realizaremos limpieza de la manguera comunitaria. El servicio podría suspenderse por 2 horas."},
-    {id:2, titulo:"Nuevo horario para Sector 2", imagen:"https://images.unsplash.com/photo-1615729947596-a598e5de0ab3?q=80&w=800&auto=format&fit=crop", fecha:"2026-07-08", descripcion:"A partir de este mes el Sector 2 tendrá un nuevo horario de distribución, más equitativo."},
-    {id:3, titulo:"Reunión comunitaria de rendición de cuentas", imagen:"https://images.unsplash.com/photo-1521737604893-d14cc237f11d?q=80&w=800&auto=format&fit=crop", fecha:"2026-06-28", descripcion:"Se presentó el balance financiero del semestre ante la comunidad."},
-  ],
-  galeria: [
-    "https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1541675154750-0444c7d51e8e?q=80&w=600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1581093458791-9d09f2b02c7d?q=80&w=600&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1590274853856-f22d5ee3d228?q=80&w=600&auto=format&fit=crop",
-  ],
-  mantenimientos: [
-    {id:1, fecha:"2026-07-14", actividad:"Limpieza general de la manguera comunitaria", responsable:"Mateo Castro", imagen:"", estado:"Completado"},
-    {id:2, fecha:"2026-06-20", actividad:"Reparación de fuga en Sector 2", responsable:"Equipo técnico", imagen:"", estado:"Completado"},
-    {id:3, fecha:"2026-08-02", actividad:"Revisión de válvulas principales", responsable:"Mateo Castro", imagen:"", estado:"En proceso"},
-  ],
-  finanzas: [
-    {id:1, fecha:"2026-07-01", concepto:"Aportes mensuales (300 viviendas)", tipo:"ingreso", valor:7500000},
-    {id:2, fecha:"2026-07-05", concepto:"Compra de manguera y accesorios", tipo:"gasto", valor:3200000},
-    {id:3, fecha:"2026-07-10", concepto:"Pago encargado del registro", tipo:"gasto", valor:2000000},
-  ],
-  documentos: [
-    {id:1, nombre:"Reglamento comunitario", url:"#"},
-    {id:2, nombre:"Balance financiero Julio 2026", url:"#"},
-  ]
+  programacion: [],
+  noticias: [],
+  galeria: [],
+  mantenimientos: [],
+  finanzas: [],
+  documentos: []
 };
 
 // estado local que se renderiza (viene de supabase o de DEMO)
@@ -861,7 +836,7 @@ async function loadAll(){
       }
     }
     if(failed.length === tables.length){
-      showToast("No se pudo conectar con la base de datos. Mostrando datos de ejemplo.");
+      showToast("No se pudo conectar con la base de datos. Recarga la página o intenta más tarde.");
     }else if(failed.length > 0){
       showToast("Algunas secciones no cargaron datos actualizados. Recarga la página.");
     }
