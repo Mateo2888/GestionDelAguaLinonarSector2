@@ -180,7 +180,7 @@ header#nav{
 
 /* stat strip under hero */
 .stat-strip{position:relative; z-index:2; margin-top:56px;}
-.stat-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; max-width:900px; margin:0 auto; padding:0 24px;}
+.stat-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; max-width:700px; margin:0 auto;}
 .stat-card{
   background:rgba(7,32,48,.4); backdrop-filter:blur(10px);
   border:1px solid rgba(255,255,255,.22); border-radius:16px; padding:20px 14px; text-align:center; color:#fff;
@@ -388,7 +388,6 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
   .fin-summary{grid-template-columns:1fr;}
 }
 @media (max-width:720px){
-  .stat-grid{grid-template-columns:repeat(2,1fr);}
   .grid-2, .grid-3, .grid-4{grid-template-columns:1fr;}
   .gallery-grid{grid-template-columns:repeat(2,1fr);}
   .footer-grid{grid-template-columns:1fr;}
@@ -487,7 +486,6 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
         <div class="stat-card"><div class="num" id="statViviendas" data-count="0">0</div><div class="lbl">Viviendas</div></div>
         <div class="stat-card"><div class="num" data-count="10">0</div><div class="lbl">Sectores</div></div>
         <div class="stat-card"><div class="num" id="statMantenimientos" data-count="0">0</div><div class="lbl">Mantenimientos</div></div>
-        <div class="stat-card"><div class="num" data-count="95" data-suffix="%">0</div><div class="lbl">Disponibilidad</div></div>
       </div>
     </div>
   </div>
@@ -506,9 +504,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
     </div>
     <div class="grid-3">
       <div class="card reveal"><div class="icon-tile"><i class="fa-solid fa-clock"></i></div><h3>Turnos organizados</h3><p style="color:var(--ink-soft);margin-top:8px;">Coordinamos los horarios de agua para que cada vivienda reciba su turno de forma justa y puntual.</p></div>
-      <div class="card reveal"><div class="icon-tile green"><i class="fa-solid fa-screwdriver-wrench"></i></div><h3>Mantenimiento</h3><p style="color:var(--ink-soft);margin-top:8px;">Programamos revisiones preventivas de la manguera y el sistema comunitario para evitar daños.</p></div>
       <div class="card reveal"><div class="icon-tile"><i class="fa-solid fa-people-group"></i></div><h3>Participación</h3><p style="color:var(--ink-soft);margin-top:8px;">Promovemos que cada propietario participe activamente en las decisiones del acueducto.</p></div>
-      <div class="card reveal"><div class="icon-tile green"><i class="fa-solid fa-tools"></i></div><h3>Reparaciones rápidas</h3><p style="color:var(--ink-soft);margin-top:8px;">Atendemos daños reportados con prioridad, minimizando el tiempo sin servicio.</p></div>
       <div class="card reveal"><div class="icon-tile green"><i class="fa-solid fa-droplet"></i></div><h3>Distribución garantizada</h3><p style="color:var(--ink-soft);margin-top:8px;">Trabajamos para que el agua llegue de forma continua y equitativa a todo el sector.</p></div>
     </div>
   </div>
