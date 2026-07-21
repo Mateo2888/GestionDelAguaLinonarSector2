@@ -355,7 +355,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 .status-pill{font-size:.78rem; padding:4px 10px; border-radius:999px; font-weight:600;}
 .status-pill.on{background:rgba(46,125,50,.12); color:var(--green);}
 .status-pill.off{background:rgba(211,47,47,.1); color:#D32F2F;}
-.toast{position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(120%); background:var(--ink); color:#fff; padding:14px 24px; border-radius:12px; font-size:.9rem; z-index:6000; transition:transform .35s ease; box-shadow:var(--shadow);}
+.toast{position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(120%); background:#0D2436; color:#fff; padding:14px 24px; border-radius:12px; font-size:.9rem; z-index:6000; transition:transform .35s ease; box-shadow:var(--shadow);}
 .toast.show{transform:translateX(-50%) translateY(0);}
 
 /* ============ ANIMATIONS ============ */
@@ -466,9 +466,9 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
     </div>
     <div class="stat-strip">
       <div class="stat-grid">
-        <div class="stat-card"><div class="num" data-count="300">0</div><div class="lbl">Viviendas</div></div>
-        <div class="stat-card"><div class="num" data-count="2">0</div><div class="lbl">Sectores</div></div>
-        <div class="stat-card"><div class="num" data-count="120">0</div><div class="lbl">Mantenimientos</div></div>
+        <div class="stat-card"><div class="num" id="statViviendas" data-count="0">0</div><div class="lbl">Viviendas</div></div>
+        <div class="stat-card"><div class="num" data-count="10">0</div><div class="lbl">Sectores</div></div>
+        <div class="stat-card"><div class="num" id="statMantenimientos" data-count="0">0</div><div class="lbl">Mantenimientos</div></div>
         <div class="stat-card"><div class="num" data-count="95" data-suffix="%">0</div><div class="lbl">Disponibilidad</div></div>
       </div>
     </div>
@@ -534,7 +534,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
     </div>
     <div class="table-toolbar">
       <div class="search-box"><i class="fa-solid fa-magnifying-glass"></i><input id="progSearch" placeholder="Buscar por nombre o dirección..."></div>
-      <select class="filter" id="progFilterSector"><option value="">Todos los sectores</option><option value="Sector 1">Sector 1</option><option value="Sector 2">Sector 2</option></select>
+      <select class="filter" id="progFilterSector"><option value="">Todos los sectores</option><option value="Sector 1">Sector 1</option><option value="Sector 2">Sector 2</option><option value="Sector 3">Sector 3</option><option value="Sector 4">Sector 4</option><option value="Sector 5">Sector 5</option><option value="Sector 6">Sector 6</option><option value="Sector 7">Sector 7</option><option value="Sector 8">Sector 8</option><option value="Sector 9">Sector 9</option><option value="Sector 10">Sector 10</option></select>
       <select class="filter" id="progFilterEstado"><option value="">Todos los estados</option><option value="Al día">Al día</option><option value="Pendiente">Pendiente</option><option value="Atrasado">Atrasado</option></select>
     </div>
     <div class="table-wrap">
@@ -558,7 +558,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
       <form class="form-card" id="damageForm">
         <div class="row-2">
           <div class="field"><label for="dmg-nombre">Nombre</label><input type="text" id="dmg-nombre" name="nombre" required></div>
-          <div class="field"><label for="dmg-sector">Sector</label><select id="dmg-sector" name="sector" required><option value="">Selecciona</option><option>Sector 1</option><option>Sector 2</option></select></div>
+          <div class="field"><label for="dmg-sector">Sector</label><select id="dmg-sector" name="sector" required><option value="">Selecciona</option><option>Sector 1</option><option>Sector 2</option><option>Sector 3</option><option>Sector 4</option><option>Sector 5</option><option>Sector 6</option><option>Sector 7</option><option>Sector 8</option><option>Sector 9</option><option>Sector 10</option></select></div>
         </div>
         <div class="field"><label for="dmg-direccion">Dirección</label><input type="text" id="dmg-direccion" name="direccion" required></div>
         <div class="field"><label for="dmg-descripcion">Descripción del daño</label><textarea id="dmg-descripcion" name="descripcion" required placeholder="Describe qué observaste..."></textarea></div>
@@ -691,7 +691,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
     <h3>Quiero afiliarme</h3>
     <form id="affiliateForm">
       <div class="field"><label for="afil-nombre">Nombre completo</label><input type="text" id="afil-nombre" name="nombre" required></div>
-      <div class="field"><label for="afil-sector">Sector</label><select id="afil-sector" name="sector" required><option>Sector 1</option><option>Sector 2</option></select></div>
+      <div class="field"><label for="afil-sector">Sector</label><select id="afil-sector" name="sector" required><option>Sector 1</option><option>Sector 2</option><option>Sector 3</option><option>Sector 4</option><option>Sector 5</option><option>Sector 6</option><option>Sector 7</option><option>Sector 8</option><option>Sector 9</option><option>Sector 10</option></select></div>
       <div class="field"><label for="afil-direccion">Dirección</label><input type="text" id="afil-direccion" name="direccion" required></div>
       <div class="field"><label for="afil-telefono">WhatsApp</label><input type="tel" id="afil-telefono" name="telefono" required></div>
       <div style="display:flex;gap:10px;">
@@ -925,6 +925,14 @@ async function loadAll(){
   renderGaleria();
   renderMantenimientos();
   renderAdminLists();
+  updateStatCounters();
+}
+function updateStatCounters(){
+  const viviendas = document.getElementById("statViviendas");
+  const mantenimientos = document.getElementById("statMantenimientos");
+  if(viviendas) viviendas.dataset.count = STATE.programacion.length;
+  if(mantenimientos) mantenimientos.dataset.count = STATE.mantenimientos.length;
+  animateCounters();
 }
 
 /* =========================================================
@@ -1495,7 +1503,6 @@ function animateCounters(){
     }, 25);
   });
 }
-setTimeout(animateCounters, 400);
 
 /* =========================================================
    TOAST
