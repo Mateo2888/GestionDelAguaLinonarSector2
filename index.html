@@ -849,13 +849,23 @@ let STATE = JSON.parse(JSON.stringify(DEMO));
    ========================================================= */
 async function loadAll(){
   if(usingSupabase){
-    try{
-      const tables = ["programacion","noticias","galeria","mantenimientos","finanzas","documentos"];
-      for(const t of tables){
+    const tables = ["programacion","noticias","galeria","mantenimientos","finanzas","documentos"];
+    const failed = [];
+    for(const t of tables){
+      try{
         const {data, error} = await sbClient.from(t).select("*").order("id",{ascending:false});
-        if(!error && data) STATE[t] = data;
+        if(error){ failed.push(t); console.warn(`Error cargando "${t}" desde Supabase:`, error); }
+        else if(data) STATE[t] = data;
+      }catch(e){
+        failed.push(t);
+        console.warn(`Fallo de red cargando "${t}" desde Supabase:`, e);
       }
-    }catch(e){ console.warn("Fallo cargando de Supabase, usando datos demo", e); }
+    }
+    if(failed.length === tables.length){
+      showToast("No se pudo conectar con la base de datos. Mostrando datos de ejemplo.");
+    }else if(failed.length > 0){
+      showToast("Algunas secciones no cargaron datos actualizados. Recarga la página.");
+    }
   }
   renderProgramacion();
   renderNoticias();
@@ -977,9 +987,14 @@ function formatDate(d){
    ========================================================= */
 async function insertRow(table, row){
   if(usingSupabase){
-    const {error} = await sbClient.from(table).insert(row);
-    if(error){ showToast("Error guardando: "+error.message); return false; }
-    return true;
+    try{
+      const {error} = await sbClient.from(table).insert(row);
+      if(error){ showToast("Error guardando: "+error.message); return false; }
+      return true;
+    }catch(e){
+      showToast("No se pudo guardar: revisa tu conexión a internet e intenta de nuevo.");
+      return false;
+    }
   }else{
     showToast("Modo demo: configura Supabase para guardar datos reales.");
     return true;
@@ -997,8 +1012,13 @@ document.getElementById("damageForm").addEventListener("submit", async function(
   const file = document.getElementById("damageFile").files[0];
   if(usingSupabase && file){
     const path = `reportes/${Date.now()}_${file.name}`;
-    const {error: upErr} = await sbClient.storage.from("fotos").upload(path, file);
-    if(!upErr){ fotoUrl = sbClient.storage.from("fotos").getPublicUrl(path).data.publicUrl; }
+    try{
+      const {error: upErr} = await sbClient.storage.from("fotos").upload(path, file);
+      if(upErr){ showToast("No se pudo subir la foto, se enviará el reporte sin ella."); }
+      else{ fotoUrl = sbClient.storage.from("fotos").getPublicUrl(path).data.publicUrl; }
+    }catch(e){
+      showToast("No se pudo subir la foto, se enviará el reporte sin ella.");
+    }
   }
   const row = {nombre:fd.get("nombre"), sector:fd.get("sector"), direccion:fd.get("direccion"), descripcion:fd.get("descripcion"), foto:fotoUrl, estado:"Nuevo"};
   const ok = await insertRow("reportes_dano", row);
@@ -1042,11 +1062,15 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
     showToast("Configura Supabase para habilitar el acceso administrativo real.");
     return;
   }
-  const {data, error} = await sbClient.auth.signInWithPassword({email, password:pass});
-  if(error){ showToast("Credenciales incorrectas."); return; }
-  document.getElementById("adminEmail").textContent = data.user.email;
-  closeModal("login");
-  document.getElementById("adminPanel").classList.add("open");
+  try{
+    const {data, error} = await sbClient.auth.signInWithPassword({email, password:pass});
+    if(error){ showToast("Credenciales incorrectas."); return; }
+    document.getElementById("adminEmail").textContent = data.user.email;
+    closeModal("login");
+    document.getElementById("adminPanel").classList.add("open");
+  }catch(e){
+    showToast("No se pudo conectar para iniciar sesión. Revisa tu conexión a internet.");
+  }
 });
 function logoutAdmin(){
   if(usingSupabase) sbClient.auth.signOut();
@@ -1070,9 +1094,14 @@ document.querySelectorAll(".admin-tab").forEach(tab=>{
    ========================================================= */
 async function crudInsert(table, row){
   if(usingSupabase){
-    const {data, error} = await sbClient.from(table).insert(row).select();
-    if(error){ showToast("Error: "+error.message); return null; }
-    return data[0];
+    try{
+      const {data, error} = await sbClient.from(table).insert(row).select();
+      if(error){ showToast("Error: "+error.message); return null; }
+      return data[0];
+    }catch(e){
+      showToast("No se pudo guardar: revisa tu conexión a internet e intenta de nuevo.");
+      return null;
+    }
   }else{
     const localTable = STATE[localName(table)];
     row.id = Date.now();
@@ -1082,8 +1111,13 @@ async function crudInsert(table, row){
 }
 async function crudDelete(table, id){
   if(usingSupabase){
-    const {error} = await sbClient.from(table).delete().eq("id", id);
-    if(error){ showToast("Error: "+error.message); return; }
+    try{
+      const {error} = await sbClient.from(table).delete().eq("id", id);
+      if(error){ showToast("Error: "+error.message); return; }
+    }catch(e){
+      showToast("No se pudo eliminar: revisa tu conexión a internet e intenta de nuevo.");
+      return;
+    }
   }
   const key = localName(table);
   STATE[key] = STATE[key].filter(r=>r.id !== id);
