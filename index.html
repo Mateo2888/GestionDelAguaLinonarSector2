@@ -74,6 +74,8 @@ a{color:inherit; text-decoration:none;}
 ul{list-style:none;}
 img{max-width:100%; display:block;}
 button{font-family:inherit; cursor:pointer; border:none;}
+.skip-link{position:absolute; left:-999px; top:auto; z-index:9999; background:var(--blue); color:#fff; padding:14px 22px; border-radius:0 0 10px 0; font-weight:600;}
+.skip-link:focus{left:0; top:0;}
 .container{max-width:1180px; margin:0 auto; padding:0 24px;}
 .eyebrow{
   display:inline-flex; align-items:center; gap:8px;
@@ -269,7 +271,7 @@ tbody tr:hover{background:var(--gray-2);}
 
 /* ============ GALLERY ============ */
 .gallery-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}
-.gallery-item{border-radius:14px; overflow:hidden; cursor:pointer; position:relative; aspect-ratio:1/1;}
+.gallery-item{border-radius:14px; overflow:hidden; cursor:pointer; position:relative; aspect-ratio:1/1; border:none; background:none; padding:0; width:100%;}
 .gallery-item img{width:100%; height:100%; object-fit:cover; transition:transform .5s ease;}
 .gallery-item:hover img{transform:scale(1.12);}
 .gallery-item::after{content:'\f00e'; font-family:'Font Awesome 6 Free'; font-weight:900; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#fff; background:rgba(13,36,54,.35); opacity:0; transition:opacity .3s ease; font-size:1.3rem;}
@@ -277,7 +279,7 @@ tbody tr:hover{background:var(--gray-2);}
 .lightbox{position:fixed; inset:0; background:rgba(6,14,20,.92); z-index:3000; display:none; align-items:center; justify-content:center; padding:40px;}
 .lightbox.open{display:flex;}
 .lightbox img{max-width:90%; max-height:85vh; border-radius:10px;}
-.lightbox-close{position:absolute; top:26px; right:32px; color:#fff; font-size:1.8rem; cursor:pointer;}
+.lightbox-close{position:absolute; top:26px; right:32px; color:#fff; font-size:1.8rem; cursor:pointer; background:none; padding:0;}
 
 /* ============ TESTIMONIALS ============ */
 .test-card{background:var(--white); border:1px solid var(--line); border-radius:var(--radius); padding:26px; box-shadow:var(--shadow-sm);}
@@ -356,6 +358,9 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 /* ============ ANIMATIONS ============ */
 @keyframes floatY{0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);}}
 .float{animation:floatY 4s ease-in-out infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-state{display:flex; align-items:center; justify-content:center; gap:10px; padding:36px 20px; color:var(--ink-soft); font-size:.9rem; grid-column:1/-1;}
+.loading-state .spinner{width:20px; height:20px; border:3px solid var(--line); border-top-color:var(--blue); border-radius:50%; animation:spin .7s linear infinite; flex-shrink:0;}
 
 /* ============ RESPONSIVE ============ */
 @media (max-width:960px){
@@ -408,6 +413,8 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 </head>
 <body data-theme="light">
 
+<a href="#inicio" class="skip-link">Saltar al contenido</a>
+
 <!-- ============ NAV ============ -->
 <header id="nav">
   <div class="nav-inner">
@@ -424,8 +431,8 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
       <a href="#contacto">Contacto</a>
     </nav>
     <div class="nav-actions">
-      <button class="icon-btn" id="themeToggle" title="Modo oscuro"><i class="fa-solid fa-moon"></i></button>
-      <button class="burger" id="burgerBtn"><i class="fa-solid fa-bars"></i></button>
+      <button class="icon-btn" id="themeToggle" title="Modo oscuro" aria-label="Cambiar a modo oscuro"><i class="fa-solid fa-moon"></i></button>
+      <button class="burger" id="burgerBtn" aria-label="Abrir menú" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
     </div>
   </div>
 </header>
@@ -434,7 +441,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 <div class="mobile-menu" id="mobileMenu">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
     <strong>Menú</strong>
-    <button class="icon-btn" id="closeMenu"><i class="fa-solid fa-xmark"></i></button>
+    <button class="icon-btn" id="closeMenu" aria-label="Cerrar menú"><i class="fa-solid fa-xmark"></i></button>
   </div>
   <a href="#inicio">Inicio</a><a href="#nosotros">Nosotros</a><a href="#programacion">Programación</a>
   <a href="#mensualidad">Mensualidades</a><a href="#mantenimiento">Mantenimiento</a>
@@ -547,11 +554,11 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
       </div>
       <form class="form-card" id="damageForm">
         <div class="row-2">
-          <div class="field"><label>Nombre</label><input type="text" name="nombre" required></div>
-          <div class="field"><label>Sector</label><select name="sector" required><option value="">Selecciona</option><option>Sector 1</option><option>Sector 2</option></select></div>
+          <div class="field"><label for="dmg-nombre">Nombre</label><input type="text" id="dmg-nombre" name="nombre" required></div>
+          <div class="field"><label for="dmg-sector">Sector</label><select id="dmg-sector" name="sector" required><option value="">Selecciona</option><option>Sector 1</option><option>Sector 2</option></select></div>
         </div>
-        <div class="field"><label>Dirección</label><input type="text" name="direccion" required></div>
-        <div class="field"><label>Descripción del daño</label><textarea name="descripcion" required placeholder="Describe qué observaste..."></textarea></div>
+        <div class="field"><label for="dmg-direccion">Dirección</label><input type="text" id="dmg-direccion" name="direccion" required></div>
+        <div class="field"><label for="dmg-descripcion">Descripción del daño</label><textarea id="dmg-descripcion" name="descripcion" required placeholder="Describe qué observaste..."></textarea></div>
         <div class="field">
           <label>Fotografía (opcional)</label>
           <label class="file-drop"><i class="fa-solid fa-camera" style="font-size:1.4rem;display:block;margin-bottom:6px;"></i><span id="fileLabel">Toca para subir una foto</span><input type="file" name="foto" accept="image/*" style="display:none;" id="damageFile"></label>
@@ -619,10 +626,10 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
       <h2>Preguntas frecuentes</h2>
     </div>
     <div id="faqList">
-      <div class="faq-item"><div class="faq-q">¿Qué pasa si no pago la mensualidad? <i class="fa-solid fa-chevron-down"></i></div><div class="faq-a"><p>El servicio puede verse afectado en la prioridad de mantenimiento y respuesta a daños de la vivienda correspondiente. El aporte sostiene el sistema para todos.</p></div></div>
-      <div class="faq-item"><div class="faq-q">¿Cómo reporto un daño urgente? <i class="fa-solid fa-chevron-down"></i></div><div class="faq-a"><p>Puedes usar el formulario de "Reportar daño" en esta página o escribir directamente por WhatsApp al encargado del sector.</p></div></div>
-      <div class="faq-item"><div class="faq-q">¿Puedo cambiar mi horario de agua? <i class="fa-solid fa-chevron-down"></i></div><div class="faq-a"><p>Los horarios se asignan por sector para garantizar equidad. Cualquier ajuste debe solicitarse directamente al encargado.</p></div></div>
-      <div class="faq-item"><div class="faq-q">¿Dónde veo en qué se gasta el dinero? <i class="fa-solid fa-chevron-down"></i></div><div class="faq-a"><p>En la sección "Transparencia" de esta página publicamos ingresos, gastos y el estado financiero actualizado.</p></div></div>
+      <div class="faq-item"><div class="faq-q" role="button" tabindex="0" aria-expanded="false">¿Qué pasa si no pago la mensualidad? <i class="fa-solid fa-chevron-down"></i></div><div class="faq-a"><p>El servicio puede verse afectado en la prioridad de mantenimiento y respuesta a daños de la vivienda correspondiente. El aporte sostiene el sistema para todos.</p></div></div>
+      <div class="faq-item"><div class="faq-q" role="button" tabindex="0" aria-expanded="false">¿Cómo reporto un daño urgente? <i class="fa-solid fa-chevron-down"></i></div><div class="faq-a"><p>Puedes usar el formulario de "Reportar daño" en esta página o escribir directamente por WhatsApp al encargado del sector.</p></div></div>
+      <div class="faq-item"><div class="faq-q" role="button" tabindex="0" aria-expanded="false">¿Puedo cambiar mi horario de agua? <i class="fa-solid fa-chevron-down"></i></div><div class="faq-a"><p>Los horarios se asignan por sector para garantizar equidad. Cualquier ajuste debe solicitarse directamente al encargado.</p></div></div>
+      <div class="faq-item"><div class="faq-q" role="button" tabindex="0" aria-expanded="false">¿Dónde veo en qué se gasta el dinero? <i class="fa-solid fa-chevron-down"></i></div><div class="faq-a"><p>En la sección "Transparencia" de esta página publicamos ingresos, gastos y el estado financiero actualizado.</p></div></div>
     </div>
   </div>
 </section>
@@ -669,8 +676,8 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
       </div>
       <div class="card">
         <form id="contactForm">
-          <div class="field"><label>Nombre</label><input type="text" required></div>
-          <div class="field"><label>Mensaje</label><textarea required placeholder="Escribe tu mensaje..."></textarea></div>
+          <div class="field"><label for="contact-nombre">Nombre</label><input type="text" id="contact-nombre" required></div>
+          <div class="field"><label for="contact-mensaje">Mensaje</label><textarea id="contact-mensaje" required placeholder="Escribe tu mensaje..."></textarea></div>
           <button type="submit" class="btn btn-primary btn-block"><i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp</button>
         </form>
       </div>
@@ -703,10 +710,10 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
   <div class="modal-box">
     <h3>Quiero afiliarme</h3>
     <form id="affiliateForm">
-      <div class="field"><label>Nombre completo</label><input type="text" name="nombre" required></div>
-      <div class="field"><label>Sector</label><select name="sector" required><option>Sector 1</option><option>Sector 2</option></select></div>
-      <div class="field"><label>Dirección</label><input type="text" name="direccion" required></div>
-      <div class="field"><label>WhatsApp</label><input type="tel" name="telefono" required></div>
+      <div class="field"><label for="afil-nombre">Nombre completo</label><input type="text" id="afil-nombre" name="nombre" required></div>
+      <div class="field"><label for="afil-sector">Sector</label><select id="afil-sector" name="sector" required><option>Sector 1</option><option>Sector 2</option></select></div>
+      <div class="field"><label for="afil-direccion">Dirección</label><input type="text" id="afil-direccion" name="direccion" required></div>
+      <div class="field"><label for="afil-telefono">WhatsApp</label><input type="tel" id="afil-telefono" name="telefono" required></div>
       <div style="display:flex;gap:10px;">
         <button type="button" class="btn btn-outline" style="flex:1;" onclick="closeModal('afiliar')">Cancelar</button>
         <button type="submit" class="btn btn-green" style="flex:1;">Enviar</button>
@@ -720,8 +727,8 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
   <div class="modal-box">
     <h3><i class="fa-solid fa-lock"></i> Acceso administrativo</h3>
     <form id="loginForm">
-      <div class="field"><label>Correo</label><input type="email" id="loginEmail" required></div>
-      <div class="field"><label>Contraseña</label><input type="password" id="loginPass" required></div>
+      <div class="field"><label for="loginEmail">Correo</label><input type="email" id="loginEmail" required></div>
+      <div class="field"><label for="loginPass">Contraseña</label><input type="password" id="loginPass" required></div>
       <div style="display:flex;gap:10px;">
         <button type="button" class="btn btn-outline" style="flex:1;" onclick="closeModal('login')">Cancelar</button>
         <button type="submit" class="btn btn-primary" style="flex:1;">Entrar</button>
@@ -732,7 +739,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 </div>
 
 <!-- ============ LIGHTBOX ============ -->
-<div class="lightbox" id="lightbox"><span class="lightbox-close" id="lightboxClose">&times;</span><img id="lightboxImg" src="" alt=""></div>
+<div class="lightbox" id="lightbox"><button class="lightbox-close" id="lightboxClose" aria-label="Cerrar imagen">&times;</button><img id="lightboxImg" src="" alt=""></div>
 
 <!-- ============ ADMIN PANEL ============ -->
 <div class="admin-panel" id="adminPanel">
@@ -860,8 +867,18 @@ STATE.afiliaciones = [];
 /* =========================================================
    CARGA DE DATOS
    ========================================================= */
+function showLoadingState(){
+  const spinner = `<div class="spinner"></div> Cargando...`;
+  document.getElementById("progTableBody").innerHTML = `<tr><td colspan="4"><div class="loading-state">${spinner}</div></td></tr>`;
+  document.getElementById("newsGrid").innerHTML = `<div class="loading-state">${spinner}</div>`;
+  document.getElementById("galleryGrid").innerHTML = `<div class="loading-state">${spinner}</div>`;
+  document.getElementById("maintTimeline").innerHTML = `<div class="loading-state">${spinner}</div>`;
+  document.getElementById("finTableBody").innerHTML = `<tr><td colspan="4"><div class="loading-state">${spinner}</div></td></tr>`;
+  document.getElementById("docsGrid").innerHTML = `<div class="loading-state">${spinner}</div>`;
+}
 async function loadAll(){
   if(usingSupabase){
+    showLoadingState();
     const tables = ["programacion","noticias","galeria","mantenimientos","finanzas","documentos"];
     const failed = [];
     for(const t of tables){
@@ -938,9 +955,14 @@ function renderNoticias(){
 function renderGaleria(){
   const grid = document.getElementById("galleryGrid");
   const imgs = STATE.galeria.map(g=> typeof g === "string" ? g : g.url);
-  grid.innerHTML = imgs.map(url=>`<div class="gallery-item" onclick="openLightbox('${url}')"><img src="${url}" loading="lazy"></div>`).join("");
+  grid.innerHTML = imgs.map((url,i)=>`<button type="button" class="gallery-item" onclick="openLightbox('${url}')" aria-label="Ver foto ${i+1} de la galería en tamaño completo"><img src="${url}" alt="" loading="lazy"></button>`).join("");
 }
-function openLightbox(url){ document.getElementById("lightboxImg").src=url; document.getElementById("lightbox").classList.add("open"); }
+function openLightbox(url){
+  const img = document.getElementById("lightboxImg");
+  img.src = url;
+  img.alt = "Foto de la galería en tamaño completo";
+  document.getElementById("lightbox").classList.add("open");
+}
 document.getElementById("lightboxClose").onclick = ()=> document.getElementById("lightbox").classList.remove("open");
 document.getElementById("lightbox").addEventListener("click", e=>{ if(e.target.id==="lightbox") e.currentTarget.classList.remove("open"); });
 
@@ -955,7 +977,7 @@ function renderMantenimientos(){
       <div class="tl-card">
         <strong>${m.actividad}</strong>
         <p style="color:var(--ink-soft);font-size:.9rem;margin-top:6px;">Responsable: ${m.responsable} · ${statusPillText(m.estado)}</p>
-        ${m.imagen ? `<img src="${m.imagen}" alt="">` : ""}
+        ${m.imagen ? `<img src="${m.imagen}" alt="${m.actividad}">` : ""}
       </div>
     </div>`).join("");
   observeReveal();
@@ -1226,7 +1248,7 @@ function renderAdminLists(){
       <button class="mini-btn del" onclick="crudDelete('noticias',${JSON.stringify(r.id)}).then(refreshAll)"><i class="fa-solid fa-trash"></i></button></div>`).join("");
   document.getElementById("admin-gallery-list").innerHTML = STATE.galeria.map(r=>{
     const url = typeof r === "string" ? r : r.url; const id = typeof r === "string" ? null : r.id;
-    return `<div style="position:relative;"><img src="${url}" style="width:100%;height:100px;object-fit:cover;border-radius:8px;">
+    return `<div style="position:relative;"><img src="${url}" alt="Foto de la galería" style="width:100%;height:100px;object-fit:cover;border-radius:8px;">
       ${id!==null?`<button class="mini-btn del" style="position:absolute;top:4px;right:4px;" onclick="crudDelete('galeria',${JSON.stringify(id)}).then(refreshAll)"><i class="fa-solid fa-trash"></i></button>`:""}</div>`;
   }).join("");
   document.getElementById("admin-maint-list").innerHTML = STATE.mantenimientos.map(r=>`
@@ -1240,7 +1262,7 @@ function renderAdminLists(){
       <button class="mini-btn del" onclick="crudDelete('documentos',${JSON.stringify(r.id)}).then(refreshAll)"><i class="fa-solid fa-trash"></i></button></div>`).join("");
   document.getElementById("admin-reportes-list").innerHTML = STATE.reportes_dano.map(r=>`
     <div class="admin-row" style="align-items:flex-start;">
-      ${r.foto ? `<img src="${r.foto}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;flex-shrink:0;">` : ""}
+      ${r.foto ? `<img src="${r.foto}" alt="Foto del daño reportado por ${r.nombre}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;flex-shrink:0;">` : ""}
       <span class="grow">
         <strong>${r.nombre}</strong> · ${r.sector} · ${r.direccion}<br>
         <span style="font-size:.85rem;color:var(--ink-soft);">${r.descripcion}</span>
@@ -1271,12 +1293,24 @@ function renderAdminLists(){
    FAQ ACCORDION
    ========================================================= */
 document.querySelectorAll(".faq-q").forEach(q=>{
-  q.addEventListener("click", ()=>{
+  function toggleFaq(){
     const item = q.parentElement;
     const answer = item.querySelector(".faq-a");
     const wasOpen = item.classList.contains("open");
-    document.querySelectorAll(".faq-item").forEach(i=>{ i.classList.remove("open"); i.querySelector(".faq-a").style.maxHeight=null; });
-    if(!wasOpen){ item.classList.add("open"); answer.style.maxHeight = answer.scrollHeight+"px"; }
+    document.querySelectorAll(".faq-item").forEach(i=>{
+      i.classList.remove("open");
+      i.querySelector(".faq-a").style.maxHeight=null;
+      i.querySelector(".faq-q").setAttribute("aria-expanded","false");
+    });
+    if(!wasOpen){
+      item.classList.add("open");
+      answer.style.maxHeight = answer.scrollHeight+"px";
+      q.setAttribute("aria-expanded","true");
+    }
+  }
+  q.addEventListener("click", toggleFaq);
+  q.addEventListener("keydown", e=>{
+    if(e.key==="Enter" || e.key===" "){ e.preventDefault(); toggleFaq(); }
   });
 });
 
@@ -1297,11 +1331,12 @@ themeToggle.addEventListener("click", ()=> setTheme(document.body.getAttribute("
    ========================================================= */
 const mobileMenu = document.getElementById("mobileMenu");
 const menuBackdrop = document.getElementById("menuBackdrop");
-document.getElementById("burgerBtn").addEventListener("click", ()=>{ mobileMenu.classList.add("open"); menuBackdrop.classList.add("open"); });
+const burgerBtn = document.getElementById("burgerBtn");
+burgerBtn.addEventListener("click", ()=>{ mobileMenu.classList.add("open"); menuBackdrop.classList.add("open"); burgerBtn.setAttribute("aria-expanded","true"); });
 document.getElementById("closeMenu").addEventListener("click", closeMobileMenu);
 menuBackdrop.addEventListener("click", closeMobileMenu);
 mobileMenu.querySelectorAll("a").forEach(a=>a.addEventListener("click", closeMobileMenu));
-function closeMobileMenu(){ mobileMenu.classList.remove("open"); menuBackdrop.classList.remove("open"); }
+function closeMobileMenu(){ mobileMenu.classList.remove("open"); menuBackdrop.classList.remove("open"); burgerBtn.setAttribute("aria-expanded","false"); }
 
 /* =========================================================
    SCROLL: nav active state, back-to-top, reveal
