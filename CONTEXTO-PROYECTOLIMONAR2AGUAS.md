@@ -60,12 +60,11 @@ Después de este fix, probar en vivo (esperar 1-2 min por el deploy de GitHub Pa
 - El candado 🔒 (abajo a la izquierda) abre el modal de login y con el usuario administrador ya creado se puede entrar al panel.
 - Desde el panel se puede agregar un registro nuevo y verlo reflejado en la tabla pública tras refrescar.
 
-## Pendientes de personalización (para después de arreglar el bug)
-Estos son placeholders que hay que reemplazar con datos reales del barrio, buscando en index.html:
-- Número de WhatsApp: aparece como `573000000000` (2 apariciones: botón flotante y formulario de contacto).
-- Correo: `contacto@limonarsector2.org`
-- Nombre del encargado / contacto: sección `<!-- ============ CONTACTO ============ -->` (actualmente dice "Mateo Castro").
-- Fotos: el hero usa un patrón CSS decorativo (no foto); galería y noticias usan imágenes de stock de Unsplash como placeholder — reemplazar por fotos reales del sector cuando el usuario las tenga.
+## Pendientes de personalización
+- ~~Número de WhatsApp~~ ✅ ya actualizado a `+57 317 042 7446` (ver Registro de cambios).
+- ~~Correo~~ ✅ ya actualizado a `gestionagualimonall@gmail.com` (ver Registro de cambios).
+- Nombre del encargado / contacto: sección `<!-- ============ CONTACTO ============ -->` — el usuario confirmó que "Mateo Castro" ya es el nombre real, no requiere cambio.
+- Fotos: el hero usa un patrón CSS decorativo (no foto); galería y noticias usan imágenes de stock de Unsplash como placeholder — el usuario no tiene fotos reales a mano todavía, queda pendiente para cuando las tenga.
 - Datos de ejemplo en Supabase (programación, finanzas, etc.) son de prueba — se pueden editar/borrar desde el panel admin sin tocar código.
 
 ## Preferencias del usuario
@@ -82,3 +81,7 @@ Estos son placeholders que hay que reemplazar con datos reales del barrio, busca
 ### 2026-07-20 — Corregir conflicto de variable `supabase`
 **Qué se hizo:** se renombró la variable propia `let supabase` → `let sbClient` en todo `index.html` (declaración, asignación con `window.supabase.createClient(...)`, y todos los usos `.from(`, `.auth.`, `.storage.`), sin tocar `window.supabase.createClient` ni el CDN de `@supabase/supabase-js`. También se eliminó una etiqueta `<script>` duplicada e incorrecta del CDN de Font Awesome en el `<head>` (dejando solo el `<link rel="stylesheet">`). Commit `e357040`, push a `main`.
 **Qué quedó pendiente:** probar en vivo tras el deploy de GitHub Pages (Ctrl+Shift+R, revisar consola con F12) para confirmar que ya no aparece el error de `Identifier 'supabase' has already been declared` y que la sección "Programación", el login del panel admin y el alta de registros funcionan correctamente. También siguen pendientes las personalizaciones listadas en "Pendientes de personalización" (WhatsApp, correo, nombre de contacto, fotos reales).
+
+### 2026-07-20 — Personalizar WhatsApp y correo de contacto
+**Qué se hizo:** en `index.html` se reemplazó el número de WhatsApp placeholder (`573000000000`) por el real `+57 317 042 7446` en las 4 apariciones (ícono flotante `fab-whats`, enlace `tel:`, texto visible en "Contacto", y la función JS que abre `wa.me` con el mensaje del formulario de reporte de daño). También se reemplazó el correo placeholder `contacto@limonarsector2.org` por el real `gestionagualimonall@gmail.com` en la sección de contacto.
+**Qué quedó pendiente:** faltan las fotos reales del sector (hero, galería, noticias siguen con imágenes de stock/patrón CSS) — el usuario las agregará cuando las tenga. El nombre del encargado ("Mateo Castro") y los datos de ejemplo en Supabase no requieren cambio por ahora.
