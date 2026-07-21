@@ -312,11 +312,11 @@ a:focus-visible, button:focus-visible{outline:2.5px solid var(--blue); outline-o
 /* ============ TRANSPARENCIA ============ */
 .fin-summary{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:30px;}
 .fin-card{border-radius:16px; padding:24px; color:#fff;}
-.fin-card.in{background:linear-gradient(135deg,var(--green),#4CAF50);}
-.fin-card.out{background:linear-gradient(135deg,#D32F2F,#EF5350);}
-.fin-card.bal{background:linear-gradient(135deg,var(--blue),var(--sky));}
-.fin-card .lbl{font-size:.82rem; opacity:.85;}
-.fin-card .val{font-family:var(--font-display); font-size:1.7rem; font-weight:800; margin-top:4px;}
+.fin-card.in{background:var(--green);}
+.fin-card.out{background:#D32F2F;}
+.fin-card.bal{background:var(--blue);}
+.fin-card .lbl{font-size:.82rem; text-shadow:0 1px 4px rgba(0,0,0,.35);}
+.fin-card .val{font-family:var(--font-display); font-size:1.7rem; font-weight:800; margin-top:4px; text-shadow:0 2px 8px rgba(0,0,0,.35);}
 
 /* ============ CONTACT ============ */
 .contact-wrap{display:grid; grid-template-columns:.9fr 1.1fr; gap:40px; align-items:center;}
