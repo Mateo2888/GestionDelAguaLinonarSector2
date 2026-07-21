@@ -79,7 +79,7 @@ button{font-family:inherit; cursor:pointer; border:none;}
 .container{max-width:1180px; margin:0 auto; padding:0 24px;}
 .eyebrow{
   display:inline-flex; align-items:center; gap:8px;
-  font-size:.78rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  font-size:.8rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
   color:var(--blue); background:rgba(12,122,158,.08); padding:6px 14px; border-radius:999px;
   margin-bottom:14px;
 }
@@ -141,11 +141,11 @@ header#nav{
 [data-theme="dark"] .nav-links a:hover, [data-theme="dark"] .nav-links a.active{color:var(--sky); background:rgba(30,196,214,.14);}
 .nav-actions{display:flex; align-items:center; gap:8px; flex-shrink:0;}
 .icon-btn{
-  width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center;
   background:var(--gray-2); color:var(--ink); transition:all .25s ease; font-size:.95rem;
 }
 .icon-btn:hover{background:var(--blue); color:#fff; transform:rotate(15deg);}
-.burger{display:none; width:36px; height:36px; border-radius:10px; background:var(--gray-2); align-items:center; justify-content:center; font-size:1.05rem; transition:background .2s ease;}
+.burger{display:none; width:44px; height:44px; border-radius:10px; background:var(--gray-2); align-items:center; justify-content:center; font-size:1.05rem; transition:background .2s ease;}
 .burger:hover{background:var(--blue); color:#fff;}
 
 /* ============ HERO ============ */
@@ -186,7 +186,7 @@ header#nav{
   border:1px solid rgba(255,255,255,.22); border-radius:16px; padding:20px 14px; text-align:center; color:#fff;
 }
 .stat-card .num{font-family:var(--font-display); font-size:1.9rem; font-weight:800; text-shadow:0 2px 10px rgba(0,0,0,.4);}
-.stat-card .lbl{font-size:.78rem; opacity:.9; margin-top:2px; text-shadow:0 1px 6px rgba(0,0,0,.4);}
+.stat-card .lbl{font-size:.8rem; opacity:.9; margin-top:2px; text-shadow:0 1px 6px rgba(0,0,0,.4);}
 
 /* ============ CARDS ============ */
 .card{
@@ -247,11 +247,15 @@ tbody tr:hover{background:var(--gray-2);}
   width:100%; padding:13px 15px; border-radius:12px; border:1.5px solid var(--line);
   background:var(--gray); color:var(--ink); font-family:inherit; font-size:.95rem; transition:border .2s ease;
 }
-.field input:focus, .field select:focus, .field textarea:focus{outline:none; border-color:var(--blue); background:var(--white);}
+.field input:focus, .field select:focus, .field textarea:focus{outline:none; border-color:var(--blue); background:var(--white); box-shadow:0 0 0 3px rgba(12,122,158,.25);}
+a:focus-visible, button:focus-visible{outline:2.5px solid var(--blue); outline-offset:2px;}
+[data-theme="dark"] a:focus-visible, [data-theme="dark"] button:focus-visible{outline-color:var(--sky);}
 .field textarea{resize:vertical; min-height:100px;}
 .file-drop{border:2px dashed var(--line); border-radius:14px; padding:26px; text-align:center; color:var(--ink-soft); cursor:pointer; transition:all .2s ease;}
 .file-drop:hover{border-color:var(--sky); color:var(--sky);}
 .row-2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+.turno-form{display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;}
+.turno-field{flex:1; min-width:200px; margin-bottom:0; max-width:100%;}
 
 /* ============ TIMELINE ============ */
 .timeline{position:relative; padding-left:36px;}
@@ -268,7 +272,7 @@ tbody tr:hover{background:var(--gray-2);}
 .news-card:hover{transform:translateY(-6px);}
 .news-card img{height:190px; object-fit:cover; width:100%;}
 .news-body{padding:22px;}
-.news-date{font-size:.78rem; color:var(--ink-soft); margin-bottom:6px;}
+.news-date{font-size:.8rem; color:var(--ink-soft); margin-bottom:6px;}
 .news-body h3{font-size:1.1rem; margin-bottom:8px;}
 .news-body p{font-size:.9rem; color:var(--ink-soft); margin-bottom:14px;}
 .read-more{color:var(--blue); font-weight:600; font-size:.9rem; display:inline-flex; align-items:center; gap:6px;}
@@ -284,7 +288,7 @@ tbody tr:hover{background:var(--gray-2);}
 .lightbox{position:fixed; inset:0; background:rgba(6,14,20,.92); z-index:3000; display:none; align-items:center; justify-content:center; padding:40px;}
 .lightbox.open{display:flex;}
 .lightbox img{max-width:90%; max-height:85vh; border-radius:10px;}
-.lightbox-close{position:absolute; top:26px; right:32px; color:#fff; font-size:1.8rem; cursor:pointer; background:none; padding:0;}
+.lightbox-close{position:absolute; top:20px; right:24px; width:44px; height:44px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.8rem; cursor:pointer; background:none; padding:0;}
 
 /* ============ TESTIMONIALS ============ */
 .test-card{background:var(--white); border:1px solid var(--line); border-radius:var(--radius); padding:26px; box-shadow:var(--shadow-sm);}
@@ -292,7 +296,7 @@ tbody tr:hover{background:var(--gray-2);}
 .test-avatar{width:44px; height:44px; border-radius:50%; background:linear-gradient(135deg,var(--blue),var(--sky)); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:700; margin-right:12px;}
 .test-head{display:flex; align-items:center; margin-top:16px;}
 .test-name{font-weight:700; font-size:.92rem;}
-.test-role{font-size:.78rem; color:var(--ink-soft);}
+.test-role{font-size:.8rem; color:var(--ink-soft);}
 
 /* ============ FAQ ============ */
 .faq-item{border:1px solid var(--line); border-radius:14px; margin-bottom:12px; overflow:hidden; background:var(--white);}
@@ -323,7 +327,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 [data-theme="dark"]footer{background:#070D13;}
 .footer-grid{display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:40px; margin-bottom:40px;}
 .footer-grid h4{color:#fff; margin-bottom:14px; font-size:1rem;}
-.footer-grid a{display:block; padding:5px 0; font-size:.9rem; color:#B9CBD6; transition:color .2s ease;}
+.footer-grid a{display:block; padding:11px 0; min-height:44px; font-size:1rem; color:#B9CBD6; transition:color .2s ease;}
 .footer-grid a:hover{color:var(--sky);}
 .footer-bottom{border-top:1px solid rgba(255,255,255,.1); padding-top:20px; font-size:.82rem; text-align:center; color:#7E93A1;}
 
@@ -335,7 +339,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 .fab-top.show{opacity:1; pointer-events:auto;}
 
 /* ============ ADMIN ============ */
-.admin-toggle{position:fixed; left:18px; bottom:18px; z-index:900; width:38px; height:38px; border-radius:50%; background:var(--gray-2); color:var(--ink-soft); display:flex; align-items:center; justify-content:center; font-size:.85rem; opacity:.5;}
+.admin-toggle{position:fixed; left:18px; bottom:18px; z-index:900; width:44px; height:44px; border-radius:50%; background:var(--gray-2); color:var(--ink-soft); display:flex; align-items:center; justify-content:center; font-size:.85rem; opacity:.5;}
 .admin-toggle:hover{opacity:1;}
 .modal-overlay{position:fixed; inset:0; background:rgba(6,14,20,.6); z-index:4000; display:none; align-items:center; justify-content:center; padding:20px;}
 .modal-overlay.open{display:flex;}
@@ -354,7 +358,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 .mini-btn{padding:8px 12px; border-radius:8px; font-size:.8rem; font-weight:600;}
 .mini-btn.del{background:rgba(211,47,47,.1); color:#D32F2F;}
 .mini-btn.save{background:rgba(46,125,50,.12); color:var(--green);}
-.status-pill{font-size:.78rem; padding:4px 10px; border-radius:999px; font-weight:600;}
+.status-pill{font-size:.8rem; padding:4px 10px; border-radius:999px; font-weight:600;}
 .status-pill.on{background:rgba(46,125,50,.12); color:var(--green);}
 .status-pill.off{background:rgba(211,47,47,.1); color:#D32F2F;}
 .toast{position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(120%); background:#0D2436; color:#fff; padding:14px 24px; border-radius:12px; font-size:.9rem; z-index:6000; transition:transform .35s ease; box-shadow:var(--shadow);}
@@ -389,6 +393,12 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
   .section{padding:64px 0;}
   .pricing-wrap{padding:32px 22px;}
   .price-tag{font-size:2.4rem;}
+  .form-card{padding:24px 20px;}
+  .turno-field{min-width:0; width:100%;}
+  .admin-bar{flex-wrap:wrap; gap:10px;}
+  footer{padding-bottom:90px;}
+  .hero-actions{flex-direction:column; align-items:center;}
+  .hero-actions .btn{width:100%; max-width:340px;}
 }
 .mobile-menu{position:fixed; top:0; right:0; bottom:0; width:min(300px,84vw); background:var(--white); z-index:1100; transform:translateX(100%); transition:transform .35s cubic-bezier(.4,0,.2,1); padding:22px 20px; box-shadow:-10px 0 30px rgba(0,0,0,.15); overflow-y:auto;}
 .mobile-menu.open{transform:translateX(0);}
@@ -501,6 +511,25 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
   </div>
 </section>
 
+<!-- ============ CONSULTA DE TURNO ============ -->
+<section class="section" id="consulta">
+  <div class="container" style="max-width:720px;">
+    <div class="section-head center">
+      <span class="eyebrow">Turno automático</span>
+      <h2>Consulta tu turno de agua</h2>
+      <p>Escribe tu código de propietario (ejemplo: LM045) y consulta al instante tu turno.</p>
+    </div>
+    <form class="form-card turno-form" id="turnoForm">
+      <div class="field turno-field">
+        <label for="turnoCodigo">Código de propietario</label>
+        <input type="text" id="turnoCodigo" placeholder="Ej: LM045" required style="text-transform:uppercase;">
+      </div>
+      <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Consultar</button>
+    </form>
+    <div id="turnoResultado" style="display:none;margin-top:20px;"></div>
+  </div>
+</section>
+
 <!-- ============ MENSUALIDAD ============ -->
 <section class="section alt" id="mensualidad">
   <div class="container">
@@ -529,22 +558,15 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
   </div>
 </section>
 
-<!-- ============ CONSULTA DE TURNO ============ -->
-<section class="section" id="consulta">
-  <div class="container" style="max-width:720px;">
-    <div class="section-head center">
-      <span class="eyebrow">Turno automático</span>
-      <h2>Consulta tu turno de agua</h2>
-      <p>Escribe tu código de propietario (ejemplo: LM045) y consulta al instante tu turno.</p>
+<!-- ============ MANTENIMIENTO ============ -->
+<section class="section" id="mantenimiento">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Registro</span>
+      <h2>Historial de mantenimientos</h2>
+      <p>Línea de tiempo con las actividades realizadas sobre el sistema comunitario.</p>
     </div>
-    <form class="form-card" id="turnoForm" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
-      <div class="field" style="flex:1;min-width:200px;margin-bottom:0;">
-        <label for="turnoCodigo">Código de propietario</label>
-        <input type="text" id="turnoCodigo" placeholder="Ej: LM045" required style="text-transform:uppercase;">
-      </div>
-      <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Consultar</button>
-    </form>
-    <div id="turnoResultado" style="display:none;margin-top:20px;"></div>
+    <div class="timeline" id="maintTimeline"></div>
   </div>
 </section>
 
@@ -559,30 +581,18 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
       </div>
       <form class="form-card" id="damageForm">
         <div class="row-2">
-          <div class="field"><label for="dmg-nombre">Nombre</label><input type="text" id="dmg-nombre" name="nombre" required></div>
+          <div class="field"><label for="dmg-nombre">Nombre</label><input type="text" id="dmg-nombre" name="nombre" required placeholder="Ej: María Gómez"></div>
           <div class="field"><label for="dmg-sector">Sector</label><select id="dmg-sector" name="sector" required><option value="">Selecciona</option><option>Sector 1</option><option>Sector 2</option><option>Sector 3</option><option>Sector 4</option><option>Sector 5</option><option>Sector 6</option><option>Sector 7</option><option>Sector 8</option><option>Sector 9</option><option>Sector 10</option></select></div>
         </div>
-        <div class="field"><label for="dmg-direccion">Dirección</label><input type="text" id="dmg-direccion" name="direccion" required></div>
-        <div class="field"><label for="dmg-descripcion">Descripción del daño</label><textarea id="dmg-descripcion" name="descripcion" required placeholder="Describe qué observaste..."></textarea></div>
+        <div class="field"><label for="dmg-direccion">Dirección</label><input type="text" id="dmg-direccion" name="direccion" required placeholder="Ej: Calle 5 # 12-34, Limonar Sector II"></div>
+        <div class="field"><label for="dmg-descripcion">Descripción del daño</label><textarea id="dmg-descripcion" name="descripcion" required placeholder="Ej: Hay una fuga en la manguera frente a la tienda"></textarea></div>
         <div class="field">
-          <label>Fotografía (opcional)</label>
+          <label for="damageFile">Fotografía (opcional)</label>
           <label class="file-drop"><i class="fa-solid fa-camera" style="font-size:1.4rem;display:block;margin-bottom:6px;"></i><span id="fileLabel">Toca para subir una foto</span><input type="file" name="foto" accept="image/*" style="display:none;" id="damageFile"></label>
         </div>
         <button type="submit" class="btn btn-primary btn-block"><i class="fa-solid fa-paper-plane"></i> Enviar reporte</button>
       </form>
     </div>
-  </div>
-</section>
-
-<!-- ============ MANTENIMIENTO ============ -->
-<section class="section" id="mantenimiento">
-  <div class="container">
-    <div class="section-head">
-      <span class="eyebrow">Registro</span>
-      <h2>Historial de mantenimientos</h2>
-      <p>Línea de tiempo con las actividades realizadas sobre el sistema comunitario.</p>
-    </div>
-    <div class="timeline" id="maintTimeline"></div>
   </div>
 </section>
 
@@ -658,8 +668,8 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
       </div>
       <div class="card">
         <form id="contactForm">
-          <div class="field"><label for="contact-nombre">Nombre</label><input type="text" id="contact-nombre" required></div>
-          <div class="field"><label for="contact-mensaje">Mensaje</label><textarea id="contact-mensaje" required placeholder="Escribe tu mensaje..."></textarea></div>
+          <div class="field"><label for="contact-nombre">Nombre</label><input type="text" id="contact-nombre" required placeholder="Ej: María Gómez"></div>
+          <div class="field"><label for="contact-mensaje">Mensaje</label><textarea id="contact-mensaje" required placeholder="Ej: Quisiera saber a qué hora me toca el turno de agua"></textarea></div>
           <button type="submit" class="btn btn-primary btn-block"><i class="fa-brands fa-whatsapp"></i> Enviar por WhatsApp</button>
         </form>
       </div>
@@ -673,7 +683,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
     <div class="footer-grid">
       <div>
         <div class="brand" style="color:#fff;margin-bottom:12px;"><span class="drop"><i class="fa-solid fa-droplet"></i></span> Limonar Sector II</div>
-        <p style="font-size:.9rem;max-width:320px;">Gestión comunitaria del agua para el barrio Limonar Sector II, Soacha, Cundinamarca.</p>
+        <p style="font-size:1rem;max-width:320px;">Gestión comunitaria del agua para el barrio Limonar Sector II, Soacha, Cundinamarca.</p>
       </div>
       <div><h4>Navegación</h4><a href="#consulta">Mi turno</a><a href="#mensualidad">Mensualidades</a><a href="#reportar">Reportar daño</a></div>
       <div><h4>Contacto</h4><a href="#contacto">Escríbenos</a><a href="tel:+573170427446">+57 317 042 7446</a><a href="#">Soacha, Cundinamarca</a></div>
@@ -683,19 +693,19 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 </footer>
 
 <!-- ============ FLOATING BUTTONS ============ -->
-<a href="https://wa.me/573170427446" target="_blank" class="fab fab-whats" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
-<button class="fab fab-top" id="toTop" title="Volver arriba"><i class="fa-solid fa-arrow-up"></i></button>
-<button class="admin-toggle" id="adminToggleBtn" title="Panel administrativo"><i class="fa-solid fa-lock"></i></button>
+<a href="https://wa.me/573170427446" target="_blank" class="fab fab-whats" title="WhatsApp" aria-label="Escribir por WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+<button class="fab fab-top" id="toTop" title="Volver arriba" aria-label="Volver arriba"><i class="fa-solid fa-arrow-up"></i></button>
+<button class="admin-toggle" id="adminToggleBtn" title="Panel administrativo" aria-label="Abrir panel administrativo"><i class="fa-solid fa-lock"></i></button>
 
 <!-- ============ AFILIAR MODAL ============ -->
 <div class="modal-overlay" id="modal-afiliar">
   <div class="modal-box">
     <h3>Quiero afiliarme</h3>
     <form id="affiliateForm">
-      <div class="field"><label for="afil-nombre">Nombre completo</label><input type="text" id="afil-nombre" name="nombre" required></div>
+      <div class="field"><label for="afil-nombre">Nombre completo</label><input type="text" id="afil-nombre" name="nombre" required placeholder="Ej: María Gómez"></div>
       <div class="field"><label for="afil-sector">Sector</label><select id="afil-sector" name="sector" required><option>Sector 1</option><option>Sector 2</option><option>Sector 3</option><option>Sector 4</option><option>Sector 5</option><option>Sector 6</option><option>Sector 7</option><option>Sector 8</option><option>Sector 9</option><option>Sector 10</option></select></div>
-      <div class="field"><label for="afil-direccion">Dirección</label><input type="text" id="afil-direccion" name="direccion" required></div>
-      <div class="field"><label for="afil-telefono">WhatsApp</label><input type="tel" id="afil-telefono" name="telefono" required></div>
+      <div class="field"><label for="afil-direccion">Dirección</label><input type="text" id="afil-direccion" name="direccion" required placeholder="Ej: Calle 5 # 12-34, Limonar Sector II"></div>
+      <div class="field"><label for="afil-telefono">WhatsApp</label><input type="tel" id="afil-telefono" name="telefono" required placeholder="Ej: 300 123 4567"></div>
       <div style="display:flex;gap:10px;">
         <button type="button" class="btn btn-outline" style="flex:1;" onclick="closeModal('afiliar')">Cancelar</button>
         <button type="submit" class="btn btn-green" style="flex:1;">Enviar</button>
@@ -709,14 +719,14 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
   <div class="modal-box">
     <h3><i class="fa-solid fa-lock"></i> Acceso administrativo</h3>
     <form id="loginForm">
-      <div class="field"><label for="loginEmail">Correo</label><input type="email" id="loginEmail" required></div>
+      <div class="field"><label for="loginEmail">Correo</label><input type="email" id="loginEmail" required placeholder="Ej: admin@correo.com"></div>
       <div class="field"><label for="loginPass">Contraseña</label><input type="password" id="loginPass" required></div>
       <div style="display:flex;gap:10px;">
         <button type="button" class="btn btn-outline" style="flex:1;" onclick="closeModal('login')">Cancelar</button>
         <button type="submit" class="btn btn-primary" style="flex:1;">Entrar</button>
       </div>
     </form>
-    <p style="font-size:.78rem;color:var(--ink-soft);margin-top:14px;">Acceso exclusivo para administradores del sistema comunitario.</p>
+    <p style="font-size:.8rem;color:var(--ink-soft);margin-top:14px;">Acceso exclusivo para administradores del sistema comunitario.</p>
   </div>
 </div>
 
@@ -746,8 +756,8 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 
   <div class="admin-section active" id="admin-news">
     <div class="admin-row" style="background:transparent;border:none;box-shadow:none;flex-direction:column;align-items:stretch;">
-      <input id="nn-titulo" placeholder="Título"><input id="nn-imagen" placeholder="URL de imagen">
-      <textarea id="nn-desc" placeholder="Descripción" style="padding:12px;border-radius:8px;border:1px solid var(--line);"></textarea>
+      <input id="nn-titulo" placeholder="Ej: Mantenimiento programado para el sábado"><input id="nn-imagen" placeholder="Ej: https://ejemplo.com/foto.jpg">
+      <textarea id="nn-desc" placeholder="Ej: Este sábado se realizará limpieza de tanques desde las 8 a.m." style="padding:12px;border-radius:8px;border:1px solid var(--line);"></textarea>
       <button class="mini-btn save" onclick="addNews()"><i class="fa-solid fa-plus"></i> Publicar noticia</button>
     </div>
     <div id="admin-news-list"></div>
@@ -755,7 +765,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 
   <div class="admin-section" id="admin-gallery">
     <div class="admin-row" style="background:transparent;border:none;box-shadow:none;">
-      <input class="grow" id="ng-url" placeholder="URL de imagen">
+      <input class="grow" id="ng-url" placeholder="Ej: https://ejemplo.com/foto.jpg">
       <button class="mini-btn save" onclick="addGallery()"><i class="fa-solid fa-plus"></i> Agregar foto</button>
     </div>
     <div id="admin-gallery-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;"></div>
@@ -763,9 +773,9 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 
   <div class="admin-section" id="admin-maint">
     <div class="admin-row" style="background:transparent;border:none;box-shadow:none;flex-direction:column;align-items:stretch;">
-      <div class="row-2"><input id="nm-fecha" type="date"><input id="nm-responsable" placeholder="Responsable"></div>
-      <input id="nm-actividad" placeholder="Actividad realizada">
-      <div class="row-2"><input id="nm-imagen" placeholder="URL de foto (opcional)"><select id="nm-estado"><option>Completado</option><option>En proceso</option></select></div>
+      <div class="row-2"><input id="nm-fecha" type="date"><input id="nm-responsable" placeholder="Ej: Mateo Castro"></div>
+      <input id="nm-actividad" placeholder="Ej: Cambio de manguera principal">
+      <div class="row-2"><input id="nm-imagen" placeholder="Ej: https://ejemplo.com/foto.jpg (opcional)"><select id="nm-estado"><option>Completado</option><option>En proceso</option></select></div>
       <button class="mini-btn save" onclick="addMaint()"><i class="fa-solid fa-plus"></i> Agregar registro</button>
     </div>
     <div id="admin-maint-list"></div>
@@ -773,7 +783,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 
   <div class="admin-section" id="admin-fin">
     <div class="admin-row" style="background:transparent;border:none;box-shadow:none;flex-direction:column;align-items:stretch;">
-      <div class="row-2"><input id="nf-fecha" type="date"><input id="nf-concepto" placeholder="Concepto"></div>
+      <div class="row-2"><input id="nf-fecha" type="date"><input id="nf-concepto" placeholder="Ej: Compra de manguera nueva"></div>
       <div class="row-2">
         <select id="nf-categoria">
           <option value="">Sin categoría</option>
@@ -782,7 +792,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
         </select>
         <select id="nf-tipo"><option value="ingreso">Ingreso</option><option value="gasto">Gasto</option></select>
       </div>
-      <div class="row-2"><input id="nf-valor" type="number" placeholder="Valor"><input id="nf-comprobante" type="file" accept="image/*"></div>
+      <div class="row-2"><input id="nf-valor" type="number" placeholder="Ej: 50000"><input id="nf-comprobante" type="file" accept="image/*"></div>
       <div style="display:flex;gap:10px;">
         <button class="mini-btn save" id="nf-save-btn" onclick="saveFin()"><i class="fa-solid fa-plus"></i> Agregar</button>
         <button class="mini-btn" id="nf-cancel-btn" style="display:none;background:var(--gray-2);color:var(--ink-soft);" onclick="cancelEditFin()">Cancelar edición</button>
@@ -812,7 +822,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 
   <div class="admin-section" id="admin-docs">
     <div class="admin-row" style="background:transparent;border:none;box-shadow:none;">
-      <input class="grow" id="nd-nombre" placeholder="Nombre del documento"><input class="grow" id="nd-url" placeholder="URL del documento (PDF)">
+      <input class="grow" id="nd-nombre" placeholder="Ej: Reglamento comunitario 2026"><input class="grow" id="nd-url" placeholder="Ej: https://ejemplo.com/reglamento.pdf">
       <button class="mini-btn save" onclick="addDoc()"><i class="fa-solid fa-plus"></i> Agregar</button>
     </div>
     <div id="admin-docs-list"></div>
@@ -831,7 +841,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
   <div class="admin-section" id="admin-mens">
     <p style="font-size:.85rem;color:var(--ink-soft);margin-bottom:14px;">Control de pagos de mensualidad por vivienda. Solo visible para administradores.</p>
     <div class="admin-row" style="background:transparent;border:none;box-shadow:none;flex-direction:column;align-items:stretch;">
-      <div class="row-2"><input id="nm2-vivienda" placeholder="Vivienda / familia"><input id="nm2-sector" placeholder="Sector"></div>
+      <div class="row-2"><input id="nm2-vivienda" placeholder="Ej: Familia Gómez - Casa 12"><input id="nm2-sector" placeholder="Ej: Sector 3"></div>
       <div class="row-2">
         <input id="nm2-mes" type="month">
         <select id="nm2-estado"><option value="Pagado">Pagado</option><option value="Pendiente" selected>Pendiente</option><option value="Atrasado">Atrasado</option></select>
@@ -849,7 +859,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
       <span style="font-size:.8rem;color:var(--ink-soft);">(crea los códigos que falten, sin duplicar los existentes)</span>
     </div>
     <div class="admin-row" style="background:transparent;border:none;box-shadow:none;flex-wrap:wrap;">
-      <input class="grow" id="npr-nombre" placeholder="Nombre del propietario">
+      <input class="grow" id="npr-nombre" placeholder="Ej: María Gómez">
       <select id="npr-sector">
         <option>Sector 1</option><option>Sector 2</option><option>Sector 3</option><option>Sector 4</option><option>Sector 5</option>
         <option>Sector 6</option><option>Sector 7</option><option>Sector 8</option><option>Sector 9</option><option>Sector 10</option>
@@ -891,6 +901,14 @@ try{
    ========================================================= */
 function esc(str){
   return String(str==null?"":str).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+// Oculta una sección pública (y su enlace en ambos menús) cuando no tiene
+// ningún registro todavía, para no mostrarle al visitante un bloque vacío.
+// Se vuelve a mostrar sola en cuanto el administrador agrega el primer dato.
+function toggleSectionVisibility(sectionId, hasData){
+  const section = document.getElementById(sectionId);
+  if(section) section.style.display = hasData ? "" : "none";
+  document.querySelectorAll(`a[href="#${sectionId}"]`).forEach(a=>{ a.style.display = hasData ? "" : "none"; });
 }
 // Limpia el nombre de un archivo subido (puede venir de un visitante sin
 // iniciar sesión, en el formulario de "Reportar daño") antes de usarlo para
@@ -1039,6 +1057,7 @@ function renderNoticias(){
       </div>
     </div>`).join("");
   observeReveal();
+  toggleSectionVisibility("noticias", STATE.noticias.length > 0);
 }
 
 /* =========================================================
@@ -1048,6 +1067,7 @@ function renderGaleria(){
   const grid = document.getElementById("galleryGrid");
   const imgs = STATE.galeria.map(g=> typeof g === "string" ? g : g.url);
   grid.innerHTML = imgs.map((url,i)=>`<button type="button" class="gallery-item" onclick="openLightbox(${JSON.stringify(url)})" aria-label="Ver foto ${i+1} de la galería en tamaño completo"><img src="${esc(url)}" alt="" loading="lazy"></button>`).join("");
+  toggleSectionVisibility("galeria", imgs.length > 0);
 }
 function openLightbox(url){
   const img = document.getElementById("lightboxImg");
@@ -1073,6 +1093,7 @@ function renderMantenimientos(){
       </div>
     </div>`).join("");
   observeReveal();
+  toggleSectionVisibility("mantenimiento", STATE.mantenimientos.length > 0);
 }
 function statusPillText(estado){
   return estado === "Completado" ? `<span style="color:var(--green);font-weight:600;">Completado</span>` : `<span style="color:var(--sky);font-weight:600;">En proceso</span>`;
@@ -1308,7 +1329,7 @@ function renderAdminPropietarios(){
         <button class="mini-btn del" onclick="eliminarPropietario(${JSON.stringify(p.id)})"><i class="fa-solid fa-trash"></i></button>
       </div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px;">
-        <span style="font-size:.78rem;color:var(--ink-soft);">Anular turno automático (opcional):</span>
+        <span style="font-size:.8rem;color:var(--ink-soft);">Anular turno automático (opcional):</span>
         <input type="date" id="pr-fecha-${p.id}" value="${p.turno_fecha_manual||''}">
         <select id="pr-franja-${p.id}">${franjaOptions(franjaSel(p))}</select>
         <button class="mini-btn save" onclick="guardarPropietario(${JSON.stringify(p.id)})"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
@@ -1751,7 +1772,7 @@ observeReveal();
 function animateCounters(){
   document.querySelectorAll(".num[data-count]").forEach(el=>{
     const target = parseInt(el.dataset.count,10);
-    const suffix = el.dataset.suffix || "";
+    const suffix = el.dataset.suffix ? "\u00A0"+el.dataset.suffix : "";
     let cur = 0;
     const step = Math.max(1, Math.ceil(target/60));
     const timer = setInterval(()=>{
