@@ -1356,28 +1356,93 @@ function pagoBadge(estado){
 function generarComprobantePDF(propietario){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-  const fecha = propietario.ultimo_pago ? formatDate(propietario.ultimo_pago) : formatDate(new Date().toISOString().slice(0,10));
+  const pageW = 210;
+  const azulOscuro = [7, 59, 84];
+  const azul = [12, 122, 158];
+  const cian = [30, 196, 214];
+  const verde = [46, 125, 50];
+  const rojo = [211, 47, 47];
+  const grisTexto = [76, 98, 114];
+  const grisClaro = [245, 247, 249];
+  const blanco = [255, 255, 255];
+  const alDia = propietario.estado_pago === "Al día";
+
+  const fechaPago = propietario.ultimo_pago ? formatDate(propietario.ultimo_pago) : formatDate(new Date().toISOString().slice(0,10));
+  const generadoEl = formatDate(new Date().toISOString().slice(0,10));
+
+  // Encabezado
+  doc.setFillColor(...azulOscuro);
+  doc.rect(0, 0, pageW, 38, "F");
+  doc.setFillColor(...cian);
+  doc.rect(0, 38, pageW, 2, "F");
+  doc.setFillColor(...blanco);
+  doc.circle(24, 19, 9, "F");
+  doc.setFillColor(...azul);
+  doc.circle(24, 20, 5, "F");
+  doc.setTextColor(...blanco);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
-  doc.text("Gestión del Agua Limonar Sector II", 20, 25);
+  doc.text("Gestión del Agua", 40, 17);
   doc.setFontSize(13);
-  doc.text("Comprobante de pago", 20, 35);
-  doc.setDrawColor(12, 122, 158);
-  doc.line(20, 40, 190, 40);
+  doc.text("Limonar Sector II", 40, 25);
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
-  const lineas = [
-    `Propietario: ${propietario.nombre}`,
-    `Código: ${propietario.codigo}`,
-    `Sector: ${propietario.sector}`,
-    `Estado: Al día`,
-    `Fecha de pago: ${fecha}`,
-  ];
-  lineas.forEach((linea, i)=> doc.text(linea, 20, 55 + i*9));
   doc.setFontSize(9);
-  doc.setTextColor(120,120,120);
-  doc.text("Este comprobante certifica que el aporte mensual de agua de este propietario se encuentra al día.", 20, 105);
-  doc.text(`Generado automáticamente el ${formatDate(new Date().toISOString().slice(0,10))}.`, 20, 112);
+  doc.text("Soacha, Cundinamarca", 40, 31);
+
+  // Título
+  doc.setTextColor(...azulOscuro);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.text("Comprobante de pago", pageW/2, 56, {align:"center"});
+  doc.setDrawColor(...cian);
+  doc.setLineWidth(0.8);
+  doc.line(pageW/2-30, 60, pageW/2+30, 60);
+
+  // Insignia de estado
+  const colorEstado = alDia ? verde : rojo;
+  doc.setFillColor(...colorEstado);
+  doc.roundedRect(pageW/2-24, 67, 48, 10, 5, 5, "F");
+  doc.setTextColor(...blanco);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text(alDia ? "AL DÍA" : "PENDIENTE", pageW/2, 73.5, {align:"center"});
+
+  // Tarjeta de datos
+  const cardY = 87;
+  doc.setFillColor(...grisClaro);
+  doc.roundedRect(20, cardY, pageW-40, 62, 4, 4, "F");
+  const filas = [
+    ["Propietario", propietario.nombre],
+    ["Código", propietario.codigo],
+    ["Sector", propietario.sector],
+    ["Fecha de pago", fechaPago],
+  ];
+  let y = cardY + 14;
+  filas.forEach(([label, valor])=>{
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(...grisTexto);
+    doc.text(label.toUpperCase(), 30, y);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12.5);
+    doc.setTextColor(...azulOscuro);
+    doc.text(String(valor), 30, y+6.5);
+    y += 15;
+  });
+
+  // Pie
+  doc.setDrawColor(225, 232, 237);
+  doc.setLineWidth(0.3);
+  doc.line(20, 262, pageW-20, 262);
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(8.5);
+  doc.setTextColor(...grisTexto);
+  doc.text("Este comprobante certifica el estado de pago del aporte mensual de agua de este propietario.", pageW/2, 269, {align:"center", maxWidth: pageW-50});
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.text(`Generado automáticamente el ${generadoEl}.`, pageW/2, 275, {align:"center"});
+  doc.text("Gestión del Agua Limonar Sector II  ·  +57 317 042 7446  ·  gestionagualimonall@gmail.com", pageW/2, 281, {align:"center"});
+
   return doc;
 }
 async function enviarComprobante(propietario){
