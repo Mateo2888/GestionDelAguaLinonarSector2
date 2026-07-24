@@ -1405,6 +1405,8 @@ async function generarCodigosMasivos(){
     showToast("No se pudo generar los códigos: revisa tu conexión a internet e intenta de nuevo.");
   }
 }
+const VALOR_MENSUALIDAD = 25000; // mismo "Valor mensual" mostrado en la sección Mensualidad del sitio
+
 async function guardarPropietario(id){
   const row = STATE.propietarios.find(p=>p.id===id);
   if(!row) return;
@@ -1422,12 +1424,29 @@ async function guardarPropietario(id){
   const correo = val(`pr-correo-${id}`).trim();
   const estado_pago = val(`pr-estadopago-${id}`);
   const ultimo_pago = val(`pr-ultimopago-${id}`) || null;
+  const ultimoPagoAnterior = row.ultimo_pago || null;
   const updates = {nombre, sector, turno_fecha_manual, turno_inicio_manual, turno_fin_manual, correo, estado_pago, ultimo_pago};
   const ok = await crudUpdate("propietarios", id, updates);
   if(!ok) return;
   renderAdminPropietarios();
   showToast("Propietario actualizado.");
-  if(estado_pago === "Al día"){
+  // Cada vez que se registra un pago nuevo (estado "Al día" + una fecha de
+  // pago distinta a la que ya tenía), se refleja solo como un ingreso más
+  // en la pestaña "Ingresos" — así ambas pestañas quedan conectadas y no
+  // hay que anotar el mismo pago dos veces a mano.
+  if(estado_pago === "Al día" && ultimo_pago && ultimo_pago !== ultimoPagoAnterior){
+    const saved = await crudInsert("finanzas", {
+      fecha: ultimo_pago,
+      concepto: `Mensualidad de agua — ${nombre} (${row.codigo})`,
+      categoria: "Aportes",
+      tipo: "ingreso",
+      valor: VALOR_MENSUALIDAD
+    });
+    if(saved){
+      STATE.finanzas.unshift(saved);
+      renderFinanzas();
+      showToast(`Pago registrado también en Ingresos ($${VALOR_MENSUALIDAD.toLocaleString('es-CO')}).`);
+    }
     enviarComprobante(row);
   }
 }
