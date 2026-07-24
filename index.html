@@ -590,7 +590,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
         </div>
         <div class="price-card">
           <div class="lbl" style="opacity:.85;">Valor mensual</div>
-          <div class="price-tag">$25.000 <span>COP</span></div>
+          <div class="price-tag" id="priceTag">$25.000 <span>COP</span></div>
           <p style="opacity:.85;font-size:.9rem;margin:14px 0 22px;">por vivienda / mes</p>
           <button class="btn btn-green btn-block" onclick="openModal('afiliar')"><i class="fa-solid fa-user-plus"></i> Quiero afiliarme</button>
         </div>
@@ -681,11 +681,11 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
         <h2>Estamos para ayudarte</h2>
         <div class="contact-person" style="margin-top:20px;">
           <div class="contact-avatar">MC</div>
-          <div><strong style="font-size:1.05rem;">Mateo Castro</strong><br><span style="color:var(--ink-soft);font-size:.9rem;">Encargado · Gestión del Agua Limonar Sector II</span></div>
+          <div><strong id="contactNombre" style="font-size:1.05rem;">Mateo Castro</strong><br><span style="color:var(--ink-soft);font-size:.9rem;">Encargado · Gestión del Agua Limonar Sector II</span></div>
         </div>
         <ul class="contact-list">
-          <li><i class="fa-brands fa-whatsapp"></i> +57 317 042 7446</li>
-          <li><i class="fa-solid fa-envelope"></i> gestionagualimonall@gmail.com</li>
+          <li><i class="fa-brands fa-whatsapp"></i> <span id="contactWhatsappText">+57 317 042 7446</span></li>
+          <li><i class="fa-solid fa-envelope"></i> <span id="contactCorreo">gestionagualimonall@gmail.com</span></li>
           <li><i class="fa-solid fa-location-dot"></i> Limonar Sector II, Soacha, Cundinamarca</li>
         </ul>
       </div>
@@ -709,14 +709,14 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
         <p style="font-size:1rem;max-width:320px;">Gestión comunitaria del agua para el barrio Limonar Sector II, Soacha, Cundinamarca.</p>
       </div>
       <div><h4>Navegación</h4><a href="#consulta">Mi turno</a><a href="#mensualidad">Mensualidades</a><a href="#reportar">Reportar daño</a></div>
-      <div><h4>Contacto</h4><a href="#contacto">Escríbenos</a><a href="tel:+573170427446">+57 317 042 7446</a><a href="#">Soacha, Cundinamarca</a></div>
+      <div><h4>Contacto</h4><a href="#contacto">Escríbenos</a><a href="tel:+573170427446" id="footerTel">+57 317 042 7446</a><a href="#">Soacha, Cundinamarca</a></div>
     </div>
     <div class="footer-bottom">© <span id="year"></span> Gestión del Agua Limonar Sector II. Todos los derechos reservados.</div>
   </div>
 </footer>
 
 <!-- ============ FLOATING BUTTONS ============ -->
-<a href="https://wa.me/573170427446" target="_blank" class="fab fab-whats" title="WhatsApp" aria-label="Escribir por WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+<a href="https://wa.me/573170427446" target="_blank" class="fab fab-whats" id="fabWhats" title="WhatsApp" aria-label="Escribir por WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
 <button class="fab fab-top" id="toTop" title="Volver arriba" aria-label="Volver arriba"><i class="fa-solid fa-arrow-up"></i></button>
 <button class="admin-toggle" id="adminToggleBtn" title="Panel administrativo" aria-label="Abrir panel administrativo"><i class="fa-solid fa-lock"></i></button>
 
@@ -779,6 +779,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
     <button class="admin-tab" data-tab="afiliaciones">Afiliaciones</button>
     <button class="admin-tab" data-tab="mens">Mensualidades</button>
     <button class="admin-tab" data-tab="propietarios">Propietarios / Turnos</button>
+    <button class="admin-tab" data-tab="config"><i class="fa-solid fa-gear"></i> Configuración</button>
   </div>
 
   <div class="admin-section active" id="admin-news">
@@ -882,6 +883,84 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
     </div>
     <div class="search-box" style="margin-bottom:14px;"><i class="fa-solid fa-magnifying-glass"></i><input id="prSearch" placeholder="Buscar por código o nombre..." oninput="renderAdminPropietarios()"></div>
     <div id="admin-propietarios-list"></div>
+  </div>
+
+  <div class="admin-section" id="admin-config">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;padding-bottom:40px;">
+
+      <!-- NOTIFICACIONES -->
+      <div class="card">
+        <div class="icon-tile" style="margin-bottom:12px;"><i class="fa-solid fa-bell"></i></div>
+        <h3 style="margin-bottom:14px;">Notificaciones</h3>
+        <div class="field"><label>Notificaciones push activas</label>
+          <select id="cfg-notificaciones_activas">
+            <option value="true">Activadas</option><option value="false">Desactivadas</option>
+          </select></div>
+        <div class="field"><label>Avisos de voz activos</label>
+          <select id="cfg-voz_activa">
+            <option value="true">Activados</option><option value="false">Desactivados</option>
+          </select></div>
+        <div class="field"><label>Minutos de aviso antes de iniciar turno</label>
+          <input type="number" id="cfg-minutos_aviso_inicio" min="1" max="60"></div>
+        <div class="field"><label>Minutos de aviso antes de terminar turno</label>
+          <input type="number" id="cfg-minutos_aviso_fin" min="1" max="60"></div>
+        <button class="btn btn-primary btn-block" onclick="guardarConfig(['notificaciones_activas','voz_activa','minutos_aviso_inicio','minutos_aviso_fin'])">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar notificaciones</button>
+      </div>
+
+      <!-- TURNOS -->
+      <div class="card">
+        <div class="icon-tile green" style="margin-bottom:12px;"><i class="fa-solid fa-clock"></i></div>
+        <h3 style="margin-bottom:14px;">Turnos de agua</h3>
+        <div class="field"><label>Duración de cada turno (horas)</label>
+          <input type="number" id="cfg-duracion_turno_horas" min="1" max="24"></div>
+        <div class="field"><label>Fecha de inicio del ciclo de rotación</label>
+          <input type="date" id="cfg-ciclo_inicio_fecha"></div>
+        <button class="btn btn-primary btn-block" onclick="guardarConfig(['duracion_turno_horas','ciclo_inicio_fecha'])">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar turnos</button>
+      </div>
+
+      <!-- CONTACTO -->
+      <div class="card">
+        <div class="icon-tile" style="margin-bottom:12px;"><i class="fa-solid fa-address-card"></i></div>
+        <h3 style="margin-bottom:14px;">Datos de contacto</h3>
+        <div class="field"><label>Nombre del encargado</label>
+          <input type="text" id="cfg-nombre_encargado" placeholder="Ej: Mateo Castro"></div>
+        <div class="field"><label>WhatsApp (con código de país, sin +)</label>
+          <input type="text" id="cfg-whatsapp_encargado" placeholder="Ej: 573001234567"></div>
+        <div class="field"><label>Correo del encargado</label>
+          <input type="email" id="cfg-correo_encargado" placeholder="Ej: contacto@gmail.com"></div>
+        <button class="btn btn-primary btn-block" onclick="guardarConfig(['nombre_encargado','whatsapp_encargado','correo_encargado'])">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar contacto</button>
+      </div>
+
+      <!-- MENSUALIDAD -->
+      <div class="card">
+        <div class="icon-tile green" style="margin-bottom:12px;"><i class="fa-solid fa-coins"></i></div>
+        <h3 style="margin-bottom:14px;">Mensualidad</h3>
+        <div class="field"><label>Valor del aporte mensual (COP, solo números)</label>
+          <input type="number" id="cfg-valor_mensualidad" min="0"></div>
+        <button class="btn btn-primary btn-block" onclick="guardarConfig(['valor_mensualidad'])">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar mensualidad</button>
+      </div>
+
+      <!-- MANTENIMIENTO DEL SITIO -->
+      <div class="card" style="border-color:#D32F2F;">
+        <div class="icon-tile" style="margin-bottom:12px;background:linear-gradient(135deg,#D32F2F,#EF5350);"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <h3 style="margin-bottom:14px;">Modo mantenimiento</h3>
+        <p style="color:var(--ink-soft);font-size:.88rem;margin-bottom:14px;">Cuando está activo, los visitantes ven solo el mensaje de mantenimiento y no pueden acceder al sitio.</p>
+        <div class="field"><label>Estado del sitio</label>
+          <select id="cfg-sitio_en_mantenimiento">
+            <option value="false">Sitio activo (normal)</option>
+            <option value="true">En mantenimiento</option>
+          </select></div>
+        <div class="field"><label>Mensaje para los visitantes</label>
+          <textarea id="cfg-mensaje_mantenimiento" rows="3" placeholder="Ej: Estamos realizando mejoras. Volvemos en 2 horas."></textarea></div>
+        <button class="btn btn-block" style="background:linear-gradient(135deg,#D32F2F,#EF5350);color:#fff;" onclick="guardarConfig(['sitio_en_mantenimiento','mensaje_mantenimiento'])">
+          <i class="fa-solid fa-floppy-disk"></i> Guardar modo mantenimiento</button>
+      </div>
+
+    </div>
   </div>
 </div>
 
@@ -1001,6 +1080,28 @@ STATE.finanzas = [];
 STATE.propietarios = [];
 
 /* =========================================================
+   CONFIGURACIÓN DEL SISTEMA (tabla "configuracion" en Supabase,
+   editable desde el panel admin > pestaña "Configuración").
+   Estos valores son el respaldo si Supabase no responde o la
+   tabla todavía no existe — deben coincidir con los valores
+   reales que el sitio ya usaba antes de este módulo.
+   ========================================================= */
+const CONFIG = {
+  notificaciones_activas: 'true',
+  voz_activa: 'true',
+  minutos_aviso_inicio: '10',
+  minutos_aviso_fin: '5',
+  duracion_turno_horas: '2',
+  valor_mensualidad: '25000',
+  whatsapp_encargado: '573170427446',
+  nombre_encargado: 'Mateo Castro',
+  correo_encargado: 'gestionagualimonall@gmail.com',
+  sitio_en_mantenimiento: 'false',
+  mensaje_mantenimiento: 'El sistema está en mantenimiento. Volvemos pronto.',
+  ciclo_inicio_fecha: '2026-01-01'
+};
+
+/* =========================================================
    CARGA DE DATOS
    ========================================================= */
 function showLoadingState(){
@@ -1011,6 +1112,22 @@ function showLoadingState(){
 }
 async function loadAll(){
   if(usingSupabase){
+    try{
+      const {data: configData} = await sbClient.from('configuracion').select('*');
+      if(configData) configData.forEach(row=>{ CONFIG[row.clave] = row.valor; });
+    }catch(e){
+      console.warn('No se pudo cargar la configuración del sistema, se usan los valores por defecto.', e);
+    }
+    if(CONFIG.sitio_en_mantenimiento === 'true'){
+      document.body.innerHTML = `
+        <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+        background:linear-gradient(135deg,var(--blue-deep),var(--blue));color:#fff;text-align:center;padding:40px;font-family:'Inter',sans-serif;">
+          <i class="fa-solid fa-droplet" style="font-size:3rem;margin-bottom:20px;"></i>
+          <h1 style="font-size:1.8rem;margin-bottom:12px;">Gestión del Agua Limonar Sector II</h1>
+          <p style="font-size:1.1rem;opacity:.9;max-width:400px;">${esc(CONFIG.mensaje_mantenimiento)}</p>
+        </div>`;
+      return;
+    }
     showLoadingState();
     const tables = ["noticias","galeria","mantenimientos"];
     const failed = [];
@@ -1030,6 +1147,7 @@ async function loadAll(){
       showToast("Algunas secciones no cargaron datos actualizados. Recarga la página.");
     }
   }
+  aplicarConfigEnVivo();
   renderNoticias();
   renderGaleria();
   renderMantenimientos();
@@ -1051,6 +1169,61 @@ async function updateStatCounters(){
     }
   }
   animateCounters();
+}
+
+/* =========================================================
+   CONFIGURACIÓN DEL SISTEMA: panel admin + aplicar en vivo
+   ========================================================= */
+function cargarFormularioConfig(){
+  Object.keys(CONFIG).forEach(clave => {
+    const el = document.getElementById('cfg-' + clave);
+    if(!el) return;
+    el.value = CONFIG[clave];
+  });
+}
+
+async function guardarConfig(claves){
+  for(const clave of claves){
+    const el = document.getElementById('cfg-' + clave);
+    if(!el) continue;
+    const valor = el.value;
+    CONFIG[clave] = valor;
+    if(usingSupabase){
+      try{
+        const {error} = await sbClient.from('configuracion').upsert(
+          {clave, valor, updated_at: new Date().toISOString()},
+          {onConflict: 'clave'}
+        );
+        if(error){ showToast('Error guardando ' + clave + ': ' + error.message); return; }
+      }catch(e){
+        showToast('No se pudo guardar la configuración: revisa tu conexión a internet.');
+        return;
+      }
+    }
+  }
+  showToast('Configuración guardada correctamente.');
+  aplicarConfigEnVivo();
+}
+
+// Refleja los valores actuales de CONFIG en los elementos visibles del
+// sitio sin recargar la página — se llama tanto al terminar loadAll()
+// como justo después de guardar cambios desde el panel admin.
+function aplicarConfigEnVivo(){
+  const fab = document.getElementById('fabWhats');
+  if(fab) fab.href = 'https://wa.me/' + CONFIG.whatsapp_encargado;
+  const footerTel = document.getElementById('footerTel');
+  if(footerTel){
+    footerTel.href = 'tel:+' + CONFIG.whatsapp_encargado;
+    footerTel.textContent = '+' + CONFIG.whatsapp_encargado;
+  }
+  const contactWhatsapp = document.getElementById('contactWhatsappText');
+  if(contactWhatsapp) contactWhatsapp.textContent = '+' + CONFIG.whatsapp_encargado;
+  const contactCorreo = document.getElementById('contactCorreo');
+  if(contactCorreo) contactCorreo.textContent = CONFIG.correo_encargado;
+  const contactNombre = document.getElementById('contactNombre');
+  if(contactNombre) contactNombre.textContent = CONFIG.nombre_encargado;
+  const precioEl = document.getElementById('priceTag');
+  if(precioEl) precioEl.innerHTML = `$${(parseInt(CONFIG.valor_mensualidad)||0).toLocaleString('es-CO')} <span>COP</span>`;
 }
 
 /* =========================================================
@@ -1165,8 +1338,8 @@ function formatDate(d){
 /* =========================================================
    MOTOR DE ROTACIÓN DE TURNOS (automático, 24h, 2h por turno)
    ========================================================= */
-const TURNO_DURACION_HORAS = 2;
-const CICLO_INICIO = new Date("2026-01-01T00:00:00");
+const TURNO_DURACION_HORAS = ()=> parseInt(CONFIG.duracion_turno_horas) || 2;
+const CICLO_INICIO = ()=> new Date((CONFIG.ciclo_inicio_fecha || '2026-01-01') + 'T00:00:00');
 const DIAS_SEMANA = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
 function formatHora12(h){
   const period = h < 12 ? "a.m." : "p.m.";
@@ -1186,16 +1359,18 @@ function calcularTurno(prop, totalActivos){
     const fin = new Date(`${prop.turno_fecha_manual}T${prop.turno_fin_manual}`);
     return construirResultadoTurno(prop, inicio, fin, true);
   }
-  const cicloHoras = Math.max(totalActivos,1) * TURNO_DURACION_HORAS;
+  const duracionHoras = TURNO_DURACION_HORAS();
+  const cicloInicio = CICLO_INICIO();
+  const cicloHoras = Math.max(totalActivos,1) * duracionHoras;
   const ahora = new Date();
-  const horasDesdeInicio = (ahora - CICLO_INICIO) / 3600000;
+  const horasDesdeInicio = (ahora - cicloInicio) / 3600000;
   let numCiclo = Math.floor(horasDesdeInicio / cicloHoras);
-  let inicio = new Date(CICLO_INICIO.getTime() + (numCiclo*cicloHoras + prop.posicion*TURNO_DURACION_HORAS) * 3600000);
-  let fin = new Date(inicio.getTime() + TURNO_DURACION_HORAS*3600000);
+  let inicio = new Date(cicloInicio.getTime() + (numCiclo*cicloHoras + prop.posicion*duracionHoras) * 3600000);
+  let fin = new Date(inicio.getTime() + duracionHoras*3600000);
   if(ahora > fin){
     numCiclo += 1;
-    inicio = new Date(CICLO_INICIO.getTime() + (numCiclo*cicloHoras + prop.posicion*TURNO_DURACION_HORAS) * 3600000);
-    fin = new Date(inicio.getTime() + TURNO_DURACION_HORAS*3600000);
+    inicio = new Date(cicloInicio.getTime() + (numCiclo*cicloHoras + prop.posicion*duracionHoras) * 3600000);
+    fin = new Date(inicio.getTime() + duracionHoras*3600000);
   }
   return construirResultadoTurno(prop, inicio, fin, false);
 }
@@ -1287,6 +1462,10 @@ function urlBase64ToUint8Array(base64String){
 let swRegistration = null;
 
 async function inicializarNotificaciones(codigoPropietario){
+  if(CONFIG.notificaciones_activas !== 'true'){
+    showToast('Las notificaciones están desactivadas por el administrador.');
+    return false;
+  }
   if(!('serviceWorker' in navigator) || !('PushManager' in window)){
     showToast('Este navegador no soporta notificaciones push.');
     return false;
@@ -1328,6 +1507,7 @@ async function guardarSuscripcionEnDB(suscripcion, codigo){
 }
 
 function hablarTurno(mensaje){
+  if(CONFIG.voz_activa !== 'true') return;
   if(!('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel();
   const utt = new SpeechSynthesisUtterance(mensaje);
@@ -1351,23 +1531,26 @@ function programarAlertas(turnoData, codigoPropietario){
   const ahora = new Date();
   const inicio = new Date(turnoData.inicioISO);
   const fin = new Date(turnoData.finISO);
+  const minAviso = parseInt(CONFIG.minutos_aviso_inicio) || 10;
+  const minAvisoFin = parseInt(CONFIG.minutos_aviso_fin) || 5;
+  const duracionHoras = TURNO_DURACION_HORAS();
 
-  const msAntes = inicio.getTime() - 10*60*1000 - ahora.getTime();
+  const msAntes = inicio.getTime() - minAviso*60*1000 - ahora.getTime();
   if(msAntes > 0 && msAntes < 24*3600*1000){
     setTimeout(()=>{
-      hablarTurno(`Tu turno de agua, código ${codigoPropietario}, comienza en 10 minutos.`);
+      hablarTurno(`Tu turno de agua, código ${codigoPropietario}, comienza en ${minAviso} minutos.`);
     }, msAntes);
   }
   const msInicio = inicio.getTime() - ahora.getTime();
   if(msInicio > 0 && msInicio < 24*3600*1000){
     setTimeout(()=>{
-      hablarTurno(`Atención ${codigoPropietario}. Tu turno de agua ha comenzado. Tienes 2 horas de servicio.`);
+      hablarTurno(`Atención ${codigoPropietario}. Tu turno de agua ha comenzado. Tienes ${duracionHoras} horas de servicio.`);
     }, msInicio);
   }
-  const msAnteFin = fin.getTime() - 5*60*1000 - ahora.getTime();
+  const msAnteFin = fin.getTime() - minAvisoFin*60*1000 - ahora.getTime();
   if(msAnteFin > 0 && msAnteFin < 24*3600*1000){
     setTimeout(()=>{
-      hablarTurno(`${codigoPropietario}, tu turno de agua termina en 5 minutos.`);
+      hablarTurno(`${codigoPropietario}, tu turno de agua termina en ${minAvisoFin} minutos.`);
     }, msAnteFin);
   }
 }
@@ -1458,7 +1641,7 @@ async function generarCodigosMasivos(){
     showToast("No se pudo generar los códigos: revisa tu conexión a internet e intenta de nuevo.");
   }
 }
-const VALOR_MENSUALIDAD = 25000; // mismo "Valor mensual" mostrado en la sección Mensualidad del sitio
+const VALOR_MENSUALIDAD = ()=> parseInt(CONFIG.valor_mensualidad) || 25000; // mismo "Valor mensual" mostrado en la sección Mensualidad del sitio
 
 async function guardarPropietario(id){
   const row = STATE.propietarios.find(p=>p.id===id);
@@ -1493,12 +1676,12 @@ async function guardarPropietario(id){
       concepto: `Mensualidad de agua — ${nombre} (${row.codigo})`,
       categoria: "Aportes",
       tipo: "ingreso",
-      valor: VALOR_MENSUALIDAD
+      valor: VALOR_MENSUALIDAD()
     });
     if(saved){
       STATE.finanzas.unshift(saved);
       renderFinanzas();
-      showToast(`Pago registrado también en Ingresos ($${VALOR_MENSUALIDAD.toLocaleString('es-CO')}).`);
+      showToast(`Pago registrado también en Ingresos ($${VALOR_MENSUALIDAD().toLocaleString('es-CO')}).`);
     }
     enviarComprobante(row);
   }
@@ -1642,7 +1825,7 @@ function generarComprobantePDF(propietario){
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.text(`Generado automáticamente el ${generadoEl}.`, pageW/2, 275, {align:"center"});
-  doc.text("Gestión del Agua Limonar Sector II  ·  +57 317 042 7446  ·  gestionagualimonall@gmail.com", pageW/2, 281, {align:"center"});
+  doc.text(`Gestión del Agua Limonar Sector II  ·  +${CONFIG.whatsapp_encargado}  ·  ${CONFIG.correo_encargado}`, pageW/2, 281, {align:"center"});
 
   return doc;
 }
@@ -1713,7 +1896,7 @@ document.getElementById("damageForm").addEventListener("submit", function(e){
   const fd = new FormData(this);
   const nombre = fd.get("nombre"), sector = fd.get("sector"), direccion = fd.get("direccion"), descripcion = fd.get("descripcion");
   const waTexto = `🔧 Reporte de daño\nNombre: ${nombre}\nSector: ${sector}\nDirección: ${direccion}\nDescripción: ${descripcion}`;
-  const waUrl = `https://wa.me/573170427446?text=${encodeURIComponent(waTexto)}`;
+  const waUrl = `https://wa.me/${CONFIG.whatsapp_encargado}?text=${encodeURIComponent(waTexto)}`;
   window.open(waUrl, "_blank");
   this.reset();
 });
@@ -1738,7 +1921,7 @@ document.getElementById("contactForm").addEventListener("submit", function(e){
   const nombre = this.querySelector('input').value;
   const mensaje = this.querySelector('textarea').value;
   const texto = encodeURIComponent(`Hola, soy ${nombre}. ${mensaje}`);
-  window.open(`https://wa.me/573170427446?text=${texto}`, "_blank");
+  window.open(`https://wa.me/${CONFIG.whatsapp_encargado}?text=${texto}`, "_blank");
 });
 
 /* =========================================================
@@ -1777,6 +1960,7 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
     closeModal("login");
     document.getElementById("adminPanel").classList.add("open");
     loadAdminExtras();
+    cargarFormularioConfig();
   }catch(e){
     showToast("No se pudo conectar para iniciar sesión. Revisa tu conexión a internet.");
   }
