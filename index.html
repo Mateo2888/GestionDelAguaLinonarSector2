@@ -1726,9 +1726,15 @@ document.getElementById("damageForm").addEventListener("submit", async function(
     this.reset();
     document.getElementById("fileLabel").textContent="Toca para subir una foto";
     notificarPush("ADMIN", "🔧 Nuevo reporte de daño", `${row.nombre} reportó un daño en ${row.sector}.`, "admin-reportes");
+    const waTexto = `🔧 Reporte de daño\nNombre: ${row.nombre}\nSector: ${row.sector}\nDirección: ${row.direccion}\nDescripción: ${row.descripcion}`;
+    const waUrl = `https://wa.me/573170427446?text=${encodeURIComponent(waTexto)}`;
     const box = document.getElementById("damageResultado");
     box.style.display = "block";
-    box.innerHTML = `<button type="button" class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="activarNotificacionesReporte(${esc(JSON.stringify(notifToken))})"><i class="fa-solid fa-bell"></i> Avisarme cuando actualicen mi reporte</button>`;
+    box.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
+        <button type="button" class="btn btn-green btn-sm btn-block" onclick="window.open(${esc(JSON.stringify(waUrl))},'_blank')"><i class="fa-brands fa-whatsapp"></i> Enviar también por WhatsApp</button>
+        <button type="button" class="btn btn-outline btn-sm btn-block" onclick="activarNotificacionesReporte(${esc(JSON.stringify(notifToken))})"><i class="fa-solid fa-bell"></i> Avisarme cuando actualicen mi reporte</button>
+      </div>`;
   }
 });
 
