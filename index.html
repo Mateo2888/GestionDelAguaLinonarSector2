@@ -16,7 +16,7 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Gestión del Agua Limonar Sector II">
 <meta name="twitter:description" content="Comprometidos con una distribución organizada, transparente y eficiente del servicio de agua para nuestra comunidad.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%231EC4D6' d='M12 2s7 8.5 7 13a7 7 0 1 1-14 0c0-4.5 7-13 7-13Z'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" href="/GestionDelAguaLinonarSector2/favicon.png">
 <link rel="manifest" href="/GestionDelAguaLinonarSector2/manifest.json">
 <meta name="theme-color" content="#0C7A9E">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -136,12 +136,7 @@ header#nav{
 }
 .nav-inner{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 24px; max-width:1180px; margin:0 auto;}
 .brand{display:flex; align-items:center; gap:9px; font-family:var(--font-display); font-weight:700; font-size:1.02rem; flex-shrink:0;}
-.brand .drop{
-  width:34px; height:34px; border-radius:10px;
-  background:linear-gradient(135deg,var(--blue),var(--sky));
-  display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.05rem;
-  box-shadow:0 6px 16px -6px rgba(12,122,158,.6);
-}
+.brand-logo{width:38px; height:38px; object-fit:contain; flex-shrink:0;}
 .nav-links{display:flex; align-items:center; gap:2px;}
 .nav-links a{padding:8px 12px; border-radius:999px; font-size:.87rem; font-weight:500; color:var(--ink-soft); white-space:nowrap; transition:all .2s ease;}
 .nav-links a:hover, .nav-links a.active{background:rgba(12,122,158,.1); color:var(--blue);}
@@ -445,7 +440,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 <!-- ============ NAV ============ -->
 <header id="nav">
   <div class="nav-inner">
-    <a href="#inicio" class="brand"><span class="drop"><i class="fa-solid fa-droplet"></i></span> Limonar Sector II</a>
+    <a href="#inicio" class="brand"><img class="brand-logo" src="/GestionDelAguaLinonarSector2/logo-nav.png" alt="Logo Gestión del Agua Limonar Sector II" width="38" height="38"> Limonar Sector II</a>
     <nav class="nav-links">
       <a href="#inicio">Inicio</a>
       <a href="#nosotros">Nosotros</a>
@@ -670,7 +665,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
   <div class="container">
     <div class="footer-grid">
       <div>
-        <div class="brand" style="color:#fff;margin-bottom:12px;"><span class="drop"><i class="fa-solid fa-droplet"></i></span> Limonar Sector II</div>
+        <div class="brand" style="color:#fff;margin-bottom:12px;"><img class="brand-logo" src="/GestionDelAguaLinonarSector2/logo-nav.png" alt="Logo Gestión del Agua Limonar Sector II" width="38" height="38"> Limonar Sector II</div>
         <p style="font-size:1rem;max-width:320px;">Gestión comunitaria del agua para el barrio Limonar Sector II, Soacha, Cundinamarca.</p>
       </div>
       <div><h4>Navegación</h4><a href="#consulta">Mi turno</a><a href="#mensualidad">Mensualidades</a><a href="#reportar">Reportar daño</a></div>
