@@ -384,3 +384,8 @@ Se validó: sintaxis JS, balance de etiquetas, y se confirmó que no quedó ning
 - El archivo original (974KB) se guardó también como `logo-original.png` (mismo contenido, nombre sin espacios) por si se necesita regenerar algún tamaño más adelante. El archivo que subió el usuario, con el nombre y espacio originales, se dejó tal cual en la carpeta pero no se subió al repositorio (es idéntico a `logo-original.png`, no hacía falta duplicarlo en git).
 Se validó: sintaxis JS, balance de etiquetas, balance de llaves del CSS (243/243), y que no quedó ninguna referencia suelta a la clase `.drop` eliminada.
 **Qué quedó pendiente:** confirmar visualmente en el sitio en vivo que el logo se ve bien en el menú (fondo claro) y en el pie de página (fondo oscuro) — no se pudo verificar en este entorno sin navegador. El hero y la galería todavía no tienen fotos reales — ese sigue siendo el pendiente de mayor impacto visual.
+
+### 2026-07-24 — Texto junto al logo: "Limonar Sector II" → "Gestión del Agua"
+**Qué se hizo:** el usuario pidió cambiar el texto que acompaña al logo (en el menú y en el pie de página) de "Limonar Sector II" a "Gestión del Agua". Cambio de 2 líneas, únicamente en los dos elementos `.brand` (nav y footer) — no se tocó el `<title>`, la meta descripción, el `<h1>` del hero, el JSON-LD, ni ningún otro lugar del sitio que también menciona "Limonar Sector II", porque el pedido fue específicamente sobre el texto junto al logo.
+Se validó: sintaxis JS, balance de etiquetas.
+**Qué quedó pendiente:** ninguna.
