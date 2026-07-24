@@ -42,3 +42,35 @@ Copia y pega **`cron-notificaciones-setup.sql`** en Supabase → SQL Editor → 
 ## Nota importante sobre el paquete `web-push` en Deno
 
 La Edge Function usa la librería `web-push` (pensada originalmente para Node) cargada vía `esm.sh` con `?target=deno` para mejorar su compatibilidad — es la forma recomendada de usarla en Supabase, pero **no la pude probar de verdad** (no hay forma de desplegar/ejecutar Edge Functions desde este entorno). Es posible que al desplegarla haga falta algún ajuste si Deno reporta un error de importación — si eso pasa, avísame el mensaje de error exacto y lo resolvemos.
+
+---
+
+## Ampliación: avisos de reportes/afiliaciones (admin ↔ vecinos)
+
+Adicional a los turnos de agua, ahora también se avisa:
+- **Al administrador**, cuando llega un reporte de daño o una solicitud de afiliación nueva.
+- **Al vecino que reportó o se afilió**, cuando el administrador cambia el estado de SU solicitud (si activó el aviso al enviarla).
+
+Reutiliza toda la infraestructura ya desplegada (mismo service worker, mismos secretos VAPID) — solo faltan estos pasos adicionales:
+
+### Paso 6 — Ejecutar el SQL que permite varios avisos por dispositivo
+
+Copia y pega **`push-suscripciones-multiproposito.sql`** en Supabase → SQL Editor → Run. Esto corrige que un mismo celular (por ejemplo, el tuyo como administrador) pueda estar suscrito a la vez a "mi turno" Y a "avísame de reportes nuevos", sin que uno pise al otro.
+
+### Paso 7 — Desplegar la segunda Edge Function
+
+Mismo procedimiento que con `notificar-turnos`:
+1. Supabase → Edge Functions → **Create a new function** → nómbrala exactamente `enviar-notificacion` (revisa el nombre con cuidado, letra por letra).
+2. Copia todo el contenido de `supabase/functions/enviar-notificacion/index.ts` y pégalo en el editor.
+3. **Deploy**.
+4. En **Function configuration**, apaga **"Verify JWT with legacy secret"** (igual que se hizo con `enviar-comprobante`, para evitar el error 403 al llamarla desde el sitio con la sesión del administrador).
+
+No hace falta configurar ningún secreto nuevo — `enviar-notificacion` reutiliza `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY`, que son secretos de todo el proyecto, no de una función en particular.
+
+### Paso 8 — Probar
+
+1. Como administrador: entra al panel admin → toca el nuevo botón **"Notificarme"** (junto a "Salir") → acepta el permiso.
+2. Desde otro celular (o el navegador en modo incógnito), entra al sitio público y envía un "Reporte de daño" de prueba. Deberías recibir la notificación push como administrador en unos segundos.
+3. Al enviar el reporte, aparece un botón **"Avisarme cuando actualicen mi reporte"** — actívalo desde ese mismo dispositivo/navegador.
+4. Vuelve al panel admin, busca ese reporte en la pestaña "Reportes de daño", y cambia su estado (por ejemplo a "En proceso"). El dispositivo que activó el aviso en el paso 3 debería recibir la notificación de que su reporte se actualizó.
+5. Repite lo mismo con el formulario "Quiero afiliarme" si quieres probar también ese flujo.
