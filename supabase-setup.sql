@@ -60,6 +60,7 @@ create table reportes_dano (
   descripcion text not null,
   foto text,
   estado text default 'Nuevo',
+  notif_token text,
   created_at timestamp with time zone default now()
 );
 
@@ -71,6 +72,7 @@ create table afiliaciones (
   direccion text not null,
   telefono text not null,
   estado text default 'Pendiente',
+  notif_token text,
   created_at timestamp with time zone default now()
 );
 

@@ -1677,17 +1677,25 @@ async function enviarComprobante(propietario){
 async function insertRow(table, row){
   if(usingSupabase){
     try{
-      const {data, error} = await sbClient.from(table).insert(row).select();
-      if(error){ showToast("Error guardando: "+error.message); return null; }
-      return data[0];
+      const {error} = await sbClient.from(table).insert(row);
+      if(error){ showToast("Error guardando: "+error.message); return false; }
+      return true;
     }catch(e){
       showToast("No se pudo guardar: revisa tu conexión a internet e intenta de nuevo.");
-      return null;
+      return false;
     }
   }else{
     showToast("Modo demo: configura Supabase para guardar datos reales.");
-    return {...row, id: Date.now()};
+    return true;
   }
+}
+// Genera un identificador aleatorio en el propio navegador (no depende
+// de que la base de datos "devuelva" el id de la fila insertada, algo
+// que reportes_dano/afiliaciones no permiten a un visitante público
+// por diseño — son tablas privadas, solo el admin puede leerlas).
+function generarNotifToken(){
+  if(window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return Date.now().toString(36) + Math.random().toString(36).slice(2);
 }
 
 document.getElementById("damageFile").addEventListener("change", function(){
@@ -1710,29 +1718,31 @@ document.getElementById("damageForm").addEventListener("submit", async function(
       showToast("No se pudo subir la foto, se enviará el reporte sin ella.");
     }
   }
-  const row = {nombre:fd.get("nombre"), sector:fd.get("sector"), direccion:fd.get("direccion"), descripcion:fd.get("descripcion"), foto:fotoUrl, estado:"Nuevo"};
-  const saved = await insertRow("reportes_dano", row);
-  if(saved){
+  const notifToken = generarNotifToken();
+  const row = {nombre:fd.get("nombre"), sector:fd.get("sector"), direccion:fd.get("direccion"), descripcion:fd.get("descripcion"), foto:fotoUrl, estado:"Nuevo", notif_token:notifToken};
+  const ok = await insertRow("reportes_dano", row);
+  if(ok){
     showToast("Reporte enviado. Gracias por avisarnos.");
     this.reset();
     document.getElementById("fileLabel").textContent="Toca para subir una foto";
     notificarPush("ADMIN", "🔧 Nuevo reporte de daño", `${row.nombre} reportó un daño en ${row.sector}.`, "admin-reportes");
     const box = document.getElementById("damageResultado");
     box.style.display = "block";
-    box.innerHTML = `<button type="button" class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="activarNotificacionesReporte(${saved.id})"><i class="fa-solid fa-bell"></i> Avisarme cuando actualicen mi reporte</button>`;
+    box.innerHTML = `<button type="button" class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="activarNotificacionesReporte(${esc(JSON.stringify(notifToken))})"><i class="fa-solid fa-bell"></i> Avisarme cuando actualicen mi reporte</button>`;
   }
 });
 
 document.getElementById("affiliateForm").addEventListener("submit", async function(e){
   e.preventDefault();
   const fd = new FormData(this);
-  const row = {nombre:fd.get("nombre"), sector:fd.get("sector"), direccion:fd.get("direccion"), telefono:fd.get("telefono"), estado:"Pendiente"};
-  const saved = await insertRow("afiliaciones", row);
-  if(saved){
+  const notifToken = generarNotifToken();
+  const row = {nombre:fd.get("nombre"), sector:fd.get("sector"), direccion:fd.get("direccion"), telefono:fd.get("telefono"), estado:"Pendiente", notif_token:notifToken};
+  const ok = await insertRow("afiliaciones", row);
+  if(ok){
     this.reset();
     this.style.display = "none";
     notificarPush("ADMIN", "🧾 Nueva solicitud de afiliación", `${row.nombre} pidió afiliarse (${row.sector}).`, "admin-afiliaciones");
-    document.getElementById("afiliarNotifBtn").innerHTML = `<button type="button" class="btn btn-outline btn-block" style="margin-top:10px;" onclick="activarNotificacionesAfiliacion(${saved.id})"><i class="fa-solid fa-bell"></i> Avisarme cuando revisen mi solicitud</button>`;
+    document.getElementById("afiliarNotifBtn").innerHTML = `<button type="button" class="btn btn-outline btn-block" style="margin-top:10px;" onclick="activarNotificacionesAfiliacion(${esc(JSON.stringify(notifToken))})"><i class="fa-solid fa-bell"></i> Avisarme cuando revisen mi solicitud</button>`;
     document.getElementById("afiliarResultado").style.display = "block";
   }
 });
@@ -1840,9 +1850,11 @@ async function crudUpdateEstado(table, id, estado){
   const key = table === "reportes_dano" ? "reportes_dano" : "afiliaciones";
   const item = STATE[key].find(r=>r.id===id);
   if(item) item.estado = estado;
-  const prefijo = table === "reportes_dano" ? "REPORTE_" : "AFILIACION_";
-  const etiqueta = table === "reportes_dano" ? "reporte de daño" : "solicitud de afiliación";
-  notificarPush(prefijo+id, "📋 Actualización de tu " + etiqueta, `Tu ${etiqueta} ahora está: ${estado}.`, prefijo+id);
+  if(item && item.notif_token){
+    const prefijo = table === "reportes_dano" ? "REPORTE_" : "AFILIACION_";
+    const etiqueta = table === "reportes_dano" ? "reporte de daño" : "solicitud de afiliación";
+    notificarPush(prefijo+item.notif_token, "📋 Actualización de tu " + etiqueta, `Tu ${etiqueta} ahora está: ${estado}.`, prefijo+item.notif_token);
+  }
 }
 
 /* =========================================================
