@@ -171,6 +171,33 @@ header#nav{
 .ripple:nth-child(2){animation-delay:2.3s;}
 .ripple:nth-child(3){animation-delay:4.6s;}
 @keyframes ripple{0%{width:20px; height:20px; opacity:.8;} 100%{width:900px; height:900px; opacity:0; margin-left:-450px; margin-top:-450px;}}
+
+/* ============ SPLASH SCREEN ============
+   Puramente CSS (sin depender de JS) para que nunca se quede
+   pegado en pantalla si algo falla: la animación misma se encarga
+   de desvanecerlo y quitarlo de encima (pointer-events:none) sola. */
+#splashScreen{
+  position:fixed; inset:0; z-index:99999;
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(160deg, var(--blue-deep) 0%, var(--blue) 100%);
+  animation:splashOut .6s ease 1.6s forwards;
+}
+.splash-logo-wrap{position:relative; display:flex; align-items:center; justify-content:center;}
+.splash-ring{
+  position:absolute; width:150px; height:150px; border-radius:50%;
+  border:2px solid rgba(255,255,255,.5);
+  animation:splashRing 1.8s ease-out infinite;
+}
+.splash-ring:nth-child(2){animation-delay:.6s;}
+.splash-logo{
+  position:relative; z-index:2; width:150px; height:150px; border-radius:50%;
+  box-shadow:0 20px 60px -10px rgba(0,0,0,.5);
+  animation:splashIn .7s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes splashIn{0%{opacity:0; transform:scale(.6);} 100%{opacity:1; transform:scale(1);}}
+@keyframes splashRing{0%{width:150px; height:150px; opacity:.8;} 100%{width:260px; height:260px; opacity:0;}}
+@keyframes splashOut{to{opacity:0; visibility:hidden; pointer-events:none;}}
+
 .hero-content{position:relative; z-index:2; max-width:780px; margin:0 auto; text-align:center; color:#fff; padding:0 24px;}
 .hero-content .eyebrow{background:rgba(255,255,255,.16); color:#fff; backdrop-filter:blur(6px);}
 .hero-content h1{color:#fff; font-size:clamp(2.4rem,6vw,4.1rem); font-weight:800; letter-spacing:-.02em; margin-bottom:22px; text-shadow:0 4px 24px rgba(0,0,0,.25);}
@@ -434,6 +461,14 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 </script>
 </head>
 <body data-theme="light">
+
+<div id="splashScreen" aria-hidden="true">
+  <div class="splash-logo-wrap">
+    <div class="splash-ring"></div>
+    <div class="splash-ring"></div>
+    <img src="/GestionDelAguaLinonarSector2/icon-512.png" alt="" class="splash-logo">
+  </div>
+</div>
 
 <a href="#inicio" class="skip-link">Saltar al contenido</a>
 
