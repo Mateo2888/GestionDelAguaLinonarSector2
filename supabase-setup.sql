@@ -43,28 +43,7 @@ create table finanzas (
   created_at timestamp with time zone default now()
 );
 
--- 5) DOCUMENTOS
-create table documentos (
-  id bigint generated always as identity primary key,
-  nombre text not null,
-  url text not null,
-  created_at timestamp with time zone default now()
-);
-
--- 6) REPORTES DE DAÑO (enviados desde el formulario público)
-create table reportes_dano (
-  id bigint generated always as identity primary key,
-  nombre text not null,
-  sector text not null,
-  direccion text not null,
-  descripcion text not null,
-  foto text,
-  estado text default 'Nuevo',
-  notif_token text,
-  created_at timestamp with time zone default now()
-);
-
--- 7) SOLICITUDES DE AFILIACIÓN
+-- 5) SOLICITUDES DE AFILIACIÓN
 create table afiliaciones (
   id bigint generated always as identity primary key,
   nombre text not null,
@@ -76,7 +55,7 @@ create table afiliaciones (
   created_at timestamp with time zone default now()
 );
 
--- 8) MENSUALIDADES (control de pagos por vivienda, solo para el administrador)
+-- 6) MENSUALIDADES (control de pagos por vivienda, solo para el administrador)
 create table mensualidades (
   id bigint generated always as identity primary key,
   vivienda text not null,
@@ -87,7 +66,7 @@ create table mensualidades (
   created_at timestamp with time zone default now()
 );
 
--- 9) PROPIETARIOS (códigos para la consulta automática de turnos, estado de pago y comprobante)
+-- 7) PROPIETARIOS (códigos para la consulta automática de turnos, estado de pago y comprobante)
 create table propietarios (
   id bigint generated always as identity primary key,
   codigo text not null unique,
@@ -113,14 +92,12 @@ alter table noticias enable row level security;
 alter table galeria enable row level security;
 alter table mantenimientos enable row level security;
 alter table finanzas enable row level security;
-alter table documentos enable row level security;
-alter table reportes_dano enable row level security;
 alter table afiliaciones enable row level security;
 alter table mensualidades enable row level security;
 alter table propietarios enable row level security;
 
 -- Lectura pública para el contenido informativo del sitio
--- (finanzas y documentos NO están aquí a propósito: son privados, solo para el administrador)
+-- (finanzas NO está aquí a propósito: es privada, solo para el administrador)
 create policy "lectura publica noticias" on noticias for select using (true);
 create policy "lectura publica galeria" on galeria for select using (true);
 create policy "lectura publica mantenimientos" on mantenimientos for select using (true);
@@ -131,15 +108,9 @@ create policy "admin escribe noticias" on noticias for all using (auth.role() = 
 create policy "admin escribe galeria" on galeria for all using (auth.role() = 'authenticated');
 create policy "admin escribe mantenimientos" on mantenimientos for all using (auth.role() = 'authenticated');
 create policy "admin escribe finanzas" on finanzas for all using (auth.role() = 'authenticated');
-create policy "admin escribe documentos" on documentos for all using (auth.role() = 'authenticated');
 
--- Cualquier visitante puede ENVIAR un reporte de daño o afiliación,
--- pero solo el administrador puede verlos/gestionarlos/borrarlos.
-create policy "cualquiera reporta dano" on reportes_dano for insert with check (true);
-create policy "admin gestiona reportes" on reportes_dano for select using (auth.role() = 'authenticated');
-create policy "admin borra reportes" on reportes_dano for delete using (auth.role() = 'authenticated');
-create policy "admin actualiza reportes" on reportes_dano for update using (auth.role() = 'authenticated');
-
+-- Cualquiera puede ENVIAR una solicitud de afiliación,
+-- pero solo el administrador puede verla/gestionarla/borrarla.
 create policy "cualquiera se afilia" on afiliaciones for insert with check (true);
 create policy "admin gestiona afiliaciones" on afiliaciones for select using (auth.role() = 'authenticated');
 create policy "admin borra afiliaciones" on afiliaciones for delete using (auth.role() = 'authenticated');

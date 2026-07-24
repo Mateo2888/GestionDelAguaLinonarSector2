@@ -776,8 +776,6 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
     <button class="admin-tab" data-tab="gallery">Galería</button>
     <button class="admin-tab" data-tab="maint">Mantenimientos</button>
     <button class="admin-tab" data-tab="fin">Ingresos</button>
-    <button class="admin-tab" data-tab="docs">Documentos</button>
-    <button class="admin-tab" data-tab="reportes">Reportes de daño</button>
     <button class="admin-tab" data-tab="afiliaciones">Afiliaciones</button>
     <button class="admin-tab" data-tab="mens">Mensualidades</button>
     <button class="admin-tab" data-tab="propietarios">Propietarios / Turnos</button>
@@ -849,19 +847,6 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
     </div>
   </div>
 
-  <div class="admin-section" id="admin-docs">
-    <div class="admin-row" style="background:transparent;border:none;box-shadow:none;">
-      <input class="grow" id="nd-nombre" placeholder="Ej: Reglamento comunitario 2026"><input class="grow" id="nd-url" placeholder="Ej: https://ejemplo.com/reglamento.pdf">
-      <button class="mini-btn save" onclick="addDoc()"><i class="fa-solid fa-plus"></i> Agregar</button>
-    </div>
-    <div id="admin-docs-list"></div>
-  </div>
-
-  <div class="admin-section" id="admin-reportes">
-    <p style="font-size:.85rem;color:var(--ink-soft);margin-bottom:14px;">Reportes de daño enviados por la comunidad desde el formulario público.</p>
-    <div id="admin-reportes-list"></div>
-  </div>
-
   <div class="admin-section" id="admin-afiliaciones">
     <p style="font-size:.85rem;color:var(--ink-soft);margin-bottom:14px;">Solicitudes de afiliación enviadas por la comunidad desde el formulario público.</p>
     <div id="admin-afiliaciones-list"></div>
@@ -923,7 +908,7 @@ try{
 /* =========================================================
    SEGURIDAD: escapar texto antes de insertarlo como HTML
    Todo dato que viene de la base de datos (y en el caso de
-   reportes_dano/afiliaciones, escrito por cualquier visitante sin
+   afiliaciones, escrito por cualquier visitante sin
    iniciar sesión) pasa por aquí antes de mostrarse, para que un
    nombre/descripción con código malicioso incrustado no se ejecute
    en el navegador de quien lo lea (incluido el administrador).
@@ -1009,12 +994,10 @@ const DEMO = {
 
 // estado local que se renderiza (viene de supabase o de DEMO)
 let STATE = JSON.parse(JSON.stringify(DEMO));
-// reportes_dano, afiliaciones, mensualidades, finanzas y documentos no son datos públicos: solo se cargan tras iniciar sesión como admin
-STATE.reportes_dano = [];
+// afiliaciones, mensualidades y finanzas no son datos públicos: solo se cargan tras iniciar sesión como admin
 STATE.afiliaciones = [];
 STATE.mensualidades = [];
 STATE.finanzas = [];
-STATE.documentos = [];
 STATE.propietarios = [];
 
 /* =========================================================
@@ -1413,10 +1396,6 @@ async function activarNotificacionesAdmin(){
   await suscribirNotificaciones('ADMIN', 'Listo. Te avisaremos cuando llegue un reporte de daño o una solicitud de afiliación nueva.');
 }
 
-async function activarNotificacionesReporte(id){
-  await suscribirNotificaciones('REPORTE_'+id, 'Listo, te avisaremos cuando actualicemos el estado de tu reporte.');
-}
-
 async function activarNotificacionesAfiliacion(id){
   await suscribirNotificaciones('AFILIACION_'+id, 'Listo, te avisaremos cuando revisemos tu solicitud.');
 }
@@ -1722,8 +1701,8 @@ async function insertRow(table, row){
 }
 // Genera un identificador aleatorio en el propio navegador (no depende
 // de que la base de datos "devuelva" el id de la fila insertada, algo
-// que reportes_dano/afiliaciones no permiten a un visitante público
-// por diseño — son tablas privadas, solo el admin puede leerlas).
+// que afiliaciones no permite a un visitante público por diseño —
+// es una tabla privada, solo el admin puede leerla).
 function generarNotifToken(){
   if(window.crypto && crypto.randomUUID) return crypto.randomUUID();
   return Date.now().toString(36) + Math.random().toString(36).slice(2);
@@ -1805,40 +1784,32 @@ document.getElementById("loginForm").addEventListener("submit", async function(e
 function logoutAdmin(){
   if(usingSupabase) sbClient.auth.signOut();
   document.getElementById("adminPanel").classList.remove("open");
-  STATE.reportes_dano = [];
   STATE.afiliaciones = [];
   STATE.mensualidades = [];
   STATE.finanzas = [];
-  STATE.documentos = [];
   STATE.propietarios = [];
   renderAdminLists();
 }
 
 /* =========================================================
-   ADMIN: REPORTES DE DAÑO Y AFILIACIONES
+   ADMIN: AFILIACIONES Y DEMÁS DATOS PRIVADOS
    (solo visibles/consultables para un admin autenticado, por RLS)
    ========================================================= */
 async function loadAdminExtras(){
   if(!usingSupabase) return;
   try{
-    const [reportes, afiliaciones, mensualidades, finanzas, documentos, propietarios] = await Promise.all([
-      sbClient.from("reportes_dano").select("*").order("id",{ascending:false}),
+    const [afiliaciones, mensualidades, finanzas, propietarios] = await Promise.all([
       sbClient.from("afiliaciones").select("*").order("id",{ascending:false}),
       sbClient.from("mensualidades").select("*").order("id",{ascending:false}),
       sbClient.from("finanzas").select("*").order("id",{ascending:false}),
-      sbClient.from("documentos").select("*").order("id",{ascending:false}),
       sbClient.from("propietarios").select("*").order("posicion",{ascending:true})
     ]);
-    if(reportes.error){ showToast("No se pudieron cargar los reportes de daño."); }
-    else{ STATE.reportes_dano = reportes.data || []; }
     if(afiliaciones.error){ showToast("No se pudieron cargar las afiliaciones."); }
     else{ STATE.afiliaciones = afiliaciones.data || []; }
     if(mensualidades.error){ showToast("No se pudieron cargar las mensualidades."); }
     else{ STATE.mensualidades = mensualidades.data || []; }
     if(finanzas.error){ showToast("No se pudieron cargar las finanzas."); }
     else{ STATE.finanzas = finanzas.data || []; }
-    if(documentos.error){ showToast("No se pudieron cargar los documentos."); }
-    else{ STATE.documentos = documentos.data || []; }
     if(propietarios.error){ showToast("No se pudieron cargar los propietarios."); }
     else{ STATE.propietarios = propietarios.data || []; }
   }catch(e){
@@ -1854,13 +1825,11 @@ async function crudUpdateEstado(table, id, estado){
     showToast("No se pudo actualizar: revisa tu conexión a internet e intenta de nuevo.");
     return;
   }
-  const key = table === "reportes_dano" ? "reportes_dano" : "afiliaciones";
+  const key = localName(table);
   const item = STATE[key].find(r=>r.id===id);
   if(item) item.estado = estado;
-  if(item && item.notif_token){
-    const prefijo = table === "reportes_dano" ? "REPORTE_" : "AFILIACION_";
-    const etiqueta = table === "reportes_dano" ? "reporte de daño" : "solicitud de afiliación";
-    notificarPush(prefijo+item.notif_token, "📋 Actualización de tu " + etiqueta, `Tu ${etiqueta} ahora está: ${estado}.`, prefijo+item.notif_token);
+  if(table === "afiliaciones" && item && item.notif_token){
+    notificarPush("AFILIACION_"+item.notif_token, "📋 Actualización de tu solicitud de afiliación", `Tu solicitud de afiliación ahora está: ${estado}.`, "AFILIACION_"+item.notif_token);
   }
 }
 
@@ -1896,7 +1865,7 @@ async function crudInsert(table, row){
     return row;
   }
 }
-const STORAGE_FIELDS = {reportes_dano:"foto", finanzas:"comprobante"};
+const STORAGE_FIELDS = {finanzas:"comprobante"};
 async function crudDelete(table, id){
   const fileField = STORAGE_FIELDS[table];
   if(fileField){
@@ -1931,7 +1900,7 @@ async function crudUpdate(table, id, row){
   return true;
 }
 function localName(table){
-  const map = {noticias:"noticias", galeria:"galeria", mantenimientos:"mantenimientos", finanzas:"finanzas", documentos:"documentos", reportes_dano:"reportes_dano", afiliaciones:"afiliaciones", mensualidades:"mensualidades", propietarios:"propietarios"};
+  const map = {noticias:"noticias", galeria:"galeria", mantenimientos:"mantenimientos", finanzas:"finanzas", afiliaciones:"afiliaciones", mensualidades:"mensualidades", propietarios:"propietarios"};
   return map[table];
 }
 
@@ -2005,12 +1974,6 @@ function clearFinForm(){
   document.getElementById("nf-categoria").value = "";
   document.getElementById("nf-comprobante").value = "";
 }
-async function addDoc(){
-  const row = {nombre:val("nd-nombre"), url:val("nd-url")};
-  if(!row.nombre||!row.url) return showToast("Completa nombre y URL.");
-  const saved = await crudInsert("documentos", row);
-  if(saved){ STATE.documentos.unshift(saved); clearInputs(["nd-nombre","nd-url"]); refreshAll(); showToast("Documento agregado."); }
-}
 async function addMens(){
   const row = {vivienda:val("nm2-vivienda"), sector:val("nm2-sector"), mes:val("nm2-mes"), estado:val("nm2-estado"), valor:Number(val("nm2-valor")||0)};
   if(!row.vivienda||!row.sector||!row.mes) return showToast("Completa vivienda, sector y mes.");
@@ -2034,23 +1997,6 @@ function renderAdminLists(){
     <div class="admin-row"><span class="grow">${formatDate(r.fecha)} · ${esc(r.actividad)}</span><span class="status-pill ${r.estado==='Completado'?'on':'off'}">${esc(r.estado)}</span>
       <button class="mini-btn del" onclick="crudDelete('mantenimientos',${JSON.stringify(r.id)}).then(refreshAll)"><i class="fa-solid fa-trash"></i></button></div>`).join("");
   renderFinanzas();
-  document.getElementById("admin-docs-list").innerHTML = STATE.documentos.map(r=>`
-    <div class="admin-row"><span class="grow">${esc(r.nombre)}</span>
-      <button class="mini-btn del" onclick="crudDelete('documentos',${JSON.stringify(r.id)}).then(refreshAll)"><i class="fa-solid fa-trash"></i></button></div>`).join("");
-  document.getElementById("admin-reportes-list").innerHTML = STATE.reportes_dano.map(r=>`
-    <div class="admin-row" style="align-items:flex-start;">
-      ${r.foto ? `<img src="${esc(r.foto)}" alt="Foto del daño reportado por ${esc(r.nombre)}" style="width:64px;height:64px;object-fit:cover;border-radius:8px;flex-shrink:0;">` : ""}
-      <span class="grow">
-        <strong>${esc(r.nombre)}</strong> · ${esc(r.sector)} · ${esc(r.direccion)}<br>
-        <span style="font-size:.85rem;color:var(--ink-soft);">${esc(r.descripcion)}</span>
-      </span>
-      <select onchange="crudUpdateEstado('reportes_dano',${JSON.stringify(r.id)},this.value)">
-        <option value="Nuevo" ${r.estado==="Nuevo"?"selected":""}>Nuevo</option>
-        <option value="En proceso" ${r.estado==="En proceso"?"selected":""}>En proceso</option>
-        <option value="Resuelto" ${r.estado==="Resuelto"?"selected":""}>Resuelto</option>
-      </select>
-      <button class="mini-btn del" onclick="crudDelete('reportes_dano',${JSON.stringify(r.id)}).then(refreshAll)"><i class="fa-solid fa-trash"></i></button>
-    </div>`).join("") || `<p style="text-align:center;color:var(--ink-soft);padding:20px;">No hay reportes de daño.</p>`;
   document.getElementById("admin-afiliaciones-list").innerHTML = STATE.afiliaciones.map(r=>`
     <div class="admin-row">
       <span class="grow">
