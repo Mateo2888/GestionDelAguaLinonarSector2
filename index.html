@@ -17,6 +17,12 @@
 <meta name="twitter:title" content="Gestión del Agua Limonar Sector II">
 <meta name="twitter:description" content="Comprometidos con una distribución organizada, transparente y eficiente del servicio de agua para nuestra comunidad.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%231EC4D6' d='M12 2s7 8.5 7 13a7 7 0 1 1-14 0c0-4.5 7-13 7-13Z'/%3E%3C/svg%3E">
+<link rel="manifest" href="/GestionDelAguaLinonarSector2/manifest.json">
+<meta name="theme-color" content="#0C7A9E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Agua Limonar">
+<link rel="apple-touch-icon" href="/GestionDelAguaLinonarSector2/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -1184,6 +1190,10 @@ function construirResultadoTurno(prop, inicio, fin, manual){
     fecha: inicio.toLocaleDateString('es-CO',{day:'numeric',month:'long',year:'numeric'}),
     horaInicio: inicio.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'}),
     horaFin: fin.toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'}),
+    // ISO completo (no solo la hora) para que las alertas de voz calculen
+    // el momento exacto sin depender del texto ya formateado en 12 horas.
+    inicioISO: inicio.toISOString(),
+    finISO: fin.toISOString(),
     estado, manual
   };
 }
@@ -1210,6 +1220,7 @@ document.getElementById("turnoForm").addEventListener("submit", async function(e
     }
     const {count} = await sbClient.from("propietarios").select("*", {count:"exact", head:true}).eq("activo", true);
     const r = calcularTurno(data, count || 1);
+    window.turnoResultadoActual = r;
     resultBox.style.display = "block";
     resultBox.innerHTML = `
       <div class="card">
@@ -1227,12 +1238,130 @@ document.getElementById("turnoForm").addEventListener("submit", async function(e
           ${pagoBadge(data.estado_pago)}
         </div>
         ${data.estado_pago==="Al día" && data.ultimo_pago ? `<p style="font-size:.85rem;color:var(--ink-soft);margin-top:10px;">Último pago registrado: ${formatDate(data.ultimo_pago)}</p>` : ""}
+        <div style="margin-top:16px;">
+          <button class="btn btn-outline btn-sm" onclick="activarNotificaciones(${JSON.stringify(r.codigo)}, window.turnoResultadoActual)">
+            <i class="fa-solid fa-bell"></i> Activar notificaciones de mi turno
+          </button>
+          <p style="font-size:.78rem;color:var(--ink-soft);margin-top:8px;">En iPhone, primero agrega este sitio a tu pantalla de inicio (compartir → "Agregar a pantalla de inicio") para que las notificaciones funcionen.</p>
+        </div>
       </div>`;
   }catch(e){
     resultBox.style.display = "block";
     resultBox.innerHTML = `<p style="color:#D32F2F;">No se pudo consultar: revisa tu conexión a internet e intenta de nuevo.</p>`;
   }
 });
+
+/* =========================================================
+   NOTIFICACIONES PUSH + VOZ
+   ========================================================= */
+const VAPID_PUBLIC_KEY = "BFWdWGonS8jIrQbgphvIlGzsN040KcqvYIcBtAY4441FtkhGLaaEinVBIA1o04MfxdVFnj0MaW3fkB9gVCnQ7gw";
+
+function urlBase64ToUint8Array(base64String){
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = atob(base64);
+  return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)));
+}
+
+let swRegistration = null;
+
+async function inicializarNotificaciones(codigoPropietario){
+  if(!('serviceWorker' in navigator) || !('PushManager' in window)){
+    showToast('Este navegador no soporta notificaciones push.');
+    return false;
+  }
+  try{
+    swRegistration = await navigator.serviceWorker.register('/GestionDelAguaLinonarSector2/sw.js');
+    const permiso = await Notification.requestPermission();
+    if(permiso !== 'granted'){ return false; }
+    const suscripcionExistente = await swRegistration.pushManager.getSubscription();
+    if(suscripcionExistente){
+      await guardarSuscripcionEnDB(suscripcionExistente, codigoPropietario);
+      return true;
+    }
+    const suscripcion = await swRegistration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+    });
+    await guardarSuscripcionEnDB(suscripcion, codigoPropietario);
+    return true;
+  }catch(e){
+    console.warn('Error al inicializar notificaciones:', e);
+    return false;
+  }
+}
+
+async function guardarSuscripcionEnDB(suscripcion, codigo){
+  if(!usingSupabase) return;
+  const keys = suscripcion.toJSON().keys;
+  try{
+    await sbClient.from('push_suscripciones').upsert({
+      propietario_codigo: codigo,
+      endpoint: suscripcion.endpoint,
+      p256dh: keys.p256dh,
+      auth: keys.auth
+    }, { onConflict: 'endpoint' });
+  }catch(e){
+    console.warn('No se pudo guardar la suscripción push:', e);
+  }
+}
+
+function hablarTurno(mensaje){
+  if(!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(mensaje);
+  utt.lang = 'es-CO';
+  utt.rate = 0.9;
+  utt.pitch = 1;
+  const voces = window.speechSynthesis.getVoices();
+  const vozEspanol = voces.find(v => v.lang.startsWith('es'));
+  if(vozEspanol) utt.voice = vozEspanol;
+  window.speechSynthesis.speak(utt);
+}
+
+// Programa avisos de VOZ mientras esta pestaña siga abierta (10 min antes,
+// al iniciar, y 5 min antes de terminar). Usa las horas reales en ISO
+// (inicioISO/finISO), no el texto ya formateado en 12 horas — un turno de
+// la tarde con "8:00 p. m." habría calculado mal la hora si se leyera el
+// texto directamente. Las notificaciones con la página CERRADA no dependen
+// de esto: las manda el servidor (ver Edge Function "notificar-turnos").
+function programarAlertas(turnoData, codigoPropietario){
+  if(!turnoData || !turnoData.inicioISO || !turnoData.finISO) return;
+  const ahora = new Date();
+  const inicio = new Date(turnoData.inicioISO);
+  const fin = new Date(turnoData.finISO);
+
+  const msAntes = inicio.getTime() - 10*60*1000 - ahora.getTime();
+  if(msAntes > 0 && msAntes < 24*3600*1000){
+    setTimeout(()=>{
+      hablarTurno(`Tu turno de agua, código ${codigoPropietario}, comienza en 10 minutos.`);
+    }, msAntes);
+  }
+  const msInicio = inicio.getTime() - ahora.getTime();
+  if(msInicio > 0 && msInicio < 24*3600*1000){
+    setTimeout(()=>{
+      hablarTurno(`Atención ${codigoPropietario}. Tu turno de agua ha comenzado. Tienes 2 horas de servicio.`);
+    }, msInicio);
+  }
+  const msAnteFin = fin.getTime() - 5*60*1000 - ahora.getTime();
+  if(msAnteFin > 0 && msAnteFin < 24*3600*1000){
+    setTimeout(()=>{
+      hablarTurno(`${codigoPropietario}, tu turno de agua termina en 5 minutos.`);
+    }, msAnteFin);
+  }
+}
+
+async function activarNotificaciones(codigo, turnoData){
+  showToast('Activando notificaciones...');
+  const ok = await inicializarNotificaciones(codigo);
+  if(ok){
+    showToast('Notificaciones activadas. Te avisaremos cuando inicie y termine tu turno.');
+    if(turnoData) programarAlertas(turnoData, codigo);
+    hablarTurno(`Notificaciones activadas para el código ${codigo}. Te avisaré cuando inicie tu turno.`);
+  } else {
+    showToast('No se pudieron activar las notificaciones. Verifica los permisos del navegador.');
+  }
+}
 
 /* =========================================================
    ADMIN: PROPIETARIOS / TURNOS
@@ -1943,6 +2072,12 @@ document.getElementById("year").textContent = new Date().getFullYear();
    INIT
    ========================================================= */
 loadAll();
+// Registrar el service worker desde ya (sin pedir permiso de notificaciones
+// todavía) para que el sitio sea instalable como app — el permiso de
+// notificaciones solo se pide cuando alguien toca "Activar notificaciones".
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/GestionDelAguaLinonarSector2/sw.js').catch(()=>{});
+}
 </script>
 </body>
 </html>
