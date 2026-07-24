@@ -592,12 +592,8 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
         </div>
         <div class="field"><label for="dmg-direccion">Dirección</label><input type="text" id="dmg-direccion" name="direccion" required placeholder="Ej: Calle 5 # 12-34, Limonar Sector II"></div>
         <div class="field"><label for="dmg-descripcion">Descripción del daño</label><textarea id="dmg-descripcion" name="descripcion" required placeholder="Ej: Hay una fuga en la manguera frente a la tienda"></textarea></div>
-        <div class="field">
-          <label for="damageFile">Fotografía (opcional)</label>
-          <label class="file-drop"><i class="fa-solid fa-camera" style="font-size:1.4rem;display:block;margin-bottom:6px;"></i><span id="fileLabel">Toca para subir una foto</span><input type="file" name="foto" accept="image/*" style="display:none;" id="damageFile"></label>
-        </div>
-        <button type="submit" class="btn btn-primary btn-block"><i class="fa-solid fa-paper-plane"></i> Enviar reporte</button>
-        <div id="damageResultado" style="display:none;"></div>
+        <button type="submit" class="btn btn-green btn-block"><i class="fa-brands fa-whatsapp"></i> Enviar reporte por WhatsApp</button>
+        <p style="font-size:.78rem;color:var(--ink-soft);margin-top:8px;">Se abrirá WhatsApp con tu reporte ya escrito. Si quieres, puedes adjuntar una foto directamente ahí antes de enviar.</p>
       </form>
     </div>
   </div>
@@ -1698,44 +1694,14 @@ function generarNotifToken(){
   return Date.now().toString(36) + Math.random().toString(36).slice(2);
 }
 
-document.getElementById("damageFile").addEventListener("change", function(){
-  document.getElementById("fileLabel").textContent = this.files[0] ? this.files[0].name : "Toca para subir una foto";
-});
-
-document.getElementById("damageForm").addEventListener("submit", async function(e){
+document.getElementById("damageForm").addEventListener("submit", function(e){
   e.preventDefault();
   const fd = new FormData(this);
-  let fotoUrl = "";
-  const file = document.getElementById("damageFile").files[0];
-  if(usingSupabase && file){
-    const toUpload = await compressImage(file);
-    const path = `reportes/${Date.now()}_${sanitizeFilename(toUpload.name)}`;
-    try{
-      const {error: upErr} = await sbClient.storage.from("fotos").upload(path, toUpload);
-      if(upErr){ showToast("No se pudo subir la foto, se enviará el reporte sin ella."); }
-      else{ fotoUrl = sbClient.storage.from("fotos").getPublicUrl(path).data.publicUrl; }
-    }catch(e){
-      showToast("No se pudo subir la foto, se enviará el reporte sin ella.");
-    }
-  }
-  const notifToken = generarNotifToken();
-  const row = {nombre:fd.get("nombre"), sector:fd.get("sector"), direccion:fd.get("direccion"), descripcion:fd.get("descripcion"), foto:fotoUrl, estado:"Nuevo", notif_token:notifToken};
-  const ok = await insertRow("reportes_dano", row);
-  if(ok){
-    showToast("Reporte enviado. Gracias por avisarnos.");
-    this.reset();
-    document.getElementById("fileLabel").textContent="Toca para subir una foto";
-    notificarPush("ADMIN", "🔧 Nuevo reporte de daño", `${row.nombre} reportó un daño en ${row.sector}.`, "admin-reportes");
-    const waTexto = `🔧 Reporte de daño\nNombre: ${row.nombre}\nSector: ${row.sector}\nDirección: ${row.direccion}\nDescripción: ${row.descripcion}`;
-    const waUrl = `https://wa.me/573170427446?text=${encodeURIComponent(waTexto)}`;
-    const box = document.getElementById("damageResultado");
-    box.style.display = "block";
-    box.innerHTML = `
-      <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
-        <button type="button" class="btn btn-green btn-sm btn-block" onclick="window.open(${esc(JSON.stringify(waUrl))},'_blank')"><i class="fa-brands fa-whatsapp"></i> Enviar también por WhatsApp</button>
-        <button type="button" class="btn btn-outline btn-sm btn-block" onclick="activarNotificacionesReporte(${esc(JSON.stringify(notifToken))})"><i class="fa-solid fa-bell"></i> Avisarme cuando actualicen mi reporte</button>
-      </div>`;
-  }
+  const nombre = fd.get("nombre"), sector = fd.get("sector"), direccion = fd.get("direccion"), descripcion = fd.get("descripcion");
+  const waTexto = `🔧 Reporte de daño\nNombre: ${nombre}\nSector: ${sector}\nDirección: ${direccion}\nDescripción: ${descripcion}`;
+  const waUrl = `https://wa.me/573170427446?text=${encodeURIComponent(waTexto)}`;
+  window.open(waUrl, "_blank");
+  this.reset();
 });
 
 document.getElementById("affiliateForm").addEventListener("submit", async function(e){
