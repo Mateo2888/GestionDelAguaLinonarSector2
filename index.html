@@ -275,16 +275,14 @@ tbody tr:hover{background:var(--gray-2);}
 .form-card{background:var(--white); border:1px solid var(--line); border-radius:var(--radius); padding:36px; box-shadow:var(--shadow-sm);}
 .field{margin-bottom:18px;}
 .field label{display:block; font-size:.85rem; font-weight:600; margin-bottom:7px; color:var(--ink-soft);}
-.field input, .field select, .field textarea{
+input, select, textarea{
   width:100%; padding:13px 15px; border-radius:12px; border:1.5px solid var(--line);
   background:var(--gray); color:var(--ink); font-family:inherit; font-size:.95rem; transition:border .2s ease;
 }
-.field input:focus, .field select:focus, .field textarea:focus{outline:none; border-color:var(--blue); background:var(--white); box-shadow:0 0 0 3px rgba(12,122,158,.25);}
+input:focus, select:focus, textarea:focus{outline:none; border-color:var(--blue); background:var(--white); box-shadow:0 0 0 3px rgba(12,122,158,.25);}
 a:focus-visible, button:focus-visible{outline:2.5px solid var(--blue); outline-offset:2px;}
 [data-theme="dark"] a:focus-visible, [data-theme="dark"] button:focus-visible{outline-color:var(--sky);}
 .field textarea{resize:vertical; min-height:100px;}
-.file-drop{border:2px dashed var(--line); border-radius:14px; padding:26px; text-align:center; color:var(--ink-soft); cursor:pointer; transition:all .2s ease;}
-.file-drop:hover{border-color:var(--sky); color:var(--sky);}
 .row-2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
 .turno-form{display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;}
 .turno-field{flex:1; min-width:200px; margin-bottom:0; max-width:100%;}
@@ -381,18 +379,22 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 .admin-panel.open{display:block;}
 .admin-bar{position:sticky; top:0; background:var(--white); border-bottom:1px solid var(--line); padding:16px 24px; display:flex; justify-content:space-between; align-items:center; z-index:10;}
 .admin-tabs{display:flex; gap:8px; flex-wrap:wrap; padding:20px 24px 0;}
-.admin-tab{padding:10px 18px; border-radius:999px; background:var(--gray-2); font-size:.88rem; font-weight:600; color:var(--ink-soft);}
+.admin-tab{padding:12px 18px; min-height:44px; border-radius:999px; background:var(--gray-2); font-size:.88rem; font-weight:600; color:var(--ink-soft);}
 .admin-tab.active{background:var(--blue); color:#fff;}
 .admin-section{display:none; padding:24px;}
 .admin-section.active{display:block;}
 .admin-row{display:flex; gap:10px; align-items:center; background:var(--white); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:10px; flex-wrap:wrap;}
 .admin-row .grow{flex:1; min-width:140px;}
-.mini-btn{padding:8px 12px; border-radius:8px; font-size:.8rem; font-weight:600;}
-.mini-btn.del{background:rgba(211,47,47,.1); color:#D32F2F;}
-.mini-btn.save{background:rgba(46,125,50,.12); color:var(--green);}
+.mini-btn{padding:11px 16px; min-height:44px; border-radius:8px; font-size:.85rem; font-weight:600; display:inline-flex; align-items:center; justify-content:center; gap:6px;}
+.mini-btn.del{background:#FFCDD2; color:#B71C1C;}
+.mini-btn.save{background:#C8E6C9; color:#1B5E20;}
+[data-theme="dark"] .mini-btn.del{background:rgba(183,28,28,.35); color:#EF9A9A;}
+[data-theme="dark"] .mini-btn.save{background:rgba(27,94,32,.35); color:#A5D6A7;}
 .status-pill{font-size:.8rem; padding:4px 10px; border-radius:999px; font-weight:600;}
-.status-pill.on{background:rgba(46,125,50,.12); color:var(--green);}
-.status-pill.off{background:rgba(211,47,47,.1); color:#D32F2F;}
+.status-pill.on{background:#C8E6C9; color:#1B5E20;}
+.status-pill.off{background:#FFCDD2; color:#B71C1C;}
+[data-theme="dark"] .status-pill.on{background:rgba(27,94,32,.35); color:#A5D6A7;}
+[data-theme="dark"] .status-pill.off{background:rgba(183,28,28,.35); color:#EF9A9A;}
 .toast{position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(120%); background:#0D2436; color:#fff; padding:14px 24px; border-radius:12px; font-size:.9rem; z-index:6000; transition:transform .35s ease; box-shadow:var(--shadow);}
 .toast.show{transform:translateX(-50%) translateY(0);}
 
@@ -426,7 +428,10 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
   .price-tag{font-size:2.4rem;}
   .form-card{padding:24px 20px;}
   .turno-field{min-width:0; width:100%;}
-  .admin-bar{flex-wrap:wrap; gap:10px;}
+  .admin-bar{flex-wrap:wrap; gap:10px; padding:14px 16px;}
+  .admin-tabs{flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; padding:14px 16px 10px; scrollbar-width:thin;}
+  .admin-tab{white-space:nowrap; flex-shrink:0;}
+  .admin-section{padding:18px 16px;}
   footer{padding-bottom:90px;}
   .hero-actions{flex-direction:column; align-items:center;}
   .hero-actions .btn{width:100%; max-width:340px;}
@@ -760,7 +765,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 <div class="admin-panel" id="adminPanel">
   <div class="admin-bar">
     <strong><i class="fa-solid fa-gauge"></i> Panel administrativo</strong>
-    <div style="display:flex;gap:10px;">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
       <span id="adminEmail" style="font-size:.85rem;color:var(--ink-soft);align-self:center;"></span>
       <button class="btn btn-outline btn-sm" onclick="activarNotificacionesAdmin()" title="Recibir un aviso cuando llegue un reporte de daño o una afiliación nueva"><i class="fa-solid fa-bell"></i> Notificarme</button>
       <button class="btn btn-outline btn-sm" onclick="logoutAdmin()"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
