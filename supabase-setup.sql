@@ -31,19 +31,7 @@ create table mantenimientos (
   created_at timestamp with time zone default now()
 );
 
--- 4) TRANSPARENCIA / FINANZAS
-create table finanzas (
-  id bigint generated always as identity primary key,
-  fecha date not null,
-  concepto text not null,
-  categoria text,
-  tipo text not null check (tipo in ('ingreso','gasto')),
-  valor numeric not null,
-  comprobante text,
-  created_at timestamp with time zone default now()
-);
-
--- 5) SOLICITUDES DE AFILIACIÓN
+-- 4) SOLICITUDES DE AFILIACIÓN
 create table afiliaciones (
   id bigint generated always as identity primary key,
   nombre text not null,
@@ -55,7 +43,7 @@ create table afiliaciones (
   created_at timestamp with time zone default now()
 );
 
--- 6) MENSUALIDADES (control de pagos por vivienda, solo para el administrador)
+-- 5) MENSUALIDADES (control de pagos por vivienda, solo para el administrador)
 create table mensualidades (
   id bigint generated always as identity primary key,
   vivienda text not null,
@@ -66,7 +54,7 @@ create table mensualidades (
   created_at timestamp with time zone default now()
 );
 
--- 7) PROPIETARIOS (códigos para la consulta automática de turnos, estado de pago y comprobante)
+-- 6) PROPIETARIOS (códigos para la consulta automática de turnos, estado de pago y comprobante)
 create table propietarios (
   id bigint generated always as identity primary key,
   codigo text not null unique,
@@ -91,13 +79,11 @@ create table propietarios (
 alter table noticias enable row level security;
 alter table galeria enable row level security;
 alter table mantenimientos enable row level security;
-alter table finanzas enable row level security;
 alter table afiliaciones enable row level security;
 alter table mensualidades enable row level security;
 alter table propietarios enable row level security;
 
 -- Lectura pública para el contenido informativo del sitio
--- (finanzas NO está aquí a propósito: es privada, solo para el administrador)
 create policy "lectura publica noticias" on noticias for select using (true);
 create policy "lectura publica galeria" on galeria for select using (true);
 create policy "lectura publica mantenimientos" on mantenimientos for select using (true);
@@ -107,7 +93,6 @@ create policy "lectura publica propietarios" on propietarios for select using (t
 create policy "admin escribe noticias" on noticias for all using (auth.role() = 'authenticated');
 create policy "admin escribe galeria" on galeria for all using (auth.role() = 'authenticated');
 create policy "admin escribe mantenimientos" on mantenimientos for all using (auth.role() = 'authenticated');
-create policy "admin escribe finanzas" on finanzas for all using (auth.role() = 'authenticated');
 
 -- Cualquiera puede ENVIAR una solicitud de afiliación,
 -- pero solo el administrador puede verla/gestionarla/borrarla.
