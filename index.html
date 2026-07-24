@@ -1057,7 +1057,7 @@ function renderNoticias(){
 function renderGaleria(){
   const grid = document.getElementById("galleryGrid");
   const imgs = STATE.galeria.map(g=> typeof g === "string" ? g : g.url);
-  grid.innerHTML = imgs.map((url,i)=>`<button type="button" class="gallery-item" onclick="openLightbox(${JSON.stringify(url)})" aria-label="Ver foto ${i+1} de la galería en tamaño completo"><img src="${esc(url)}" alt="" loading="lazy"></button>`).join("");
+  grid.innerHTML = imgs.map((url,i)=>`<button type="button" class="gallery-item" onclick="openLightbox(${esc(JSON.stringify(url))})" aria-label="Ver foto ${i+1} de la galería en tamaño completo"><img src="${esc(url)}" alt="" loading="lazy"></button>`).join("");
   toggleSectionVisibility("galeria", imgs.length > 0);
 }
 function openLightbox(url){
@@ -1239,7 +1239,7 @@ document.getElementById("turnoForm").addEventListener("submit", async function(e
         </div>
         ${data.estado_pago==="Al día" && data.ultimo_pago ? `<p style="font-size:.85rem;color:var(--ink-soft);margin-top:10px;">Último pago registrado: ${formatDate(data.ultimo_pago)}</p>` : ""}
         <div style="margin-top:16px;">
-          <button class="btn btn-outline btn-sm" onclick="activarNotificaciones(${JSON.stringify(r.codigo)}, window.turnoResultadoActual)">
+          <button class="btn btn-outline btn-sm" onclick="activarNotificaciones(${esc(JSON.stringify(r.codigo))}, window.turnoResultadoActual)">
             <i class="fa-solid fa-bell"></i> Activar notificaciones de mi turno
           </button>
           <p style="font-size:.78rem;color:var(--ink-soft);margin-top:8px;">En iPhone, primero agrega este sitio a tu pantalla de inicio (compartir → "Agregar a pantalla de inicio") para que las notificaciones funcionen.</p>
