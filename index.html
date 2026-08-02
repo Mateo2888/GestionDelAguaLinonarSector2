@@ -483,6 +483,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
       <a href="#nosotros">Nosotros</a>
       <a href="#consulta">Mi turno</a>
       <a href="#mensualidad">Mensualidad</a>
+      <a href="#conexion">Conexión</a>
       <a href="#mantenimiento">Mantenimiento</a>
       <a href="#reportar">Reportar</a>
       <a href="#noticias">Noticias</a>
@@ -503,7 +504,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
     <button class="icon-btn" id="closeMenu" aria-label="Cerrar menú"><i class="fa-solid fa-xmark"></i></button>
   </div>
   <a href="#inicio">Inicio</a><a href="#nosotros">Nosotros</a><a href="#consulta">Mi turno</a>
-  <a href="#mensualidad">Mensualidades</a><a href="#mantenimiento">Mantenimiento</a>
+  <a href="#mensualidad">Mensualidades</a><a href="#conexion">Conexión</a><a href="#mantenimiento">Mantenimiento</a>
   <a href="#reportar">Reportar daño</a><a href="#noticias">Noticias</a><a href="#galeria">Galería</a>
   <a href="#contacto">Contacto</a>
 </div>
@@ -514,7 +515,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
   <div class="hero-content">
     <span class="eyebrow"><i class="fa-solid fa-droplet"></i> Servicio de agua y mantenimiento</span>
     <h1>Gestión del Agua<br>Limonar Sector II</h1>
-    <p class="sub">Comprometidos con una distribución organizada, transparente y eficiente del servicio de agua para nuestra comunidad.</p>
+    <p class="sub">¿Cansado de no saber cuándo te toca el agua? Ahora cada propietario tiene su código, su horario exacto y una notificación en el celular. Sin peleas. Sin confusión. Sin sorpresas.</p>
     <div class="hero-actions">
       <a href="#consulta" class="btn btn-primary"><i class="fa-solid fa-calendar-days"></i> Consultar mi turno</a>
       <a href="#mensualidad" class="btn btn-ghost"><i class="fa-solid fa-coins"></i> Pagar mensualidad</a>
@@ -539,12 +540,14 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
     <div class="section-head center">
       <span class="eyebrow">Quiénes somos</span>
       <h2>Un proyecto comunitario, hecho por y para el barrio</h2>
-      <p>Gestión del Agua Limonar Sector II organiza, mantiene y garantiza el servicio de agua para todas las viviendas del sector, con participación directa de la comunidad.</p>
+      <p>Durante años el problema fue el mismo: nadie sabía con certeza a quién le tocaba el agua ni a qué hora. Limonar Sector II creó esta plataforma para resolver eso de una vez — con tecnología simple, cuentas claras y mantenimiento preventivo de la manguera principal.</p>
     </div>
     <div class="grid-3">
-      <div class="card reveal"><div class="icon-tile"><i class="fa-solid fa-clock"></i></div><h3>Turnos organizados</h3><p style="color:var(--ink-soft);margin-top:8px;">Coordinamos los horarios de agua para que cada vivienda reciba su turno de forma justa y puntual.</p></div>
-      <div class="card reveal"><div class="icon-tile"><i class="fa-solid fa-people-group"></i></div><h3>Participación</h3><p style="color:var(--ink-soft);margin-top:8px;">Promovemos que cada propietario participe activamente en las decisiones del acueducto.</p></div>
-      <div class="card reveal"><div class="icon-tile green"><i class="fa-solid fa-droplet"></i></div><h3>Distribución garantizada</h3><p style="color:var(--ink-soft);margin-top:8px;">Trabajamos para que el agua llegue de forma continua y equitativa a todo el sector.</p></div>
+      <div class="card reveal"><div class="icon-tile green"><i class="fa-solid fa-mobile-screen"></i></div><h3>Tu turno en tu celular</h3><p style="color:var(--ink-soft);margin-top:8px;">Escribe tu código (ejemplo: LM045) y en segundos ves tu día, tu hora exacta y si estás al día con el pago. Sin llamar a nadie.</p></div>
+      <div class="card reveal"><div class="icon-tile"><i class="fa-solid fa-bell"></i></div><h3>Te avisamos antes de que llegue</h3><p style="color:var(--ink-soft);margin-top:8px;">10 minutos antes de tu turno, tu celular te avisa. No más estar pendiente del reloj ni perder tu hora por descuido.</p></div>
+      <div class="card reveal"><div class="icon-tile green"><i class="fa-solid fa-wrench"></i></div><h3>Manguera principal en buen estado</h3><p style="color:var(--ink-soft);margin-top:8px;">Mantenemos la línea principal que lleva el agua a tu vivienda. Si falla esa manguera, nadie recibe agua — por eso la cuidamos primero.</p></div>
+      <div class="card reveal"><div class="icon-tile"><i class="fa-solid fa-receipt"></i></div><h3>Sabes en qué se gasta tu dinero</h3><p style="color:var(--ink-soft);margin-top:8px;">Cada $10.000 queda registrado. Puedes ver los ingresos, los gastos y el saldo disponible en tiempo real. Nada se pierde, nada se esconde.</p></div>
+      <div class="card reveal"><div class="icon-tile green"><i class="fa-solid fa-code"></i></div><h3>Solo necesitas tu código</h3><p style="color:var(--ink-soft);margin-top:8px;">No importa si no eres experto en tecnología. Con escribir tu código LM en esta página, tienes todo: tu turno, tu estado de pago y tus alertas.</p></div>
     </div>
   </div>
 </section>
@@ -574,24 +577,62 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
     <div class="pricing-wrap">
       <div class="pricing-grid">
         <div>
-          <span class="eyebrow" style="background:rgba(255,255,255,.16);color:#fff;">Aporte mensual</span>
-          <h2 style="color:#fff;font-size:clamp(1.6rem,3vw,2.1rem);margin-bottom:14px;">No es un cobro, es una inversión en tu servicio de agua</h2>
-          <p style="opacity:.9;margin-bottom:26px;">Con tu aporte mensual mantenemos un sistema organizado, con personal encargado, mantenimiento constante y respuesta rápida ante daños.</p>
+          <span class="eyebrow" style="background:rgba(255,255,255,.16);color:#fff;">Suscripción mensual</span>
+          <h2 style="color:#fff;font-size:clamp(1.6rem,3vw,2.1rem);margin-bottom:14px;">$10.000 al mes. Menos que un almuerzo.</h2>
+          <p style="opacity:.9;margin-bottom:26px;">Menos de lo que cuesta un almuerzo corriente. Y a cambio: tu turno de agua organizado, una notificación antes de que llegue, y la manguera principal mantenida para que el agua efectivamente llegue a tu vivienda.</p>
           <ul class="benefit-list">
-            <li><i class="fa-solid fa-circle-check"></i> Persona encargada de abrir el registro de agua en el horario correspondiente.</li>
-            <li><i class="fa-solid fa-circle-check"></i> Garantía de las 2 horas de agua por propietario.</li>
-            <li><i class="fa-solid fa-circle-check"></i> Mantenimiento preventivo de la manguera comunitaria.</li>
-            <li><i class="fa-solid fa-circle-check"></i> Atención más rápida de daños.</li>
-            <li><i class="fa-solid fa-circle-check"></i> Mejora continua del sistema de distribución.</li>
+            <li><i class="fa-solid fa-circle-check"></i> Tu código personal (LM001 al LM300) — nadie más tiene el tuyo.</li>
+            <li><i class="fa-solid fa-circle-check"></i> Consulta tu turno desde el celular en cualquier momento, sin llamar a nadie.</li>
+            <li><i class="fa-solid fa-circle-check"></i> Notificación automática 10 minutos antes de que inicie tu turno — para que no lo pierdas.</li>
+            <li><i class="fa-solid fa-circle-check"></i> Comprobante digital de tu pago mensual — guardado en tu correo.</li>
+            <li><i class="fa-solid fa-circle-check"></i> Mantenimiento preventivo de la manguera principal — la que hace que el agua llegue hasta tu puerta.</li>
+            <li><i class="fa-solid fa-circle-check"></i> Registro público de ingresos y gastos — puedes verificar en qué se usa tu dinero.</li>
           </ul>
+          <p style="opacity:.9;margin-top:22px;">Antes de esta plataforma, el turno del agua era confusión, malentendidos y a veces peleas. Hoy cada propietario sabe exactamente cuándo le toca — y si no sabe, su celular se lo recuerda. Eso vale $10.000 al mes.</p>
         </div>
         <div class="price-card">
           <div class="lbl" style="opacity:.85;">Valor mensual</div>
-          <div class="price-tag" id="priceTag">$25.000 <span>COP</span></div>
+          <div class="price-tag" id="priceTag">$10.000 <span>COP</span></div>
           <p style="opacity:.85;font-size:.9rem;margin:14px 0 22px;">por vivienda / mes</p>
-          <button class="btn btn-green btn-block" onclick="openModal('afiliar')"><i class="fa-solid fa-user-plus"></i> Quiero afiliarme</button>
+          <button class="btn btn-green btn-block" onclick="openModal('afiliar')"><i class="fa-solid fa-user-plus"></i> Quiero mi código</button>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONEXIÓN AL AGUA ============ -->
+<section class="section" id="conexion">
+  <div class="container">
+    <div class="section-head center">
+      <span class="eyebrow">Nuevo propietario</span>
+      <h2>¿Aún no tienes agua en tu vivienda?</h2>
+      <p>Si tu vivienda no está conectada a la manguera principal, este es el primer paso.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card reveal">
+        <h3 style="margin-bottom:6px;">Qué incluye la conexión</h3>
+        <div style="font-family:var(--font-display);font-size:2.4rem;font-weight:800;color:var(--blue);margin:10px 0 2px;">$150.000</div>
+        <p style="color:var(--ink-soft);font-size:.85rem;margin-bottom:18px;">Pago único, no mensual</p>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:12px;">
+          <li style="display:flex;gap:10px;align-items:flex-start;"><i class="fa-solid fa-circle-check" style="color:var(--green);margin-top:3px;"></i> Registro oficial como propietario del sector</li>
+          <li style="display:flex;gap:10px;align-items:flex-start;"><i class="fa-solid fa-circle-check" style="color:var(--green);margin-top:3px;"></i> Acometida tipo "T" para conectarte a la manguera principal</li>
+          <li style="display:flex;gap:10px;align-items:flex-start;"><i class="fa-solid fa-circle-check" style="color:var(--green);margin-top:3px;"></i> Tu código personal (LM) en la plataforma</li>
+          <li style="display:flex;gap:10px;align-items:flex-start;"><i class="fa-solid fa-circle-check" style="color:var(--green);margin-top:3px;"></i> Acceso inmediato al sistema de turnos</li>
+        </ul>
+      </div>
+      <div class="card reveal">
+        <h3 style="margin-bottom:18px;">Qué NO incluye</h3>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:12px;">
+          <li style="display:flex;gap:10px;align-items:flex-start;"><i class="fa-solid fa-xmark" style="color:#D32F2F;margin-top:3px;"></i> Instalación interior de tu vivienda (tuberías internas, llaves, sanitarios)</li>
+          <li style="display:flex;gap:10px;align-items:flex-start;"><i class="fa-solid fa-xmark" style="color:#D32F2F;margin-top:3px;"></i> Materiales adicionales de tu red interna</li>
+          <li style="display:flex;gap:10px;align-items:flex-start;"><i class="fa-solid fa-xmark" style="color:#D32F2F;margin-top:3px;"></i> Mano de obra dentro de tu propiedad</li>
+        </ul>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:32px;">
+      <p style="color:var(--ink-soft);margin-bottom:16px;">¿Tienes dudas sobre el proceso o quieres agendar tu conexión? Escríbenos directamente.</p>
+      <a href="#" id="conexionWhatsapp" target="_blank" class="btn btn-green"><i class="fa-brands fa-whatsapp"></i> Consultar por WhatsApp</a>
     </div>
   </div>
 </section>
@@ -661,10 +702,11 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
       <h2>Preguntas frecuentes</h2>
     </div>
     <div id="faqList">
-      <div class="faq-item"><div class="faq-q" role="button" tabindex="0" aria-expanded="false">¿Qué pasa si no pago la mensualidad? <i class="fa-solid fa-chevron-down"></i></div><div class="faq-a"><p>El servicio puede verse afectado en la prioridad de mantenimiento y respuesta a daños de la vivienda correspondiente. El aporte sostiene el sistema para todos.</p></div></div>
-      <div class="faq-item"><div class="faq-q" role="button" tabindex="0" aria-expanded="false">¿Cómo reporto un daño urgente? <i class="fa-solid fa-chevron-down"></i></div><div class="faq-a"><p>Puedes usar el formulario de "Reportar daño" en esta página o escribir directamente por WhatsApp al encargado del sector.</p></div></div>
-      <div class="faq-item"><div class="faq-q" role="button" tabindex="0" aria-expanded="false">¿Puedo cambiar mi horario de agua? <i class="fa-solid fa-chevron-down"></i></div><div class="faq-a"><p>Los horarios se asignan por sector para garantizar equidad. Cualquier ajuste debe solicitarse directamente al encargado.</p></div></div>
-      <div class="faq-item"><div class="faq-q" role="button" tabindex="0" aria-expanded="false">¿Dónde veo en qué se gasta el dinero? <i class="fa-solid fa-chevron-down"></i></div><div class="faq-a"><p>El manejo de ingresos y gastos es administrado internamente por el encargado del sector. Si tienes preguntas sobre el estado financiero, escríbenos directamente por WhatsApp o correo.</p></div></div>
+      <div class="faq-item"><div class="faq-q" role="button" tabindex="0" aria-expanded="false">¿Cuánto cuesta y qué incluye? <i class="fa-solid fa-chevron-down"></i></div><div class="faq-a"><p>Son $10.000 al mes. Incluye tu código personal de turno, notificaciones automáticas en tu celular, comprobante digital de pago y mantenimiento preventivo de la manguera principal del sector.</p></div></div>
+      <div class="faq-item"><div class="faq-q" role="button" tabindex="0" aria-expanded="false">¿Por qué debo pagar si el agua es de todos? <i class="fa-solid fa-chevron-down"></i></div><div class="faq-a"><p>El agua llega sola, pero organizarla no. Alguien tiene que mantener la manguera principal, programar los turnos y sostener la plataforma que te avisa cuándo te toca. Ese es exactamente el costo de los $10.000.</p></div></div>
+      <div class="faq-item"><div class="faq-q" role="button" tabindex="0" aria-expanded="false">¿Qué pasa si no pago un mes? <i class="fa-solid fa-chevron-down"></i></div><div class="faq-a"><p>Tu acceso a la plataforma puede suspenderse. Además, si muchos propietarios dejan de pagar, no hay recursos para mantener la manguera principal — y eso nos afecta a todos.</p></div></div>
+      <div class="faq-item"><div class="faq-q" role="button" tabindex="0" aria-expanded="false">¿Cómo consulto mi turno si no sé usar el celular? <i class="fa-solid fa-chevron-down"></i></div><div class="faq-a"><p>Solo necesitas escribir tu código (ejemplo: LM045) en el campo de búsqueda de la sección "Mi turno". Es un número, nada más. Si tienes dudas, un familiar puede ayudarte o escríbenos por WhatsApp.</p></div></div>
+      <div class="faq-item"><div class="faq-q" role="button" tabindex="0" aria-expanded="false">¿Cómo me conecto al agua si soy nuevo? <i class="fa-solid fa-chevron-down"></i></div><div class="faq-a"><p>El costo de conexión es $150.000 único (incluye registro y acometida T a la manguera principal). Escríbenos por WhatsApp para coordinar el proceso.</p></div></div>
     </div>
   </div>
 </section>
@@ -720,7 +762,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 <!-- ============ AFILIAR MODAL ============ -->
 <div class="modal-overlay" id="modal-afiliar">
   <div class="modal-box">
-    <h3>Quiero afiliarme</h3>
+    <h3>Quiero registrarme</h3>
     <form id="affiliateForm">
       <div class="field"><label for="afil-nombre">Nombre completo</label><input type="text" id="afil-nombre" name="nombre" required placeholder="Ej: María Gómez"></div>
       <div class="field"><label for="afil-sector">Sector</label><select id="afil-sector" name="sector" required><option>Sector 1</option><option>Sector 2</option><option>Sector 3</option><option>Sector 4</option><option>Sector 5</option><option>Sector 6</option><option>Sector 7</option><option>Sector 8</option><option>Sector 9</option><option>Sector 10</option></select></div>
@@ -819,7 +861,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
         <input id="nm2-mes" type="month">
         <select id="nm2-estado"><option value="Pagado">Pagado</option><option value="Pendiente" selected>Pendiente</option><option value="Atrasado">Atrasado</option></select>
       </div>
-      <input id="nm2-valor" type="number" placeholder="Valor" value="25000">
+      <input id="nm2-valor" type="number" placeholder="Valor" value="10000">
       <button class="mini-btn save" onclick="addMens()"><i class="fa-solid fa-plus"></i> Agregar</button>
     </div>
     <div id="admin-mens-list"></div>
@@ -885,7 +927,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
         </div>
         <div class="field" style="margin:0;flex:1;min-width:160px;">
           <label>Valor recibido (COP)</label>
-          <input type="number" id="conc-valor" placeholder="Ej: 25000">
+          <input type="number" id="conc-valor" placeholder="Ej: 10000">
         </div>
         <div class="field" style="margin:0;flex:2;min-width:200px;">
           <label>Notas (opcional)</label>
@@ -1121,7 +1163,7 @@ const CONFIG = {
   minutos_aviso_inicio: '10',
   minutos_aviso_fin: '5',
   duracion_turno_horas: '2',
-  valor_mensualidad: '25000',
+  valor_mensualidad: '10000',
   whatsapp_encargado: '573170427446',
   nombre_encargado: 'Mateo Castro',
   correo_encargado: 'gestionagualimonall@gmail.com',
@@ -1253,6 +1295,8 @@ function aplicarConfigEnVivo(){
   if(contactNombre) contactNombre.textContent = CONFIG.nombre_encargado;
   const precioEl = document.getElementById('priceTag');
   if(precioEl) precioEl.innerHTML = `$${(parseInt(CONFIG.valor_mensualidad)||0).toLocaleString('es-CO')} <span>COP</span>`;
+  const conexionWa = document.getElementById('conexionWhatsapp');
+  if(conexionWa) conexionWa.href = 'https://wa.me/' + CONFIG.whatsapp_encargado + '?text=' + encodeURIComponent('Hola, quiero información sobre el punto de conexión al agua en Limonar Sector II.');
 }
 
 /* =========================================================
@@ -1629,7 +1673,7 @@ async function generarCodigosMasivos(){
     showToast("No se pudo generar los códigos: revisa tu conexión a internet e intenta de nuevo.");
   }
 }
-const VALOR_MENSUALIDAD = ()=> parseInt(CONFIG.valor_mensualidad) || 25000; // mismo "Valor mensual" mostrado en la sección Mensualidad del sitio
+const VALOR_MENSUALIDAD = ()=> parseInt(CONFIG.valor_mensualidad) || 10000; // mismo "Valor mensual" mostrado en la sección Mensualidad del sitio
 
 async function guardarPropietario(id){
   const row = STATE.propietarios.find(p=>p.id===id);
@@ -1769,8 +1813,8 @@ function generarComprobantePDF(propietario){
   // Título
   doc.setTextColor(...azulOscuro);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(18);
-  doc.text("Comprobante de pago", pageW/2, 56, {align:"center"});
+  doc.setFontSize(15);
+  doc.text("Suscripción mensual — Plataforma de turnos", pageW/2, 56, {align:"center", maxWidth: pageW-40});
   doc.setDrawColor(...cian);
   doc.setLineWidth(0.8);
   doc.line(pageW/2-30, 60, pageW/2+30, 60);
@@ -1787,24 +1831,28 @@ function generarComprobantePDF(propietario){
   // Tarjeta de datos
   const cardY = 87;
   doc.setFillColor(...grisClaro);
-  doc.roundedRect(20, cardY, pageW-40, 62, 4, 4, "F");
+  doc.roundedRect(20, cardY, pageW-40, 112, 4, 4, "F");
+  const valorMensual = `$${(parseInt(CONFIG.valor_mensualidad)||10000).toLocaleString('es-CO')} COP/mes`;
   const filas = [
     ["Propietario", propietario.nombre],
     ["Código", propietario.codigo],
     ["Sector", propietario.sector],
+    ["Concepto", "Gestión de turnos + mantenimiento preventivo manguera principal"],
+    ["Valor", valorMensual],
     ["Fecha de pago", fechaPago],
   ];
   let y = cardY + 14;
   filas.forEach(([label, valor])=>{
+    const esConcepto = label === "Concepto";
     doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.setTextColor(...grisTexto);
     doc.text(label.toUpperCase(), 30, y);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(12.5);
+    doc.setFontSize(esConcepto ? 10.5 : 12.5);
     doc.setTextColor(...azulOscuro);
-    doc.text(String(valor), 30, y+6.5);
-    y += 15;
+    doc.text(String(valor), 30, y+6.5, esConcepto ? {maxWidth: pageW-60} : undefined);
+    y += esConcepto ? 21 : 15;
   });
 
   // Pie
@@ -1814,7 +1862,7 @@ function generarComprobantePDF(propietario){
   doc.setFont("helvetica", "italic");
   doc.setFontSize(8.5);
   doc.setTextColor(...grisTexto);
-  doc.text("Este comprobante certifica el estado de pago del aporte mensual de agua de este propietario.", pageW/2, 269, {align:"center", maxWidth: pageW-50});
+  doc.text("Este comprobante certifica el pago mensual de suscripción a la plataforma de gestión de turnos de agua — Limonar Sector II.", pageW/2, 269, {align:"center", maxWidth: pageW-50});
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.text(`Generado automáticamente el ${generadoEl}.`, pageW/2, 275, {align:"center"});
@@ -1851,7 +1899,7 @@ async function enviarComprobante(propietario){
     // y el mensaje ya listos, para que el administrador lo adjunte y envíe a mano.
     doc.save(`comprobante-${propietario.codigo}.pdf`);
     const asunto = encodeURIComponent(`Comprobante de pago — ${propietario.nombre}`);
-    const cuerpo = encodeURIComponent(`Hola ${propietario.nombre},\n\nAdjunto tu comprobante de pago del aporte de agua (código ${propietario.codigo}).\n\nGestión del Agua Limonar Sector II`);
+    const cuerpo = encodeURIComponent(`Hola ${propietario.nombre},\n\nAdjunto tu comprobante de pago de la suscripción mensual (código ${propietario.codigo}).\n\nGestión del Agua Limonar Sector II`);
     window.open(`mailto:${propietario.correo}?subject=${asunto}&body=${cuerpo}`, "_blank");
     showToast("No se pudo enviar el comprobante automáticamente. Se descargó el PDF y se abrió tu correo para enviarlo a mano.");
   }
