@@ -817,6 +817,7 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
     <button class="admin-tab" data-tab="afiliaciones">Afiliaciones</button>
     <button class="admin-tab" data-tab="mens">Mensualidades</button>
     <button class="admin-tab" data-tab="propietarios">Propietarios / Turnos</button>
+    <button class="admin-tab" data-tab="morosos"><i class="fa-solid fa-triangle-exclamation" style="color:#D32F2F;"></i> Morosos</button>
     <button class="admin-tab" data-tab="conta"><i class="fa-solid fa-chart-line"></i> Contabilidad</button>
     <button class="admin-tab" data-tab="config"><i class="fa-solid fa-gear"></i> Configuración</button>
   </div>
@@ -883,6 +884,60 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
     </div>
     <div class="search-box" style="margin-bottom:14px;"><i class="fa-solid fa-magnifying-glass"></i><input id="prSearch" placeholder="Buscar por código o nombre..." oninput="renderAdminPropietarios()"></div>
     <div id="admin-propietarios-list"></div>
+  </div>
+
+  <div class="admin-section" id="admin-morosos">
+
+    <!-- RESUMEN -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:20px;">
+      <div class="fin-card out">
+        <div class="lbl">Total morosos</div>
+        <div class="val" id="mor-total">0</div>
+      </div>
+      <div class="fin-card" style="background:linear-gradient(135deg,#E65100,#FF7043);">
+        <div class="lbl">Más de 1 mes</div>
+        <div class="val" id="mor-un-mes">0</div>
+      </div>
+      <div class="fin-card out">
+        <div class="lbl">Más de 2 meses</div>
+        <div class="val" id="mor-dos-meses">0</div>
+      </div>
+      <div class="fin-card" style="background:linear-gradient(135deg,#37474F,#546E7A);">
+        <div class="lbl">Sin pago registrado</div>
+        <div class="val" id="mor-sin-pago">0</div>
+      </div>
+    </div>
+
+    <!-- ACCIONES MASIVAS -->
+    <div class="admin-row" style="background:transparent;border:none;box-shadow:none;flex-wrap:wrap;margin-bottom:8px;">
+      <button class="btn btn-outline btn-sm" onclick="recordatorioMasivoWhatsApp()">
+        <i class="fa-brands fa-whatsapp"></i> Enviar recordatorio a todos (uno por uno)
+      </button>
+      <button class="btn btn-outline btn-sm" onclick="exportarListaMorosos()">
+        <i class="fa-solid fa-file-excel"></i> Exportar lista
+      </button>
+      <span style="font-size:.82rem;color:var(--ink-soft);align-self:center;">
+        Los restringidos con más de 30 días ven aviso al consultar su turno.
+      </span>
+    </div>
+
+    <!-- FILTRO -->
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+      <select id="mor-filtro-meses" onchange="renderMorosos()">
+        <option value="0">Todos los pendientes</option>
+        <option value="1">Más de 1 mes</option>
+        <option value="2">Más de 2 meses</option>
+        <option value="3">Más de 3 meses</option>
+      </select>
+      <div class="search-box" style="flex:1;min-width:200px;">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input id="mor-search" placeholder="Buscar por nombre o código..." oninput="renderMorosos()">
+      </div>
+    </div>
+
+    <!-- LISTA -->
+    <div id="morosos-list"></div>
+
   </div>
 
   <div class="admin-section" id="admin-conta">
@@ -1465,6 +1520,7 @@ document.getElementById("turnoForm").addEventListener("submit", async function(e
           ${turnoBadge(r.estado)}
           ${pagoBadge(data.estado_pago)}
         </div>
+        ${verificarRestriccion(data) || ""}
         ${data.estado_pago==="Al día" && data.ultimo_pago ? `<p style="font-size:.85rem;color:var(--ink-soft);margin-top:10px;">Último pago registrado: ${formatDate(data.ultimo_pago)}</p>` : ""}
         <div style="margin-top:16px;">
           <button class="btn btn-outline btn-sm" onclick="activarNotificaciones(${esc(JSON.stringify(r.codigo))}, window.turnoResultadoActual)">
@@ -1690,10 +1746,11 @@ async function guardarPropietario(id){
     turno_fin_manual = fin;
   }
   const correo = val(`pr-correo-${id}`).trim();
+  const telefono = val(`pr-tel-${id}`).trim();
   const estado_pago = val(`pr-estadopago-${id}`);
   const ultimo_pago = val(`pr-ultimopago-${id}`) || null;
   const ultimoPagoAnterior = row.ultimo_pago || null;
-  const updates = {nombre, sector, turno_fecha_manual, turno_inicio_manual, turno_fin_manual, correo, estado_pago, ultimo_pago};
+  const updates = {nombre, sector, turno_fecha_manual, turno_inicio_manual, turno_fin_manual, correo, telefono, estado_pago, ultimo_pago};
   const ok = await crudUpdate("propietarios", id, updates);
   if(!ok) return;
   renderAdminPropietarios();
@@ -1760,6 +1817,7 @@ function renderAdminPropietarios(){
         </select>
         <input type="date" id="pr-ultimopago-${p.id}" value="${p.ultimo_pago||''}" title="Fecha del último pago">
         <input type="email" id="pr-correo-${p.id}" value="${esc(p.correo||'')}" placeholder="Ej: maria@gmail.com" style="max-width:220px;">
+        <input type="tel" id="pr-tel-${p.id}" value="${esc(p.telefono||'')}" placeholder="Ej: 300 123 4567" style="max-width:160px;">
         <button class="mini-btn save" onclick="guardarPropietario(${JSON.stringify(p.id)})"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
       </div>
     </div>`).join("") || `<p style="color:var(--ink-soft);text-align:center;padding:20px;">Sin propietarios. Usa "Generar códigos" o agrega uno manualmente.</p>`;
@@ -2018,6 +2076,7 @@ function logoutAdmin(){
   renderAdminLists();
   renderDashboardContabilidad();
   renderHistorialContabilidad();
+  renderMorosos();
 }
 
 /* =========================================================
@@ -2042,6 +2101,7 @@ async function loadAdminExtras(){
     showToast("No se pudo conectar para cargar la información administrativa. Revisa tu conexión a internet.");
   }
   renderAdminLists();
+  renderMorosos();
 }
 async function crudUpdateEstado(table, id, estado){
   try{
@@ -2593,6 +2653,248 @@ function generarReportePDFContabilidad(){
   if(movsFiltrados.length>40){ doc.text(`... y ${movsFiltrados.length-40} registros más. Exporta Excel para verlos todos.`, 15, y); }
   doc.save(`reporte-contabilidad-${mes||'completo'}.pdf`);
   showToast('Reporte PDF generado.');
+}
+
+/* =========================================================
+   SISTEMA DE MOROSOS
+   ========================================================= */
+
+function calcularMesesSinPagar(ultimoPago){
+  if(!ultimoPago) return 99;
+  const hoy = new Date();
+  const pago = new Date(ultimoPago + 'T00:00:00');
+  return (hoy.getFullYear() - pago.getFullYear()) * 12
+    + (hoy.getMonth() - pago.getMonth());
+}
+
+function getMorosos(){
+  return STATE.propietarios
+    .filter(p => p.activo && p.estado_pago !== 'Al día')
+    .map(p => ({
+      ...p,
+      meses: calcularMesesSinPagar(p.ultimo_pago)
+    }))
+    .sort((a,b) => b.meses - a.meses);
+}
+
+function renderMorosos(){
+  const morosos = getMorosos();
+  const filtroMeses = parseInt(
+    document.getElementById('mor-filtro-meses')?.value||'0'
+  );
+  const q = (document.getElementById('mor-search')
+    ?.value||'').toLowerCase();
+
+  const filtrados = morosos.filter(p =>
+    p.meses >= filtroMeses &&
+    (!q || p.codigo.toLowerCase().includes(q) ||
+     p.nombre.toLowerCase().includes(q))
+  );
+
+  // Actualizar contadores
+  document.getElementById('mor-total').textContent =
+    morosos.length;
+  document.getElementById('mor-un-mes').textContent =
+    morosos.filter(p=>p.meses>=1).length;
+  document.getElementById('mor-dos-meses').textContent =
+    morosos.filter(p=>p.meses>=2).length;
+  document.getElementById('mor-sin-pago').textContent =
+    morosos.filter(p=>p.ultimo_pago===null).length;
+
+  const list = document.getElementById('morosos-list');
+  if(!list) return;
+
+  list.innerHTML = filtrados.map(p => {
+    const diasColor = p.meses >= 2 ? '#D32F2F'
+      : p.meses >= 1 ? '#E65100' : '#F57C00';
+    const mesesTexto = p.meses >= 99
+      ? 'Sin pago registrado'
+      : p.meses === 0 ? 'Menos de 1 mes'
+      : p.meses === 1 ? '1 mes de atraso'
+      : `${p.meses} meses de atraso`;
+    const msgWhatsApp = encodeURIComponent(
+      `Hola ${p.nombre}, le recordamos que tiene ` +
+      `pendiente el pago mensual de $10.000 ` +
+      `correspondiente a su suscripción en la ` +
+      `plataforma de turnos de agua Limonar Sector II ` +
+      `(código ${p.codigo}). ` +
+      `Para realizar el pago o aclarar dudas, ` +
+      `comuníquese con nosotros. ¡Gracias!`
+    );
+    const telLimpio = (p.telefono||'')
+      .replace(/\D/g,'');
+    const waLink = telLimpio
+      ? `https://wa.me/57${telLimpio}?text=${msgWhatsApp}`
+      : `https://wa.me/?text=${msgWhatsApp}`;
+
+    return `
+    <div class="admin-row" style="flex-direction:column;align-items:stretch;border-left:4px solid ${diasColor};">
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <strong style="min-width:70px;">${esc(p.codigo)}</strong>
+        <span class="grow">${esc(p.nombre)} — ${esc(p.sector)}</span>
+        <span style="color:${diasColor};font-weight:700;font-size:.88rem;">
+          ${mesesTexto}
+        </span>
+        ${p.meses >= 1
+          ? `<span class="badge-drop alert"><i class="fa-solid fa-lock"></i> Restringido</span>`
+          : ''}
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center;">
+        <span style="font-size:.78rem;color:var(--ink-soft);">Tel:</span>
+        <input type="tel" id="mor-tel-${p.id}" value="${esc(p.telefono||'')}" placeholder="300 123 4567"
+          style="max-width:160px;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--gray);font-size:.85rem;">
+        <button class="mini-btn save" onclick="guardarTelefonoMoroso(${JSON.stringify(p.id)},${esc(JSON.stringify('mor-tel-'+p.id))})">
+          <i class="fa-solid fa-floppy-disk"></i>
+        </button>
+        <a href="${esc(waLink)}" target="_blank" class="mini-btn save" style="text-decoration:none;background:rgba(37,211,102,.15);color:#128C7E;">
+          <i class="fa-brands fa-whatsapp"></i> Enviar recordatorio
+        </a>
+        <button class="mini-btn save" onclick="marcarAlDiaDesdeMorosos(${JSON.stringify(p.id)})">
+          <i class="fa-solid fa-circle-check"></i> Marcar al día
+        </button>
+      </div>
+    </div>`;
+  }).join('') || `
+    <div style="text-align:center;padding:40px;color:var(--ink-soft);">
+      <i class="fa-solid fa-circle-check" style="font-size:2rem;color:var(--green);display:block;margin-bottom:10px;"></i>
+      Todos los propietarios están al día. ¡Excelente!
+    </div>`;
+}
+
+async function guardarTelefonoMoroso(id, inputId){
+  const tel = document.getElementById(inputId)?.value||'';
+  if(usingSupabase){
+    try{
+      const {error} = await sbClient.from('propietarios').update({telefono:tel}).eq('id',id);
+      if(error){ showToast('Error: '+error.message); return; }
+    }catch(e){
+      showToast('No se pudo guardar el teléfono: revisa tu conexión a internet.');
+      return;
+    }
+  }
+  const p = STATE.propietarios.find(p=>p.id===id);
+  if(p) p.telefono = tel;
+  showToast('Teléfono guardado.');
+}
+
+async function marcarAlDiaDesdeMorosos(id){
+  const p = STATE.propietarios.find(p=>p.id===id);
+  if(!p) return;
+  const hoy = new Date().toISOString().slice(0,10);
+  if(usingSupabase){
+    try{
+      const {error} = await sbClient.from('propietarios').update({estado_pago:'Al día', ultimo_pago:hoy}).eq('id',id);
+      if(error){ showToast('Error: '+error.message); return; }
+    }catch(e){
+      showToast('No se pudo actualizar: revisa tu conexión a internet.');
+      return;
+    }
+  }
+  p.estado_pago = 'Al día';
+  p.ultimo_pago = hoy;
+  renderMorosos();
+  renderAdminPropietarios();
+  showToast('Propietario marcado como Al día.');
+  // Mismo patrón ya usado en guardarPropietario(): registrar el ingreso
+  // conciliado en Contabilidad, para que marcar "Al día" desde cualquiera
+  // de las dos pantallas (Propietarios o Morosos) quede siempre reflejado.
+  if(usingSupabase){
+    const catMensualidad = CATEGORIAS_CONTA.find(c=>c.nombre==='Mensualidad');
+    const movRow = {tipo:'ingreso', categoria_id: catMensualidad?.id||null, fecha: hoy, valor: VALOR_MENSUALIDAD(), descripcion:`Mensualidad de agua — ${p.nombre} (${p.codigo})`, propietario_codigo: p.codigo, conciliado:true};
+    try{
+      const {data, error} = await sbClient.from('contabilidad_movimientos').insert(movRow).select('*, contabilidad_categorias(nombre,color,icono)');
+      if(!error && data){
+        MOVIMIENTOS_CONTA.unshift(data[0]);
+        renderDashboardContabilidad();
+        renderHistorialContabilidad();
+        renderGraficaContabilidad();
+        cargarFiltroMeses();
+      }
+    }catch(e){
+      console.warn('No se pudo registrar el ingreso en Contabilidad:', e);
+    }
+  }
+  enviarComprobante(p);
+}
+
+function recordatorioMasivoWhatsApp(){
+  const morosos = getMorosos()
+    .filter(p => p.telefono);
+  if(morosos.length === 0){
+    showToast(
+      'Ningún moroso tiene teléfono registrado. ' +
+      'Agrega los teléfonos primero.'
+    );
+    return;
+  }
+  showToast(
+    `Abriendo WhatsApp para ${morosos.length} propietarios uno por uno...`
+  );
+  let i = 0;
+  function abrirSiguiente(){
+    if(i >= morosos.length) return;
+    const p = morosos[i];
+    const msg = encodeURIComponent(
+      `Hola ${p.nombre}, le recordamos que tiene ` +
+      `pendiente el pago mensual de $10.000 ` +
+      `de su suscripción en la plataforma de ` +
+      `turnos de agua Limonar Sector II ` +
+      `(código ${p.codigo}). ¡Gracias!`
+    );
+    const tel = p.telefono.replace(/\D/g,'');
+    window.open(
+      `https://wa.me/57${tel}?text=${msg}`,
+      '_blank'
+    );
+    i++;
+    if(i < morosos.length){
+      setTimeout(abrirSiguiente, 1500);
+    }
+  }
+  abrirSiguiente();
+}
+
+function exportarListaMorosos(){
+  const morosos = getMorosos();
+  const bom = '﻿';
+  const enc = 'Código;Nombre;Sector;Teléfono;Último pago;Meses de atraso\n';
+  const csvEsc = v => '"' + String(v==null?'':v).replace(/"/g,'""') + '"';
+  const filas = morosos.map(p=>
+    [p.codigo, p.nombre, p.sector, p.telefono||'', p.ultimo_pago||'Sin registro', p.meses>=99?'Sin pago':p.meses]
+      .map(csvEsc).join(';')
+  ).join('\n');
+  const blob = new Blob([bom+enc+filas], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url;
+  a.download='morosos-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Lista exportada.');
+}
+
+/* =========================================================
+   RESTRICCIÓN DE ACCESO — visible al propietario
+   ========================================================= */
+function verificarRestriccion(propietario){
+  const meses = calcularMesesSinPagar(propietario.ultimo_pago);
+  if(meses < 1) return null;
+  const mensajeWa = encodeURIComponent('Hola, quiero regularizar mi pago. Mi código es '+propietario.codigo);
+  const waHref = `https://wa.me/${CONFIG.whatsapp_encargado}?text=${mensajeWa}`;
+  return `
+    <div style="background:rgba(211,47,47,.08);border:1.5px solid #D32F2F;border-radius:14px;padding:18px;margin-top:14px;">
+      <p style="color:#D32F2F;font-weight:700;margin-bottom:6px;">
+        <i class="fa-solid fa-triangle-exclamation"></i> Acceso restringido
+      </p>
+      <p style="font-size:.9rem;color:var(--ink-soft);">
+        Tu suscripción tiene <strong>${meses} mes${meses>1?'es':''} de atraso</strong>.
+        Para ver tu turno completo y recibir notificaciones, regulariza tu pago de
+        <strong>$10.000/mes</strong>.
+      </p>
+      <a href="${esc(waHref)}" target="_blank" class="btn btn-green btn-sm" style="margin-top:10px;display:inline-flex;">
+        <i class="fa-brands fa-whatsapp"></i> Regularizar pago
+      </a>
+    </div>`;
 }
 
 /* =========================================================
