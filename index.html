@@ -750,11 +750,21 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
       <div><h4>Navegación</h4><a href="#consulta">Mi turno</a><a href="#mensualidad">Mensualidades</a><a href="#reportar">Reportar daño</a></div>
       <div><h4>Contacto</h4><a href="#contacto">Escríbenos</a><a href="tel:+573170427446" id="footerTel">+57 317 042 7446</a><a href="#">Soacha, Cundinamarca</a></div>
     </div>
-    <div class="footer-bottom">© <span id="year"></span> Gestión del Agua Limonar Sector II. Todos los derechos reservados.</div>
+    <div class="footer-bottom">
+      © <span id="year"></span>
+      Gestión del Agua Limonar Sector II.
+      Todos los derechos reservados.
+      <span style="opacity:.6;">·</span>
+      Creado por
+      <strong style="color:var(--sky);">
+        Mateo Castro
+      </strong>
+    </div>
   </div>
 </footer>
 
 <!-- ============ FLOATING BUTTONS ============ -->
+<button class="fab" style="bottom:166px;background:var(--blue);" id="fabGuia" title="Guía de uso" aria-label="Abrir guía de uso" onclick="abrirGuia()"><i class="fa-solid fa-circle-question"></i></button>
 <a href="https://wa.me/573170427446" target="_blank" class="fab fab-whats" id="fabWhats" title="WhatsApp" aria-label="Escribir por WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
 <button class="fab fab-top" id="toTop" title="Volver arriba" aria-label="Volver arriba"><i class="fa-solid fa-arrow-up"></i></button>
 <button class="admin-toggle" id="adminToggleBtn" title="Panel administrativo" aria-label="Abrir panel administrativo"><i class="fa-solid fa-lock"></i></button>
@@ -1279,6 +1289,11 @@ async function loadAll(){
   renderMantenimientos();
   renderAdminLists();
   updateStatCounters();
+  setTimeout(() => {
+    if(!localStorage.getItem('guia-vista')) {
+      abrirGuia();
+    }
+  }, 1500);
 }
 async function updateStatCounters(){
   const viviendas = document.getElementById("statViviendas");
@@ -2898,6 +2913,155 @@ function verificarRestriccion(propietario){
 }
 
 /* =========================================================
+   GUÍA DE USO DEL SISTEMA
+   ========================================================= */
+const GUIA_PASOS = [
+  {
+    icono: '👋',
+    titulo: '¡Hola, propietario!',
+    texto: `Esta plataforma fue creada para organizar los turnos de agua de <strong>Limonar Sector II</strong> de forma clara, justa y transparente.<br><br>
+      En menos de 2 minutos te explicamos cómo funciona y cómo sacarle el máximo provecho desde tu celular.`,
+    accion: null
+  },
+  {
+    icono: '🔑',
+    titulo: 'Tu código personal',
+    texto: `Cada propietario tiene un código único: <strong>LM001, LM002... hasta LM300</strong>.<br><br>
+      Este código es tuyo y solo tuyo. Con él puedes consultar tu turno, ver tu estado de pago y activar las notificaciones en tu celular.<br><br>
+      <em>¿No sabes tu código? Comunícate con el encargado por WhatsApp.</em>`,
+    accion: null
+  },
+  {
+    icono: '💧',
+    titulo: 'Consulta tu turno',
+    texto: `Ve a la sección <strong>"Mi turno"</strong> en el menú de arriba.<br><br>
+      Escribe tu código (ejemplo: <strong>LM045</strong>) y en segundos verás:<br><br>
+      ✅ Tu día y hora exacta de turno<br>
+      ✅ Si estás al día con el pago<br>
+      ✅ El estado actual (Próximo, En curso o Completado)`,
+    accion: { texto: 'Ir a Mi turno', href: '#consulta' }
+  },
+  {
+    icono: '🔔',
+    titulo: 'Activa las notificaciones',
+    texto: `Después de consultar tu turno, verás el botón <strong>"Activar notificaciones de mi turno"</strong>.<br><br>
+      Al aceptar, tu celular te avisará:<br><br>
+      📱 <strong>10 minutos antes</strong> de que inicie tu turno<br>
+      📱 <strong>Cuando comienza</strong> tu turno<br>
+      📱 <strong>5 minutos antes</strong> de que termine<br><br>
+      <em>En iPhone: agrega esta página a tu pantalla de inicio para que funcionen las notificaciones.</em>`,
+    accion: null
+  },
+  {
+    icono: '💰',
+    titulo: 'Tu pago mensual',
+    texto: `La suscripción mensual cuesta <strong>$10.000</strong> e incluye:<br><br>
+      ✅ Acceso a esta plataforma<br>
+      ✅ Notificaciones automáticas<br>
+      ✅ Comprobante digital de pago<br>
+      ✅ Mantenimiento preventivo de la manguera principal<br><br>
+      Cuando pagues, el encargado te marca <strong>"Al día"</strong> en el sistema y recibes tu comprobante automáticamente.`,
+    accion: { texto: 'Ver detalles del plan', href: '#mensualidad' }
+  },
+  {
+    icono: '📊',
+    titulo: 'Todo es transparente',
+    texto: `Cada peso que pagas queda registrado en el sistema de <strong>Contabilidad</strong> del encargado: ingresos, gastos y saldo disponible, con soporte de cada movimiento.<br><br>
+      Tu dinero está registrado. Nada se pierde, nada se esconde. Si quieres conocer el detalle, puedes pedirlo directamente por WhatsApp.`,
+    accion: { texto: 'Preguntar por WhatsApp', href: '#contacto' }
+  },
+  {
+    icono: '🔧',
+    titulo: '¿Quieres conectarte al agua?',
+    texto: `Si tu vivienda aún no está conectada a la manguera principal, el costo es <strong>$150.000 único</strong> e incluye:<br><br>
+      ✅ Registro oficial como propietario<br>
+      ✅ Acometida tipo "T" a la manguera principal<br>
+      ✅ Tu código personal en la plataforma<br><br>
+      <em>No incluye instalación interior de tu vivienda.</em>`,
+    accion: { texto: 'Ver más información', href: '#conexion' }
+  },
+  {
+    icono: '✅',
+    titulo: '¡Listo para empezar!',
+    texto: `Ya sabes cómo funciona la plataforma. Empieza consultando tu turno ahora mismo.<br><br>
+      Si tienes dudas, escríbenos por WhatsApp — estamos para ayudarte.<br><br>
+      <em>Puedes volver a ver esta guía en cualquier momento tocando el botón <strong>?</strong> azul de la pantalla.</em>`,
+    accion: { texto: '💧 Consultar mi turno', href: '#consulta', cerrar: true }
+  }
+];
+
+let guiaPasoActual = 0;
+
+function abrirGuia(){
+  guiaPasoActual = 0;
+  renderGuiaPaso();
+  openModal('guia');
+}
+
+function cerrarGuia(){
+  localStorage.setItem('guia-vista', '1');
+  closeModal('guia');
+}
+
+function guiaPaso(direccion){
+  guiaPasoActual += direccion;
+  if(guiaPasoActual < 0) guiaPasoActual = 0;
+  if(guiaPasoActual >= GUIA_PASOS.length) guiaPasoActual = GUIA_PASOS.length - 1;
+  renderGuiaPaso();
+}
+
+function renderGuiaPaso(){
+  const paso = GUIA_PASOS[guiaPasoActual];
+  const total = GUIA_PASOS.length;
+  const esUltimo = guiaPasoActual === total - 1;
+  const esPrimero = guiaPasoActual === 0;
+
+  // Dots indicadores
+  const dots = document.getElementById('guia-dots');
+  if(dots){
+    dots.innerHTML = GUIA_PASOS.map((_,i) =>
+      `<div style="width:${i===guiaPasoActual?20:8}px;height:8px;border-radius:999px;background:${i===guiaPasoActual?'#fff':'rgba(255,255,255,.4)'};transition:all .3s ease;"></div>`
+    ).join('');
+  }
+
+  // Contenido
+  const contenido = document.getElementById('guia-contenido');
+  if(contenido){
+    contenido.innerHTML = `
+      <div style="font-size:2.2rem;margin-bottom:12px;line-height:1;">${paso.icono}</div>
+      <h3 style="margin-bottom:12px;font-size:1.15rem;">${paso.titulo}</h3>
+      <p style="color:var(--ink-soft);font-size:.95rem;line-height:1.7;">${paso.texto}</p>
+      ${paso.accion ? `
+        <a href="${paso.accion.href}" class="btn btn-outline btn-sm" style="margin-top:16px;display:inline-flex;" onclick="${paso.accion.cerrar?'cerrarGuia()':''}">
+          ${paso.accion.texto}
+        </a>` : ''}
+    `;
+  }
+
+  // Contador
+  const contador = document.getElementById('guia-contador');
+  if(contador){
+    contador.textContent = `${guiaPasoActual+1} de ${total}`;
+  }
+
+  // Botones
+  const btnAnterior = document.getElementById('guia-btn-anterior');
+  const btnSiguiente = document.getElementById('guia-btn-siguiente');
+  if(btnAnterior){
+    btnAnterior.style.visibility = esPrimero ? 'hidden' : 'visible';
+  }
+  if(btnSiguiente){
+    if(esUltimo){
+      btnSiguiente.textContent = '✓ Entendido';
+      btnSiguiente.onclick = cerrarGuia;
+    } else {
+      btnSiguiente.textContent = 'Siguiente →';
+      btnSiguiente.onclick = () => guiaPaso(1);
+    }
+  }
+}
+
+/* =========================================================
    INIT
    ========================================================= */
 loadAll();
@@ -2908,5 +3072,37 @@ if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/GestionDelAguaLinonarSector2/sw.js').catch(()=>{});
 }
 </script>
+
+<!-- ============ GUÍA DE USO MODAL ============ -->
+<div class="modal-overlay" id="modal-guia" style="align-items:flex-start;padding:20px;overflow-y:auto;">
+  <div class="modal-box" style="max-width:560px;width:100%;margin:auto;padding:0;overflow:hidden;">
+
+    <!-- Encabezado -->
+    <div style="background:linear-gradient(135deg,var(--blue),var(--sky));padding:28px 28px 20px;color:#fff;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div style="font-size:1.8rem;margin-bottom:6px;">💧</div>
+          <h3 style="color:#fff;font-size:1.3rem;margin-bottom:4px;">Bienvenido a la plataforma</h3>
+          <p style="opacity:.9;font-size:.9rem;">Gestión del Agua Limonar Sector II</p>
+        </div>
+        <button onclick="cerrarGuia()" aria-label="Cerrar guía" style="background:rgba(255,255,255,.2);border:none;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1.1rem;flex-shrink:0;">✕</button>
+      </div>
+
+      <!-- Pasos indicadores -->
+      <div style="display:flex;gap:6px;margin-top:16px;" id="guia-dots"></div>
+    </div>
+
+    <!-- Contenido del paso -->
+    <div style="padding:24px 28px;" id="guia-contenido"></div>
+
+    <!-- Navegación -->
+    <div style="padding:0 28px 24px;display:flex;justify-content:space-between;align-items:center;gap:10px;">
+      <button class="btn btn-outline btn-sm" id="guia-btn-anterior" onclick="guiaPaso(-1)">← Anterior</button>
+      <span id="guia-contador" style="font-size:.82rem;color:var(--ink-soft);"></span>
+      <button class="btn btn-primary btn-sm" id="guia-btn-siguiente" onclick="guiaPaso(1)">Siguiente →</button>
+    </div>
+
+  </div>
+</div>
 </body>
 </html>
