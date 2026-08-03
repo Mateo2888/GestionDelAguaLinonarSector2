@@ -1232,6 +1232,11 @@ let STATE = JSON.parse(JSON.stringify(DEMO));
 STATE.afiliaciones = [];
 STATE.mensualidades = [];
 STATE.propietarios = [];
+// Copia pública y reducida de propietarios (solo lo necesario para
+// calcular turnos), separada de STATE.propietarios a propósito — ver
+// nota en loadAll(). La usan guardarEstadoOffline()/cargarEstadoOffline()
+// y la consulta de "Mi turno" cuando no hay conexión.
+let PROPIETARIOS_OFFLINE = [];
 
 /* =========================================================
    CONFIGURACIÓN DEL SISTEMA (tabla "configuracion" en Supabase,
@@ -1304,6 +1309,21 @@ async function loadAll(){
     }else if(failed.length > 0){
       showToast("Algunas secciones no cargaron datos actualizados. Recarga la página.");
     }
+    // Copia mínima de propietarios (solo lo necesario para calcular el
+    // turno: código, nombre, sector, posición, estado de pago) para que
+    // la consulta offline tenga datos reales que buscar. Se guarda
+    // aparte de STATE.propietarios a propósito — esa variable la usa
+    // renderAdminPropietarios(), que ya se llama para cualquier
+    // visitante (no solo el admin), y no debe quedar rellena con datos
+    // reales (incluyendo correo/teléfono) antes de iniciar sesión.
+    try{
+      const {data: propsOffline} = await sbClient.from('propietarios')
+        .select('codigo,nombre,sector,posicion,activo,turno_fecha_manual,turno_inicio_manual,turno_fin_manual,estado_pago,ultimo_pago')
+        .eq('activo', true);
+      if(propsOffline) PROPIETARIOS_OFFLINE = propsOffline;
+    }catch(e){
+      console.warn('No se pudo preparar la copia de propietarios para modo offline:', e);
+    }
   }
   aplicarConfigEnVivo();
   renderNoticias();
@@ -1318,7 +1338,7 @@ async function loadAll(){
     // guardados en cache en vez de una consulta en vivo a Supabase.
     const viviendas = document.getElementById("statViviendas");
     const mantenimientosEl = document.getElementById("statMantenimientos");
-    if(viviendas) viviendas.dataset.count = STATE.propietarios.filter(p=>p.activo).length;
+    if(viviendas) viviendas.dataset.count = PROPIETARIOS_OFFLINE.filter(p=>p.activo).length;
     if(mantenimientosEl) mantenimientosEl.dataset.count = STATE.mantenimientos.length;
     animateCounters();
   }
@@ -1574,13 +1594,13 @@ document.getElementById("turnoForm").addEventListener("submit", async function(e
   // Sin conexión: calcular el turno con la copia de propietarios
   // guardada la última vez que el sitio cargó con internet.
   if(!navigator.onLine){
-    const data = STATE.propietarios.find(p => p.activo && p.codigo === codigo);
+    const data = PROPIETARIOS_OFFLINE.find(p => p.activo && p.codigo === codigo);
     if(!data){
       resultBox.style.display = "block";
       resultBox.innerHTML = `<p style="color:#D32F2F;">Código no encontrado en la información guardada sin conexión. Verifica que esté bien escrito o intenta de nuevo cuando tengas internet.</p>`;
       return;
     }
-    const totalActivos = STATE.propietarios.filter(p=>p.activo).length || 1;
+    const totalActivos = PROPIETARIOS_OFFLINE.filter(p=>p.activo).length || 1;
     mostrarResultadoTurno(data, calcularTurno(data, totalActivos));
     return;
   }
@@ -1604,9 +1624,9 @@ document.getElementById("turnoForm").addEventListener("submit", async function(e
     // internet real (wifi sin salida, por ejemplo) — si la consulta en
     // vivo falla por una excepción de red, intentar con la copia local
     // antes de rendirse.
-    const cachedProp = STATE.propietarios.find(p => p.activo && p.codigo === codigo);
+    const cachedProp = PROPIETARIOS_OFFLINE.find(p => p.activo && p.codigo === codigo);
     if(cachedProp){
-      const totalActivos = STATE.propietarios.filter(p=>p.activo).length || 1;
+      const totalActivos = PROPIETARIOS_OFFLINE.filter(p=>p.activo).length || 1;
       mostrarResultadoTurno(cachedProp, calcularTurno(cachedProp, totalActivos));
     }else{
       resultBox.style.display = "block";
@@ -3149,7 +3169,7 @@ async function guardarEstadoOffline(){
       noticias: STATE.noticias,
       galeria: STATE.galeria,
       mantenimientos: STATE.mantenimientos,
-      propietarios: STATE.propietarios
+      propietarios: PROPIETARIOS_OFFLINE
     }));
     localStorage.setItem('limonar-cache-fecha', new Date().toISOString());
   }catch(e){
@@ -3169,7 +3189,7 @@ function cargarEstadoOffline(){
         STATE.noticias = datos.noticias || [];
         STATE.galeria = datos.galeria || [];
         STATE.mantenimientos = datos.mantenimientos || [];
-        STATE.propietarios = datos.propietarios || [];
+        PROPIETARIOS_OFFLINE = datos.propietarios || [];
         return true;
       }
     }
