@@ -443,6 +443,24 @@ footer{background:var(--ink); color:#B9CBD6; padding:56px 0 24px;}
 @media (prefers-reduced-motion: reduce){
   *{animation-duration:.001ms !important; transition-duration:.001ms !important;}
 }
+
+/* Aviso offline */
+.offline-banner{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  background:#E65100;
+  color:#fff;
+  text-align:center;
+  padding:10px 16px;
+  font-size:.88rem;
+  font-weight:600;
+  z-index:9000;
+  transform:translateY(100%);
+  transition:transform .3s ease;
+}
+.offline-banner.show{
+  transform:translateY(0);
+}
 </style>
 <script type="application/ld+json">
 {
@@ -1247,7 +1265,11 @@ function showLoadingState(){
   document.getElementById("maintTimeline").innerHTML = `<div class="loading-state">${spinner}</div>`;
 }
 async function loadAll(){
-  if(usingSupabase){
+  if(!navigator.onLine){
+    // Sin conexión: no intentar la red (fallaría de todas formas),
+    // usar la copia guardada la última vez que hubo internet.
+    cargarEstadoOffline();
+  }else if(usingSupabase){
     try{
       const {data: configData} = await sbClient.from('configuracion').select('*');
       if(configData) configData.forEach(row=>{ CONFIG[row.clave] = row.valor; });
@@ -1288,7 +1310,18 @@ async function loadAll(){
   renderGaleria();
   renderMantenimientos();
   renderAdminLists();
-  updateStatCounters();
+  if(navigator.onLine){
+    updateStatCounters();
+    guardarEstadoOffline();
+  }else{
+    // Mismo cálculo que updateStatCounters(), pero sobre los datos
+    // guardados en cache en vez de una consulta en vivo a Supabase.
+    const viviendas = document.getElementById("statViviendas");
+    const mantenimientosEl = document.getElementById("statMantenimientos");
+    if(viviendas) viviendas.dataset.count = STATE.propietarios.filter(p=>p.activo).length;
+    if(mantenimientosEl) mantenimientosEl.dataset.count = STATE.mantenimientos.length;
+    animateCounters();
+  }
   setTimeout(() => {
     if(!localStorage.getItem('guia-vista')) {
       abrirGuia();
@@ -1500,10 +1533,58 @@ function turnoBadge(estado){
   return `<span class="badge-drop ${map[estado]||'pend'}"><i class="fa-solid fa-droplet"></i> ${estado}</span>`;
 }
 
+// Pinta la tarjeta de resultado de "Mi turno" — la usan tanto la
+// consulta en vivo (Supabase) como la consulta sin conexión (cache
+// local), para que ambas se vean y se comporten exactamente igual.
+function mostrarResultadoTurno(data, r){
+  const resultBox = document.getElementById("turnoResultado");
+  window.turnoResultadoActual = r;
+  resultBox.style.display = "block";
+  resultBox.innerHTML = `
+    <div class="card">
+      <h3>${esc(r.nombre)} <span style="font-size:.8rem;color:var(--ink-soft);">(${esc(r.codigo)})</span></h3>
+      <div class="grid-2" style="margin-top:16px;gap:14px;">
+        <div><strong>Sector:</strong> ${esc(r.sector)}</div>
+        <div><strong>Turno N°:</strong> ${r.numeroTurno}</div>
+        <div><strong>Día:</strong> ${r.dia}</div>
+        <div><strong>Fecha:</strong> ${r.fecha}</div>
+        <div><strong>Hora inicio:</strong> ${r.horaInicio}</div>
+        <div><strong>Hora fin:</strong> ${r.horaFin}</div>
+      </div>
+      <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        ${turnoBadge(r.estado)}
+        ${pagoBadge(data.estado_pago)}
+      </div>
+      ${verificarRestriccion(data) || ""}
+      ${data.estado_pago==="Al día" && data.ultimo_pago ? `<p style="font-size:.85rem;color:var(--ink-soft);margin-top:10px;">Último pago registrado: ${formatDate(data.ultimo_pago)}</p>` : ""}
+      <div style="margin-top:16px;">
+        <button class="btn btn-outline btn-sm" onclick="activarNotificaciones(${esc(JSON.stringify(r.codigo))}, window.turnoResultadoActual)">
+          <i class="fa-solid fa-bell"></i> Activar notificaciones de mi turno
+        </button>
+        <p style="font-size:.78rem;color:var(--ink-soft);margin-top:8px;">En iPhone, primero agrega este sitio a tu pantalla de inicio (compartir → "Agregar a pantalla de inicio") para que las notificaciones funcionen.</p>
+      </div>
+    </div>`;
+}
+
 document.getElementById("turnoForm").addEventListener("submit", async function(e){
   e.preventDefault();
   const codigo = document.getElementById("turnoCodigo").value.trim().toUpperCase();
   const resultBox = document.getElementById("turnoResultado");
+
+  // Sin conexión: calcular el turno con la copia de propietarios
+  // guardada la última vez que el sitio cargó con internet.
+  if(!navigator.onLine){
+    const data = STATE.propietarios.find(p => p.activo && p.codigo === codigo);
+    if(!data){
+      resultBox.style.display = "block";
+      resultBox.innerHTML = `<p style="color:#D32F2F;">Código no encontrado en la información guardada sin conexión. Verifica que esté bien escrito o intenta de nuevo cuando tengas internet.</p>`;
+      return;
+    }
+    const totalActivos = STATE.propietarios.filter(p=>p.activo).length || 1;
+    mostrarResultadoTurno(data, calcularTurno(data, totalActivos));
+    return;
+  }
+
   if(!usingSupabase){
     resultBox.style.display = "block";
     resultBox.innerHTML = `<p style="color:#D32F2F;">Conecta Supabase para activar la consulta real de turnos.</p>`;
@@ -1517,36 +1598,20 @@ document.getElementById("turnoForm").addEventListener("submit", async function(e
       return;
     }
     const {count} = await sbClient.from("propietarios").select("*", {count:"exact", head:true}).eq("activo", true);
-    const r = calcularTurno(data, count || 1);
-    window.turnoResultadoActual = r;
-    resultBox.style.display = "block";
-    resultBox.innerHTML = `
-      <div class="card">
-        <h3>${esc(r.nombre)} <span style="font-size:.8rem;color:var(--ink-soft);">(${esc(r.codigo)})</span></h3>
-        <div class="grid-2" style="margin-top:16px;gap:14px;">
-          <div><strong>Sector:</strong> ${esc(r.sector)}</div>
-          <div><strong>Turno N°:</strong> ${r.numeroTurno}</div>
-          <div><strong>Día:</strong> ${r.dia}</div>
-          <div><strong>Fecha:</strong> ${r.fecha}</div>
-          <div><strong>Hora inicio:</strong> ${r.horaInicio}</div>
-          <div><strong>Hora fin:</strong> ${r.horaFin}</div>
-        </div>
-        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-          ${turnoBadge(r.estado)}
-          ${pagoBadge(data.estado_pago)}
-        </div>
-        ${verificarRestriccion(data) || ""}
-        ${data.estado_pago==="Al día" && data.ultimo_pago ? `<p style="font-size:.85rem;color:var(--ink-soft);margin-top:10px;">Último pago registrado: ${formatDate(data.ultimo_pago)}</p>` : ""}
-        <div style="margin-top:16px;">
-          <button class="btn btn-outline btn-sm" onclick="activarNotificaciones(${esc(JSON.stringify(r.codigo))}, window.turnoResultadoActual)">
-            <i class="fa-solid fa-bell"></i> Activar notificaciones de mi turno
-          </button>
-          <p style="font-size:.78rem;color:var(--ink-soft);margin-top:8px;">En iPhone, primero agrega este sitio a tu pantalla de inicio (compartir → "Agregar a pantalla de inicio") para que las notificaciones funcionen.</p>
-        </div>
-      </div>`;
+    mostrarResultadoTurno(data, calcularTurno(data, count || 1));
   }catch(e){
-    resultBox.style.display = "block";
-    resultBox.innerHTML = `<p style="color:#D32F2F;">No se pudo consultar: revisa tu conexión a internet e intenta de nuevo.</p>`;
+    // navigator.onLine puede reportar "conectado" aunque no haya
+    // internet real (wifi sin salida, por ejemplo) — si la consulta en
+    // vivo falla por una excepción de red, intentar con la copia local
+    // antes de rendirse.
+    const cachedProp = STATE.propietarios.find(p => p.activo && p.codigo === codigo);
+    if(cachedProp){
+      const totalActivos = STATE.propietarios.filter(p=>p.activo).length || 1;
+      mostrarResultadoTurno(cachedProp, calcularTurno(cachedProp, totalActivos));
+    }else{
+      resultBox.style.display = "block";
+      resultBox.innerHTML = `<p style="color:#D32F2F;">No se pudo consultar: revisa tu conexión a internet e intenta de nuevo.</p>`;
+    }
   }
 });
 
@@ -3055,6 +3120,66 @@ function renderGuiaPaso(){
 }
 
 /* =========================================================
+   MODO OFFLINE
+   ========================================================= */
+function actualizarEstadoConexion(){
+  const banner = document.getElementById('offlineBanner');
+  if(!banner) return;
+  if(!navigator.onLine){
+    banner.classList.add('show');
+  } else {
+    banner.classList.remove('show');
+  }
+}
+
+window.addEventListener('online', () => {
+  actualizarEstadoConexion();
+  // Recargar datos desde Supabase al recuperar conexión
+  loadAll();
+});
+window.addEventListener('offline', actualizarEstadoConexion);
+actualizarEstadoConexion();
+
+// Respaldo offline: guarda una copia de lo público (noticias, galería,
+// mantenimientos) y de los propietarios (necesarios para calcular el
+// turno sin conexión) cada vez que loadAll() logra traer datos frescos.
+async function guardarEstadoOffline(){
+  try{
+    localStorage.setItem('limonar-estado-offline', JSON.stringify({
+      noticias: STATE.noticias,
+      galeria: STATE.galeria,
+      mantenimientos: STATE.mantenimientos,
+      propietarios: STATE.propietarios
+    }));
+    localStorage.setItem('limonar-cache-fecha', new Date().toISOString());
+  }catch(e){
+    console.warn('No se pudo guardar cache offline:', e);
+  }
+}
+
+function cargarEstadoOffline(){
+  try{
+    const cached = localStorage.getItem('limonar-estado-offline');
+    const fecha = localStorage.getItem('limonar-cache-fecha');
+    if(cached && fecha){
+      const diasDesde = (new Date() - new Date(fecha)) / (1000*60*60*24);
+      // Usar cache si tiene menos de 7 días
+      if(diasDesde < 7){
+        const datos = JSON.parse(cached);
+        STATE.noticias = datos.noticias || [];
+        STATE.galeria = datos.galeria || [];
+        STATE.mantenimientos = datos.mantenimientos || [];
+        STATE.propietarios = datos.propietarios || [];
+        return true;
+      }
+    }
+  }catch(e){
+    console.warn('Error cargando cache offline:', e);
+  }
+  return false;
+}
+
+/* =========================================================
    INIT
    ========================================================= */
 loadAll();
@@ -3096,6 +3221,11 @@ if('serviceWorker' in navigator){
     </div>
 
   </div>
+</div>
+
+<div class="offline-banner" id="offlineBanner">
+  <i class="fa-solid fa-wifi" style="text-decoration:line-through;margin-right:6px;"></i>
+  Sin conexión — Mostrando información guardada. El turno se calcula sin internet.
 </div>
 </body>
 </html>
