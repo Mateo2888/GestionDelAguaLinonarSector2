@@ -60,6 +60,19 @@ self.addEventListener('fetch', event => {
   // Ignorar peticiones que no son GET
   if(event.request.method !== 'GET') return;
 
+  // Cualquier navegación (abrir la URL, un marcador, el ícono de la
+  // app instalada) que falle por falta de red cae siempre al
+  // index.html cacheado, sin importar variaciones exactas de la ruta
+  // (con o sin barra final, parámetros añadidos por GitHub Pages, etc.)
+  if(event.request.mode === 'navigate'){
+    event.respondWith(
+      fetch(event.request).catch(() =>
+        caches.match('/GestionDelAguaLinonarSector2/index.html')
+      )
+    );
+    return;
+  }
+
   // Ignorar peticiones a Supabase API
   // (datos en tiempo real, no cachear)
   if(url.hostname.includes('supabase.co') &&
