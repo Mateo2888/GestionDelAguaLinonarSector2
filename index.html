@@ -1514,18 +1514,45 @@ function calcularTurno(prop, totalActivos){
     const fin = new Date(`${prop.turno_fecha_manual}T${prop.turno_fin_manual}`);
     return construirResultadoTurno(prop, inicio, fin, true);
   }
-  const duracionHoras = TURNO_DURACION_HORAS();
-  const cicloInicio = CICLO_INICIO();
-  const cicloHoras = Math.max(totalActivos,1) * duracionHoras;
+  const duracion = TURNO_DURACION_HORAS();
+  const cicloBase = CICLO_INICIO();
   const ahora = new Date();
-  const horasDesdeInicio = (ahora - cicloInicio) / 3600000;
-  let numCiclo = Math.floor(horasDesdeInicio / cicloHoras);
-  let inicio = new Date(cicloInicio.getTime() + (numCiclo*cicloHoras + prop.posicion*duracionHoras) * 3600000);
-  let fin = new Date(inicio.getTime() + duracionHoras*3600000);
+
+  // 1. Hora del día SIEMPRE anclada dentro de 24h — depende solo de la
+  //    posición y la duración del turno, nunca del total de propietarios.
+  //    Así, agregar/quitar propietarios (o cambiar totalActivos) nunca
+  //    puede desfasar la hora de nadie, aunque totalActivos*duracion ya
+  //    no sea múltiplo exacto de 24.
+  const minutosDesdeInicioDia = (prop.posicion * duracion * 60) % (24 * 60);
+  const horaAnclada = Math.floor(minutosDesdeInicioDia / 60);
+  const minutoAnclado = minutosDesdeInicioDia % 60;
+
+  // 2. Día de offset dentro del ciclo que le corresponde por su posición.
+  const diaOffsetEnCiclo = Math.floor((prop.posicion * duracion) / 24);
+
+  // 3. Días completos que ocupa un ciclo completo del roster (redondeado
+  //    hacia arriba para que el último propietario nunca se encime con
+  //    el primero del ciclo siguiente).
+  const diasPorCiclo = Math.max(1, Math.ceil((totalActivos * duracion) / 24));
+
+  // 4. Ciclo actual, contado en días completos desde el inicio del ciclo base.
+  const diasDesdeInicio = Math.floor((ahora - cicloBase) / (1000*60*60*24));
+  let numCiclo = Math.floor(diasDesdeInicio / diasPorCiclo);
+
+  function calcularInicioParaCiclo(ciclo){
+    const diaAbsoluto = ciclo * diasPorCiclo + diaOffsetEnCiclo;
+    const inicio = new Date(cicloBase.getTime());
+    inicio.setDate(inicio.getDate() + diaAbsoluto);
+    inicio.setHours(horaAnclada, minutoAnclado, 0, 0);
+    return inicio;
+  }
+
+  let inicio = calcularInicioParaCiclo(numCiclo);
+  let fin = new Date(inicio.getTime() + duracion * 3600000);
   if(ahora > fin){
     numCiclo += 1;
-    inicio = new Date(cicloInicio.getTime() + (numCiclo*cicloHoras + prop.posicion*duracionHoras) * 3600000);
-    fin = new Date(inicio.getTime() + duracionHoras*3600000);
+    inicio = calcularInicioParaCiclo(numCiclo);
+    fin = new Date(inicio.getTime() + duracion * 3600000);
   }
   return construirResultadoTurno(prop, inicio, fin, false);
 }
